@@ -1,0 +1,144 @@
+2014-03-26 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.4
+    * Zombie processes are now properly reaped using SIG_IGN
+    * New printing directive %C
+
+2012-11-11 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.3
+    * Output option "hex-caps" implemented
+    * Performance enhacements for large number of expression values. Usefull when reading expression values from large file, see expression keyword "file:"
+
+2011-04-10 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.2
+    * Input preprocessor implemented
+    * Printing whitespace separated data with printing directive %t works now
+
+2010-09-15 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.1
+    * Record keyword "level" and printing keywords "group-header", "group-trailer", "element-header" and "element-trailer implemented. These can be used to print flat file contents in structured format (e.g. multilevel XML)
+    * Record keyword "record-length" implemented. This can be used to ignore extra fields that are not defined for a record
+
+2010-03-25 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.0
+    * Having the same field in several expression (option -e,--expression) works now. Earlier only
+    the last expression in command line was used.
+    * Option -X,--casecmp implemented
+
+2009-08-09 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.9
+    * New configuration keyword 'output-file' for printing records to different output files
+
+2008-09-11 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.8
+    * Records can now be identified by regular expressions using new keyword "rid" 
+    * When reading binary input with -l,--loose option, invalid block does not any more cause program to abort. Instead the input is searched until a valid block is found
+
+2008-05-25 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.7
+    * Support for fixed length binary files implemented
+    * Output format "raw" added
+    * Option -I,--info added
+
+2008-05-08 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.6
+    * Output format can be selected in field level
+    * Last field of a fixed length structure can have arbitrary length
+    * Option -d, --debug added
+
+2008-03-16  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.5
+    * New configuration keyword 'field-count'
+    * Command substitution implemented for configuration file. Thanks to Gabor Grothendieck for the idea.
+
+2008-02-29  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.4
+    * A fixed structure with 1 byte long last field does work now
+
+2007-10-29  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.3
+    * "file:" notation added for expression option (option -e)
+
+2007-05-28  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.2
+    * Configuration keyword "const" added
+
+2007-04-25  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.1
+    * records may be selected using regular expressions (option -e,--expression)
+
+2007-04-11  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.2.0
+    * the existence of fields in expressions is now checked against the current structure
+    * replace and expression features work now with data having a header line
+    * lookup will be made only if output directive in use cointains %l or %L directives
+
+2007-03-11  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.1.9
+    * Lookup tables added
+
+2007-02-05  Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.1.8
+    * terminate if field from field-list is not found in the current structure
+    * ensure that header will be printed also when first record is not printed (print_header())
+
+2006-11-05  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.7
+    * directive %p added
+    * option '-r,--replace' added
+
+2006-09-17  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.6
+    * Option '-v' added
+
+2006-06-07  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.5
+    * added option '-a'
+    * print_header: separator prints now correctly (after picture, not after %n)
+
+2006-04-28  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.4
+    * added option '-e'
+
+2006-04-17  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.3
+    * directive %e added
+    * bug corrected: No output when the first line of input was invalid
+
+2006-03-17  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.2
+    * options field-empty-print and empty-chars added for output
+
+2006-03-09  Timo Savinen <tjsa@iki.fi>
+
+    * version 0.1.1
+    * error message for several matching structures
+    * FILLER field added
+    * bug in case where "output no" was defined for record (crash)
+    * bug in file name for stdin
+
+2006-02-05  Timo Savinen <tjsa@iki.fi>
+
+    * ffe: initial version 0.1.0.

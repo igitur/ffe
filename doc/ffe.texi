@@ -1,0 +1,1701 @@
+\input texinfo @c -*-texinfo-*-
+@c This file uses the @command command introduced in Texinfo 4.0.
+@c %**start of header
+@setfilename ffe.info
+@settitle ffe - flat file extractor
+@finalout
+@c %**end of header
+@include version.texi
+
+@ifinfo
+@dircategory Utilities
+@direntry
+* ffe: (ffe).                 Flat File Extractor.
+@end direntry
+@end ifinfo
+
+
+@copying
+This file documents version @value{VERSION} of @command{ffe}, a flat file extractor. 
+
+Copyright @copyright{} 2014 Timo Savinen
+
+@quotation
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+@end quotation
+@end copying
+
+@titlepage
+@title ffe
+@subtitle flat file extractor
+@subtitle Version @value{VERSION}, @value{UPDATED}
+@author by Timo Savinen
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@c All the nodes can be updated using the EMACS command
+@c texinfo-every-node-update, which is normally bound to C-c C-u C-e.
+@ifnottex
+@node Top, Overview, (dir), (dir)
+@top ffe
+
+@insertcopying
+@end ifnottex
+
+
+@c All the menus can be updated with the EMACS command
+@c texinfo-all-menus-update, which is normally bound to C-c C-u C-a.
+@menu
+* Overview::                    Preliminary information.
+* Samples::                     Samples using @command{ffe}.
+* Invoking ffe::                How to run @command{ffe}.
+* ffe configuration::           How @command{ffe} works.
+* Problems::                    Reporting bugs.
+@end menu
+
+@node Overview, Samples, Top, Top
+@chapter Preliminary information
+@cindex greetings
+@cindex overview
+
+The @command{ffe} is a program to extract fields from text and binary flat files and to print them in different
+formats. The input file structure and printing definitions are specified in a configuration file, which
+is always required. Default configuration file is @file{~/.fferc} (@file{ffe.rc} in windows).
+
+@command{ffe} is a command line tool developed for GNU/Linux and UNIX systems. @command{ffe} can read from
+standard input and write to standard output, so it can be used as a part of a pipeline.
+
+There is also binary distribution for windows.
+
+@node Samples, Invoking ffe, Overview, Top
+@chapter Samples using @command{ffe}
+@cindex sample
+
+One example of using @command{ffe} for printing personnel information in XML format from fixed length flat file:
+
+@example
+$ cat personnel
+john     Ripper       23
+Scott    Tiger        45
+Mary     Moore        41
+$
+@end example
+
+@noindent
+A file @file{personnel} contains three fixed length fields: @samp{FirstName}, @samp{LastName} and @samp{Age},
+their respective lengths are 9,13 and 2.
+
+@noindent
+In order to print data above in XML, following configuration file must be available:
+
+@example
+$cat personnel.fferc
+structure personel @{
+    type fixed
+    output xml
+    record person @{
+        field FirstName 9
+        field LastName  13
+        field Age 2
+    @}
+@}
+
+output xml @{
+    file_header "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+    data "<%n>%t</%n>\n"
+    record_header "<%r>\n"
+    record_trailer "</%r>\n"
+    indent " "
+@}
+$
+@end example
+
+@noindent
+Using ffe:
+
+@example
+$ffe -c personnel.fferc personnel
+<?xml version="1.0" encoding="ISO-8859-1"?>
+ <person>
+  <FirstName>john</FirstName>
+  <LastName>Ripper</LastName>
+  <Age>23</Age>
+ </person>
+ <person>
+  <FirstName>Scott</FirstName>
+  <LastName>Tiger</LastName>
+  <Age>45</Age>
+ </person>
+ <person>
+  <FirstName>Mary</FirstName>
+  <LastName>Moore</LastName>
+  <Age>41</Age>
+ </person>
+$
+@end example
+
+@node Invoking ffe, ffe configuration, Samples, Top
+@chapter How to run @command{ffe}
+@cindex running ffe
+@cindex using
+
+@command{ffe} is a command line tool. Normally @command{ffe} can be invoked as:
+
+@code{ffe -o OUTPUTFILE INPUTFILE@dots{}}
+
+@noindent
+@command{ffe} uses the definitions from the configuration file and tries to guess the input file
+structure.
+
+@noindent
+If the structure cannot be guessed the option @option{-s} must be used.
+
+@menu
+* Invocation::      Program invocation
+* Configuration::   Input and printing definitions
+* Guessing::        How ffe identifies input structure
+* Limits::          Limitations
+@end menu
+
+@node Invocation, Configuration, , Invoking ffe
+@section Program invocation
+@cindex options
+
+@noindent
+The format for running the @command{ffe} program is:
+
+@example
+ffe @var{option} @dots{}
+@end example
+
+@noindent
+@command{ffe} supports the following options:
+
+@c Formatting copied from the Texinfo 4.0 manual.
+@table @code
+@item -c @var{file}
+@itemx --configuration=@var{file}
+Configuration is read from @var{file}, instead of @file{~/.fferc} (@file{ffe.rc} in windows).
+
+@item -s @var{structure}
+@itemx --structure=@var{structure}
+Use structure @var{structure} for input file, suppresses guessing.
+
+@item -p @var{output}
+@itemx --print=@var{output}
+Use output format @var{output} for printing. If not given, then the record or structure related
+output format is used. Printing can be suppressed using format @var{no}. Original data is printed using format @var{raw}.
+
+@item -o @var{file}
+@itemx --output=@var{file}
+Write output to @var{file} instead of standard output.
+
+@item -f @var{list}
+@itemx --field-list=@var{list}
+Print only fields and constants listed in the comma separated list @var{list}. Order of names in 
+@var{list} specifies also the printing order.
+
+@item -e @var{expression}
+@itemx --expression=@var{expression}
+Print only those records for which the @var{expression} evaluates to true.
+
+@item -a
+@itemx --and
+Expressions are combined with logical and, default is logical or.
+Note that if the same field and operator appear several time in expressions they are always compared with logical or.
+
+@item -X
+@itemx --casecmp
+Expressions are evaluated using case insensitive comparison
+
+@item -v
+@itemx --invert-match
+Print only those records which don't match the expression.
+
+@item -l
+@itemx --loose
+Normally @command{ffe} stops when it encounters an input line or binary block which doesn't match any of
+the records in selected structure. Defining this option causes @command{ffe} continue despite the error.
+Note that invalid lines are reported only for text input. In case of binary input next valid block is silently searched.
+
+@item -r
+@itemx --replace=@var{field}=@var{value}
+Replace @var{field}s contents with @var{value} in output. @var{value} can contain same directives as output option @code{data}.
+
+@item -d
+@itemx --debug
+All invalid input lines are written to @file{ffe_error_<pid>.log}, where @file{<pid>} is the process ID.
+
+@item -I
+@itemx --info
+Show structure information in the configuration file and exit successfully. For every structure following information in shown:
+@*
+Structures: Name, type and maximum record length. 
+@*
+Records: Name and length
+@*
+Fields: Name, position and length. First position is number one.
+
+@item -?
+@itemx --help
+Print an informative help message describing the options and then exit
+successfully.
+
+@item -V
+@itemx --version
+Print the version number of @command{ffe} and then exit successfully.
+@end table
+
+All remaining options are names of input files, if no input files are specified or @code{-} is given, then the standard input is read.
+
+@subheading Expressions (option @option{-e}, @option{--expression})
+Expression can be used to select specific records comparing field values. 
+Expression has syntax @var{field}@strong{x}@var{value}, where @strong{x} is the comparison operator.
+Expression is used to compare field's contents to @var{value} and if comparison is successful
+the record is printed. Several expressions can be given and at least one must evaluate to true in
+order to print a record. If option @option{-a} is given all expressions must evaluate to true.
+
+If @var{value} starts with string @code{file:} then the rest of @var{value} is considered as a file name.
+Every line in file is used as @var{value} in comparison. Comparison evaluates true if one or more values matches, so this makes possible use several different values in comparison. @strong{Note}: The file size is limited by available memory because the file contents is loaded to memory. 
+
+When comparing binary fields the @var{value} must have the representation which can be shown using the @code{%d} output directive. Note that the printing option @var{hex-caps} takes effect in comparison.
+
+@noindent
+Expression notation:
+
+@table @var
+@item field@strong{=}value
+Field @var{field} is equal to @var{value}.
+
+@item field@strong{^}value
+Field @var{field} starts with @var{value}.
+
+@item field@strong{~}value
+Field @var{field} contains @var{value}.
+
+@item field@strong{!}value
+Field @var{field} is not equal to @var{value}.
+
+@item field@strong{?}value
+Field @var{field} matches the regular expression @var{value}. 
+@command{ffe} supports POSIX extended regular expressions. 
+@end table
+
+@node Configuration, Guessing, Invocation, Invoking ffe
+@section Configuration
+@cindex configuration
+
+@command{ffe} uses configuration file in order to read the input file and print the output.
+
+Configuration file for @command{ffe} is a text file. The file may contain empty lines. 
+Commands are case sensitive. Comments  begin with the @code{#}-character and end at the end of the line. 
+The @code{string} definitions can be enclosed in double quotation @code{"} characters. 
+@code{char} is a single character. @code{string} and @code{char} can contain following escape codes: 
+@code{\a}, @code{\b}, @code{\t}, @code{\n}, @code{\v}, @code{\f}, @code{\r}, @code{\"} and @code{\#}. 
+A backslash can be escaped as @code{\\}.
+
+Configuration has two main parts: the structure, which specifies the input file structure and 
+the output, which specifies how the input data is formatted for output.
+
+@subheading Common syntax
+Common syntax for configuration file is:
+
+@example
+#comment
+`command`
+const @var{name} @var{value}
+@dots{}
+structure @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+    record @var{name} @{
+        @i{option value} @dots{}
+        @dots{}
+    @}
+    record @var{name} @{
+        @i{option value} @dots{}
+        @dots{}
+    @}
+    @dots{}
+@}
+structure @var{name} @{
+    @dots{}
+@}
+@dots{}
+output @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+output @var{name} @{
+    @dots{}
+@}
+@dots{}
+lookup @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+lookup @var{name} @{
+    @dots{}
+@}
+
+@dots{}
+@end example
+
+@subheading Structure
+Keyword @code{structure} is used to specify the input file content. An input file can contain several
+types of records (lines or binary blocks). E.g. file can have a header, data and trailer record types. Records
+must be distinguishable from each other, this can be achieved defining different 'keys' 
+(@code{id} in record definition) or having different line lengths (for fixed length) or different count
+of fields (for separated structure) for different records.
+
+If binary structure has several records, then all records must have at least one key (@code{id}), because binary blocks can
+be distinguished only by using keys.
+
+@noindent
+The structure notation:
+@*
+
+@example
+structure @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+@end example
+
+@noindent
+A structure can contain following options:
+
+@table @code
+@item type fixed|binary|separated [@var{char}] [*]
+The fields in the input are fixed length fields (text or binary) or text fields separated by @var{char}. If * is given,
+multiple sequential separators are considered as one. Default separator is comma.
+
+@item quoted [@var{char}]
+Fields may be quoted with char, default quotation mark is the double quotation mark '"'.
+A quotation mark is assumed to be escaped as \@var{char} or doubling the mark as @var{charchar} in input.
+Non escaped quotation marks are not preserved in output.
+
+@item header first|all|no
+Controls the occurrence of the header line. Default is no. If set as @emph{first} or @emph{all}, the first line
+of the first input file is considered as header line containing the names of  the  fields. @emph{first}
+means  that  only  the  first  file  has  a header, @emph{all} means means that all files have a header,
+although the names are still taken from the header of the first file. Header line is handled
+according the record definition, meaning that the name positions, separators etc. are the same as
+for the fields. Binary files cannot have a header.
+
+@item output @var{name}|no|raw
+All records belonging to this structure are printed according output format name.
+Default is to use output named as @samp{default}. @samp{no} prints nothing and @samp{raw} prints only the original data.
+
+@item record @var{name} @{@i{options} @dots{}@}
+Specifies one record for a structure. A structure can contain several record types.
+@end table
+
+@subheading Record
+A record specifies one type of input line or binary block in a file. Different records can be distinguished using 
+the @code{id} option or different line lengths or field counts. In multi-record binary structure every record must have at least one @code{id} because binary records do not have a special end of record marker as text lines have.
+
+@noindent
+The record notation:
+@*
+
+@example
+record @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+@end example
+@noindent
+A record can contain following options:
+
+@table @code
+@item id @var{position} @var{string}
+@itemx rid @var{position} @var{regexp}
+Identifies a record in the input file. Records are identified by the @var{string} or by the regular expression @var{regexp} in input record position
+@var{position}. For fixed length and binary input the position is the byte position of input record and for
+separated input the @var{position} is the @var{position}'th field of the input record. Positions starts always from one.
+
+A record definition can contain several id's, then all id's must match the input line 
+(@code{id}'s are @emph{and-ed}).
+
+Non printable characters can be escaped as @samp{\xnn}, where @samp{nn} is characters hexadecimal value.
+
+@item field @var{name}|FILLER|* [@var{length}]|* [@var{lookup}]|* [@var{output}] 
+Defines one field in a text input structure.  @var{length} is mandatory for fixed length input structure.
+
+The last field of a fixed length input structure can have a @emph{*} in place of @var{length}. That means that the last field
+has no exact length specified and it gets the remainder of the input line after all other fields. This allows a
+fixed record to have arbitrary long last field.
+
+Length is also used for printing the fields in fixed length format (directive @code{%D} in output definitions).
+
+If @emph{*} is given instead of the name, then the @var{name} will be the ordinal number of the field,
+or if the @code{header} option has value @emph{first} or @emph{all}, then the name of the field will be taken from
+the header line (first line of the input).
+
+If @var{lookup} is given then the fields contents is used to make a lookup in lookup table @var{lookup}. 
+If @var{length} is not needed (separated format) but lookup is needed, use asterisk (*) in place of length definition.
+
+If @var{output} is given the field will be printed using output definition @var{output}. If @var{length} and/or @var{lookup} are not needed use asterisk in place of them.
+
+If field is named as @code{FILLER}, the field will not appear in output.
+
+The order of fields in configuration file is essential, it specifies the field order in a record.
+@item field @var{name}|FILLER|* @var{length}|@var{type} [@var{lookup}]|* [@var{output}] 
+Defines one field in a binary structure. All other features are same as for text structure fields except the @var{type} parameter.
+
+@var{type} specifies the field length and type and can have the following values:
+
+@table @code
+@item char
+Printable character.
+@item short
+Short integer having current system length and byte order.
+@item int
+Integer having current system length and byte order.
+@item long
+Long integer having current system length and byte order.
+@item llong
+Long long integer having current system length and byte order.
+@item ushort
+Unsigned short integer having current system length and byte order.
+@item uint
+Unsigned integer having current system length and byte order.
+@item ulong
+Unsigned long integer having current system length and byte order.
+@item ullong
+Unsigned long long integer having current system length and byte order.
+@item int8
+8 bit integer.
+@item int16_be
+Big endian 16 bit integer.
+@item int32_be
+Big endian 32 bit integer.
+@item int64_be
+Big endian 64 bit integer.
+@item int16_le
+Little endian 16 bit integer.
+@item int32_le
+Little endian 32 bit integer.
+@item int64_le
+Little endian 64 bit integer.
+@item uint8
+Unsigned 8 bit integer.
+@item uint16_be
+Unsigned big endian 16 bit integer.
+@item uint32_be
+Unsigned big endian 32 bit integer.
+@item uint64_be
+Unsigned big endian 64 bit integer.
+@item uint16_le
+Unsigned little endian 16 bit integer.
+@item uint32_le
+Unsigned little endian 32 bit integer.
+@item uint64_le
+Unsigned little endian 64 bit integer.
+@item float
+Float having current system length and byte order.
+@item float_be
+Float having current system length and big endian byte order.
+@item float_le
+Float having current system length and little endian byte order.
+@item double
+Double having current system length and byte order.
+@item double_be
+Double having current system length and big endian byte order.
+@item double_le
+Double having current system length and little endian byte order.
+@item bcd_be_@var{len}
+Bcd number having length @var{len} and nybbles in big endian order.
+@item bcd_le_@var{len}
+Bcd number having length @var{len} and nybbles in little endian order.
+@item hex_be_@var{len}
+Hexadecimal data in big endian order having length @var{len}.
+@item hex_le_@var{len}
+Hexadecimal data in little endian order having length @var{len}.
+@end table
+
+If @var{length} is given instead of the @var{type}, then the field is assumed to be a printable string having length @var{length}. String is printed until @var{length} characters are printed or NULL character is found.
+
+Bcd number (@code{bcd_be_@var{len}} and @code{bcd_le_@var{len}}) is printed until @var{len} bytes are read or a nybble having hexadecimal value @code{f} is found.
+Bcd number having big endian order is printed in order: most significant nybble first and least significant nybble second and bcd number having little endian order is printed in order: least significant nybble first and most significant nybble second. Bytes are always read in big endian order.
+
+Hexadecimal data (@code{hex_be_@var{len}} and @code{hex_le_@var{len}}) is printed as hexadecimal values. Big endian data is printed starting from lower address and little endian data starting from upper address.
+
+@item field-count @var{number}
+Same effect as having "@code{field *}" @var{number} times. This can be used in separated structure instead of
+writing sequential "@code{field *}" definitions. Several @code{field-count}s can be used in the same record and
+they can be mixed with @code{field}.
+@item fields-from @var{record}
+Fields in this record are the same as in record @var{record}. @code{field} and @code{fields-from} are mutually
+exclusive.
+@item output @var{name}|no|raw
+This record is printed according to output format @var{name}. Default is to use output format specified in structure.
+@item level @var{number} [@var{element_name}|*] [@var{group_name}]
+Levels can be used to print the file in hierarchical multi-level nested form document.
+@var{number} is the level of the record, starting from number one (highest level), 
+@var{element_name} is the name for the record, @var{group_name} 
+is used to group records in the same and lower levels. Only @var{number} is mandatory.
+Use * instead of the element name if group name is needed.
+@item record-length strict|minimum
+@table @code
+@item strict
+Input record length (fixed format) or field count (separated format)  must match the record definition in order to get it processed. This is the default value.
+@item minimum
+Input record length or field count can be the same or longer as defined for the record. The rest of the input line is ignored.
+@end table
+@end table
+
+@subheading Output
+Keyword @code{output} specifies a output format for formatting the input data for output. Formatting
+is controlled using options and printf style directives. An output definition is independent
+from structur, so one output format can be used with different input file formats.
+
+@noindent
+The output notation:
+@*
+
+@example
+output @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+@end example
+@noindent
+
+Actual formatting and printing is controlled using @emph{pictures} in output options. Pictures can contain
+following printf style directives:
+
+@table @code
+@item %f
+Name of the input file.
+@item %s
+Name of the current structure.
+@item %r
+Name of the current record.
+@item %o
+Input record number in current file.
+@item %O
+Input record number starting from the first file.
+@item %i
+Byte offset of the current record in the current file. Starts from zero.
+@item %I
+Byte offset of the current record starting from the first file. Starts from zero.
+@item %n
+Field name.
+@item %t
+Field contents, without leading and trailing whitespaces. 
+@item %d
+Field contents. Binary integer is printed as a decimal value. Floating point number is printed in the style @code{[-]ddd.ddd}, where the number of digits after the decimal-point character is 6. Bcd number is printed as a decimal number and hexadecimal data as consecutive hexadecimal values.
+@item %D
+Field contents, right padded to the field length (requires length definition for the field).
+@item %C
+Field contents, right padded to the field length (requires length definition for the field). Contents is cutted if the input field
+is longer than output length.
+@item %x
+Unsigned hexadecimal value of a binary integer. Other fields are printed as directive @code{%d} would be used.
+@item %l
+Lookup value which has been found using current field as a search key.
+@item %L
+Lookup value, right padded to the field length.
+@item %p
+Fields start position in a record. For fixed and binary structure this is field's byte position in the input line
+and for separated structure this is the ordinal number of the field. Starts from one.
+@item %h
+Hexadecimal dump of a field. Byte values are printed as consecutive @code{xnn} values, where the @code{nn} is the hexadecimal value of a byte. Data is printed before any endian conversion.
+@item %e
+Does not print anything, causes still the "field empty" check to be performed.
+Can be  used  when only the names of non-empty fields should be printed.
+@item %g
+Group name given by the keyword @code{group_name} in record definition.
+@item %m
+Element name given by the keyword @code{element_name} in record definition.
+@item %%
+Percent sign.
+@end table
+
+@noindent
+Output options:
+@table @code
+@item file_header @var{picture}
+@var{picture} is printed once before file contents.
+@item file_trailer @var{picture}
+@var{picture} is printed once after file contents.
+@item header @var{picture}
+If given, then the header line describing the field names is printed before records.
+Every field name is printed according the @var{picture} using the same separator and field length as
+given for the fields. Picture can contain only @code{%n} directive.
+@item data @var{picture}
+Field contents is printed according @var{picture}.
+@item lookup @var{picture}
+If current field is related to lookup table, then this @var{picture} is used instead of picture from @code{data}.
+This makes possible to use different picture when the field is related to a lookup table. Default is to use the picture from @code{data}.
+@item separator @var{string}
+All fields are terminated by @var{string}, except the last field of the record.
+Default is not to print separator.
+@item record_header @var{picture}
+@var{picture} is printed before the record content. Default is not to print the record header.
+@item record_trailer @var{picture} 
+@var{picture} is printed after the record content. Default is newline.
+@item justify left|right|@var{char}
+The output from the @code{data} option is left or right justified. 
+@var{char} justifies output according the first occurrence of @var{char}
+in the data picture. Default is left.
+@item indent @var{string}
+Record contents is intended by @var{string}. 
+Field contents is intended by two times the string. Default is not to indent.
+If file contents is printed in hierarchial form (keyword @code{level} in record definition) then
+contents is indented according the level of a record.
+@item field-list @var{name1},@var{name2},@dots{}
+Only fields and constants named as @var{name1},@var{name2},@dots{} are printed, same effect as has option @option{-f}. 
+Default is print all fields and no constants. Fields and constants are also printed in the same order as they are listed.
+@item no-data-print yes|no
+If @code{field-list} is given and and this is set as no and none of the fields in @code{field-list}
+does not belong to the current record, then the @code{record_header} and @code{record_trailer} are not printed.
+Default is yes.
+@item field-empty-print yes|no
+When set as no, nothing is printed for the fields which consist entirely of characters from @code{empty-chars}. 
+If none of the fields of a record are printed, then the printing of @code{record_trailer} is also suppressed. 
+Default is yes.
+@item empty-chars @var{string}
+@var{string} specifies a set of characters which consist an "empty" field. Default is
+@w{" \f\n\r\t\v"} (space, form-feed, newline, carriage return, horizontal tab and vertical tab).
+@item output-file @var{file}
+Output is written to @var{file} instead of the default output (standard output or given by @option{-o, --output}). 
+If - is given the output is written to standard output.
+@item group_header @var{picture} 
+If a record has a level and a group name defined, 
+@var{picture} is printed before the first record in a group or if the group name has changed in the same level.
+@strong{Note}: Level related pictures can contain printing directives @code{%g} and @code{%n} only.
+@item group_trailer @var{picture} 
+If a record has a level and a group name defined, 
+@var{picture} is printed after the records in lower levels are printed or if the group name has changed in the 
+same level or if a higher level record is found.
+@item element_header @var{picture} 
+If a record has a level and a element name defined, @var{picture} is printed before the records contents.
+@item element_trailer @var{picture} 
+If a record has a level and a element name defined, @var{picture} is printed after the records contents or after 
+the following lower level records.
+@item hex-caps yes|no
+Print hexadecimal numbers in capital letters. Default is no.
+@end table
+
+@subheading Lookup
+Keyword @code{lookup} specifies a lookup table which can be searched using field contents. Found values can
+be printed using output directives @code{%l} and @code{%L}.
+
+@noindent
+The lookup table notation:
+@*
+
+@example
+lookup @var{name} @{
+    @i{option value} @dots{}
+    @dots{}
+@}
+@end example
+
+@noindent
+Lookup options:
+@table @code
+@item search exact | longest
+Search method for this table. Either exact or longest match is used when searching the table. Default is @code{exact}.
+@item pair @var{key} @var{value}
+Defines one key/value pair for the lookup table. In case of binary file @var{key} must have the same representation as
+can be shown using the @code{%d} printing directive.
+@item file @var{name} [@var{separator}]
+Data for the lookup table is read from file @var{name}. Each line in file @var{name} is considered as a key/value pair
+separated by a single character @var{separator}. Default separator is semicolon. Lines without separator are silently omitted.
+@strong{Note}: The file size is limited by available memory because the file contents is loaded to memory. 
+@item default-value @var{value}
+If searching the lookup table is unsuccessful then @var{value} is used in printing. Default is empty string.
+@end table
+
+@subheading Constants
+Keyword @code{const} specifies one name/value pair which can be used as an additional output field.
+Constants can be used only in field lists (option @option{-f,--field-list}, or output option @code{field-list}).
+
+Constants can be used to add fields to output which do not appear in input. E.g. new fields for 
+separated output or adding spaces after a fixed length field (changing the field length).
+
+Note that @var{value} is printed as it is for every record. It cannot be changed record by record.
+
+If a constant has the same name as one of the input fields, the value @var{value} is printed instead of
+the input field contents.
+
+The constant notation:
+@*
+
+@example
+const @var{name} @var{value}
+@end example
+
+When @var{name} appears in field list it is treated as one of the input fields having contents @var{value}.
+
+@subheading Command Substitution
+Command Substitution allows the output of a command to replace parts of the configuration file. Syntax for 
+command substitution is:
+@*
+@*
+`@code{command}`
+@*
+@*
+The @code{command} is executed and the `@code{command}` is substituted with the standard output of
+the command, with any trailing newlines deleted. Command substitutions may not be nested.
+
+Before executing the @code{command} @command{ffe} sets following environment variables:
+@table @code
+@item FFE_STRUCTURE
+The name of the structure from @option{-s,--structure}.
+@item FFE_OUTPUT
+The name of the output file from @option{-o,--output}.
+@item FFE_FORMAT
+The name of the output format from @option{-p,--print}.
+@item FFE_FIRST_FILE
+The name of the first input file.
+@item FFE_FILES
+A space-separated list of all input files.
+@end table
+If variable is already set it will not be replaced.
+
+@subheading Input Preprocessor
+It is possible to define an input preprosessor for @command{ffe}. An input preprocessor is simply an executable program
+which writes the contents of the input file to standard output which will be read by @command{ffe}. If the input preprosessor
+does not write any characters on its standard output, then @command{ffe} uses the original file.
+
+To set up an input preprocessor, set the @code{FFEOPEN} environment variable to a command line which will invoke your input preprocessor.
+This command line should include  one  occurrence  of  the string @code{%s},
+which will be replaced by the input filename when the input preprocessor command is invoked.
+
+The input preprocessor is not used if @command{ffe} is reading standard input.
+
+Convenient way is to use @command{lesspipe} (or @command{lesspipe.sh}), which is availabe in many UNIX-systems, for example
+@*
+@example
+export FFEOPEN="/usr/bin/lesspipe %s"
+@end example
+
+Using the example above is it possible to give a zipped input file to @command{ffe}, then the input processor will unzip the
+file before it is processed by @command{ffe}.
+
+@node Guessing,Limits,Configuration,Invoking ffe
+@section Guessing
+@cindex guess
+If @option{-s} is not given, @command{ffe} tries to guess the input structure. 
+
+When guessing binary data @command{ffe} reads the first block of input data and tries to match the structure definitions
+from configuration file to that block. The input block size is the maximum binary block size found in configuration file.
+
+When guessing text data @command{ffe} reads the first 10 000 lines or 1 MB of input data and tries to match the structure definitions
+from configuration file to input stream. If all lines match one and only one structure, the structure is used
+for reading the input file.
+
+@noindent
+Guessing uses following execution cycle:
+
+@enumerate
+@item 
+A input line or a binary block is read
+@item
+All record @code{id}'s are compared to the input data, if all @code{id}'s of a record match 
+the input date and the
+records line length matches the total length (or total count for separated structure) of the fields,
+the record is considered to match the input line. If there are no @code{id}'s, 
+only the line length or field count is checked. In case of binary data only  @code{id}'s are used in matching.
+@item
+In case of text data: If all lines match at least one of the records in a particular structure, the structure is considered as selected. 
+There must be only one structure matching all lines used for guessing.
+
+In case of binary data: If the first block matches at least one record of a structure, the structure is considered as selected. Only one structure must match.
+
+@end enumerate
+
+
+@node Limits, , Guessing, Invoking ffe
+@section Limitations
+@cindex big files
+@cindex limits
+
+At least in GNU/Linux @command{ffe} should be able to handle big files (> 4 GB), other
+systems are not tested.
+
+Regular expression can be used in operator @strong{?} in option @option{-e}, @option{--expression} and in record key word @code{rid} only in systems where
+regular expression functions (regcomp, regexec, @dots{}) are available.
+
+@node ffe configuration, Problems, Invoking ffe, Top
+@chapter How @command{ffe} works
+Following examples use two different input files: 
+@subheading Fixed length example
+Fixed length personnel file with header and trailer, line (record) is identified by the
+first byte (H = Header, E = Employee, B = Boss, T = trailer).
+@example
+$cat personnel.fix
+H2006-02-25
+EJohn     Ripper       23
+BScott    Tiger        45
+EMary     Moore        41
+ERidge    Forrester    31
+T0004
+$
+@end example
+
+@noindent
+Structure for reading file above. Note that record @samp{boss} reuses fields from @samp{employee}.
+
+@example
+structure personel_fix @{
+    type fixed
+    record header @{
+        id 1 H
+        field type 1
+        field date 10
+    @}
+    record employee @{
+        id 1 E
+        field EmpType 1
+        field FirstName 9
+        field LastName  13
+        field Age 2
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+    @}
+    record trailer @{
+        id 1 T
+        field type 1
+        field count 4
+    @}
+@}
+@end example
+
+@subheading Separated example
+Same file as above, but now separated by comma.
+
+@example
+$cat personnel.sep
+H,2006-02-25
+E,john,Ripper,23
+B,Scott,Tiger,45
+E,Mary,Moore,41
+E,Ridge,Forrester,31
+T,0004
+$
+@end example
+
+@noindent
+Structure for reading file above. Note that the field lengths are not needed in separated format. Length
+is need if the separated data is to be printed in fixed length format.
+
+@example
+structure personel_sep @{
+    type separated ,
+    record header @{
+        id 1 H
+        field type 
+        field date 
+    @}
+    record employee @{
+        id 1 E
+        field type 
+        field FirstName 
+        field LastName 
+        field Age 
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+    @}
+    record trailer @{
+        id 1 T
+        field type 
+        field count
+    @}
+@}
+@end example
+
+@subheading Printing in XML format
+Data in examples above can be printed in XML using output definition like:
+
+@example
+output xml @{
+    file_header "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    data "<%n>%t</%n>\n"
+    record_header "<%r>\n"
+    record_trailer "</%r>\n"
+    indent " "
+@}
+@end example
+
+@noindent
+Example output using command (assuming definitions above are saved in ~/.fferc)
+
+@code{ffe -p xml personnel.sep}
+
+@example
+<?xml version="1.0" encoding="UTF-8"?>
+ <header>
+  <type>H</type>
+  <date>2006-02-25</date>
+ </header>
+ <employee>
+  <type>E</type>
+  <FirstName>john</FirstName>
+  <LastName>Ripper</LastName>
+  <Age>23</Age>
+ </employee>
+ <boss>
+  <type>B</type>
+  <FirstName>Scott</FirstName>
+  <LastName>Tiger</LastName>
+  <Age>45</Age>
+ </boss>
+ <employee>
+  <type>E</type>
+  <FirstName>Mary</FirstName>
+  <LastName>Moore</LastName>
+  <Age>41</Age>
+ </employee>
+ <employee>
+  <type>E</type>
+  <FirstName>Ridge</FirstName>
+  <LastName>Forrester</LastName>
+  <Age>31</Age>
+ </employee>
+ <trailer>
+  <type>T</type>
+  <count>0004</count>
+ </trailer>
+@end example
+@subheading Printing sql commands
+Data in examples above can be loaded to database by generated sql commands. Note that the header and trailer
+are not loaded, because only fields @samp{FirstName},@samp{LastName} and @samp{Age} are printed and @samp{no-data-print}
+is set as no. This prevents the @samp{record_header} and @samp{record_trailer} to be printed for file header and trailer.
+
+@example
+output sql @{
+    file_header "delete table boss;\ndelete table employee;\n"
+    record_header "insert into %r values("
+    data "'%t'"
+    separator ","
+    record_trailer ");\n"
+    file_trailer "commit\nquit\n"
+    no-data-print no
+    field-list FirstName,LastName,Age
+@}
+@end example
+
+@noindent
+Output from command
+
+@code{ffe -p sql personnel.sep}
+
+@example
+delete table boss;
+delete table employee;
+insert into employee values('john','Ripper','23');
+insert into boss values('Scott','Tiger','45');
+insert into employee values('Mary','Moore','41');
+insert into employee values('Ridge','Forrester','31');
+commit
+quit
+@end example
+@subheading Human readable output
+This output format shows the fields in format suitable for displaying in screen or printing.
+
+@example
+output nice @{
+    record_header "%s - %r - %f - %o\n"
+    data "%n=%t\n"
+    justify =
+    indent " "
+@}
+@end example
+
+@noindent
+Output from command
+
+@code{ffe -p nice personnel.fix}
+@example
+ personel - header - personnel.fix - 1
+  type=H
+  date=2006-02-25
+ 
+ personel - employee - personnel.fix - 2
+    EmpType=E
+  FirstName=John
+   LastName=Ripper
+        Age=23
+ 
+ personel - boss - personnel.fix - 3
+    EmpType=B
+  FirstName=Scott
+   LastName=Tiger
+        Age=45
+ 
+ personel - employee - personnel.fix - 4
+    EmpType=E
+  FirstName=Mary
+   LastName=Moore
+        Age=41
+ 
+ personel - employee - personnel.fix - 5
+    EmpType=E
+  FirstName=Ridge
+   LastName=Forrester
+        Age=31
+ 
+ personel - trailer - personnel.fix - 6
+   type=T
+  count=0004
+@end example
+
+@subheading HTML table
+Personnel data can be displayed as HTML table using output like:
+
+@example
+output html @{
+    file_header "<html>\n<head>\n</head>\n<body>\n<table border=\"1\">\n<tr>\n"
+    header "<th>%n</th>\n"
+    record_header "<tr>\n"
+    data "<td>%t</td>\n"
+    file_trailer "</table>\n</body>\n</html>\n"
+    no-data-print no
+@}
+@end example
+
+@noindent
+Output from command
+
+@code{ffe -p html -f FirstName,LastName,Age personnel.fix}
+@example
+<html>
+<head>
+</head>
+<body>
+<table border="1">
+<tr>
+<th>FirstName</th>
+<th>LastName</th>
+<th>Age</th>
+
+<tr>
+<td>John</td>
+<td>Ripper</td>
+<td>23</td>
+
+<tr>
+<td>Scott</td>
+<td>Tiger</td>
+<td>45</td>
+
+<tr>
+<td>Mary</td>
+<td>Moore</td>
+<td>41</td>
+
+<tr>
+<td>Ridge</td>
+<td>Forrester</td>
+<td>31</td>
+
+</table>
+</body>
+</html>
+@end example
+
+@subheading Using expression
+Printing only Scott's record using expression with previous example:
+
+@code{ffe -p html -f FirstName,LastName,Age -e FirstName^Scott personnel.fix}
+@example
+<html>
+<head>
+</head>
+<body>
+<table border="1">
+<tr>
+<th>FirstName</th>
+<th>LastName</th>
+<th>Age</th>
+
+<tr>
+<td>Scott</td>
+<td>Tiger</td>
+<td>45</td>
+
+</table>
+</body>
+</html>
+@end example
+
+@subheading Using replace
+Make all bosses and write a new personnel file printing the fields in fixed length format
+using directive @code{%D}:
+
+@noindent
+Output definition:
+@example
+output fixed 
+@{
+    data "%D"
+@}
+@end example
+
+@noindent
+Write a new file:
+@example
+$ffe -p fixed -r EmpType=B -o personnel.fix.new personnel.fix
+$cat personnel.fix.new
+H2006-02-25
+BJohn     Ripper       23
+BScott    Tiger        45
+BMary     Moore        41
+BRidge    Forrester    31
+T0004
+$
+@end example
+
+@subheading Using constant
+The length of the fields FirstName and LastName in fixed length format will be made two bytes longer.
+This will be done by printing a constant after those two fields.
+We use dots instead of spaces in order to make change more visible.
+
+Because we do not want to change header and trailer we need specially crafted configuration file. 
+Employee and boss records will be printed using new output @var{fixed2} and other records will be printed using 
+output @var{default}.
+
+New definition file @file{new_fixed.rc}:
+@example
+const 2dots ".."
+
+structure personel_fix @{
+    type fixed
+    record header @{
+        id 1 H 
+        field type 1 
+        field date 10
+    @}
+    record employee @{
+        id 1 E
+        field EmpType 1 
+        field FirstName 9
+        field LastName  13
+        field Age 2
+        output fixed2
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+        output fixed2
+    @}
+    record trailer @{
+        id 1 T
+        field type 1 
+        field count 4
+    @}
+@}
+
+output default
+@{
+    data "%D"
+@}
+
+output fixed2
+@{
+    data "%D"
+    field-list Emptype,FirstName,2dots,LastName,2dots,Age
+@}
+@end example
+@noindent
+Print new flat file:
+@example
+$ ffe -c new_fixed.rc personel_fix
+H2006-02-25
+EJohn     ..Ripper       ..23
+BScott    ..Tiger        ..45
+EMary     ..Moore        ..41
+ERidge    ..Forrester    ..31
+T0004
+$
+@end example
+
+@subheading Using lookup table
+Lookup table is used to explain the EmpTypes contents in output format @code{nice}:
+
+@noindent
+Lookup definition:
+@example
+lookup Type
+@{
+    search exact
+    pair H Header
+    pair B "He is a Boss!"
+    pair E "Not a Boss!"
+    pair T Trailer
+    default-value "Unknown record type!"
+@}   
+@end example
+@noindent
+Mapping the EmpType field to lookup:
+@example
+structure personel_fix @{
+    type fixed
+    record header @{
+        id 1 H
+        field type 1
+        field date 10
+    @}
+    record employee @{
+        id 1 E
+        field EmpType 1 Type
+        field FirstName 9
+        field LastName  13
+        field Age 2
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+    @}
+    record trailer @{
+        id 1 T
+        field type 1
+        field count 4
+    @}
+@}
+@end example
+@noindent
+Adding the lookup option to output definition @code{nice}.
+@example
+output nice @{
+    record_header "%s - %r - %f - %o\n"
+    data "%n=%t\n"
+    lookup "%n=%t (%l)\n"
+    justify =
+    indent " "
+@}
+@end example
+@noindent
+Running ffe:
+@example
+ $ffe -p nice personnel.fix
+ personel_fix - header - personel_fix - 1
+  type=H
+  date=2006-02-25
+ 
+ personel_fix - employee - personel_fix - 2
+    EmpType=E (Not a Boss!)
+  FirstName=John
+   LastName=Ripper
+        Age=23
+ 
+ personel_fix - boss - personel_fix - 3
+    EmpType=B (He is a Boss!)
+  FirstName=Scott
+   LastName=Tiger
+        Age=45
+ 
+ personel_fix - employee - personel_fix - 4
+    EmpType=E (Not a Boss!)
+  FirstName=Mary
+   LastName=Moore
+        Age=41
+ 
+ personel_fix - employee - personel_fix - 5
+    EmpType=E (Not a Boss!)
+  FirstName=Ridge
+   LastName=Forrester
+        Age=31
+ 
+ personel_fix - trailer - personel_fix - 6
+   type=T
+  count=0004
+@end example
+
+@subheading External lookup file
+In previous example the lookup data could be read from external file like:
+
+@example
+$cat lookupdata
+H;Header
+B;He is a Boss!
+E;Not a Boss!
+T;Trailer
+$
+@end example
+@noindent
+Lookup definition using file above:
+@example
+lookup Type
+@{
+    search exact
+    file lookupdata
+    default-value "Unknown record type!"
+@}
+@end example
+
+@subheading Making universal csv reader using command substitution
+Command substitution can be used to make a configuration for reading any csv file.
+The number of fields will be read from the first file using awk. 
+Input file names and date are printed in the file header:
+
+@example
+structure csv @{
+    type separated ,
+    header first
+    record csv @{
+        field-count `awk "-F," 'FNR == 1 @{print NF;exit;@}' $FFE_FIRST_FILE`
+    @}
+@}
+
+output default @{
+    file_header "Files: `echo $FFE_FILES`\n`date`\n"
+    data "%n=%d\n"
+    justify =
+@}
+@end example
+
+@subheading Reading binary data
+A binary block having a 3 byte text (ABC) in 5 bytes long space, one byte integer (35), a 32 bit integer (12345678), a double (345.385), a 3 byte bcd number (45112) and a 4 byte hexadecimal data (f15a9188) can be read using following configuration:
+
+@example
+structure bin_data
+@{
+    type binary
+    record b
+    @{
+        field text 5
+        field byte_int int8
+        field integer int
+        field number double
+        field bcd_number bcd_be_3
+        field hex hex_be_4
+    @}
+@}
+
+output default
+@{
+    data "%n = %d (%h)\n"
+@}
+@end example
+The @code{%h} directive gives a hex dump of the input data.
+
+Hexadecimal dump of the data:
+@example
+$ od -t x1 example_bin
+0000000 41 42 43 00 08 23 4e 61 bc 00 5c 8f c2 f5 28 96
+0000020 75 40 45 11 2f f1 5a 91 88
+0000031
+@end example
+
+Using ffe:
+@example
+$ffe -c example_bin.fferc -s bin_data example_bin
+text = ABC (x41x42x43x00x08)
+byte_int = 35 (x23)
+integer = 12345678 (x4ex61xbcx00)
+number = 345.385000 (x5cx8fxc2xf5x28x96x75x40)
+bcd_number = 45112 (x45x11x2f)
+hex = f15a9188 (xf1x5ax91x88)
+@end example
+
+Note that the text has only 3 characters before NULL byte. Because this example was made in little endian
+machine, same result can be achieved with different configuration:
+@example
+structure bin_data
+@{
+    type binary
+    record b
+    @{
+        field text 5
+        field byte_int int8
+        field integer int32_le
+        field number double_le
+        field bcd_number bcd_be_3
+        field hex hex_be_4
+    @}
+@}
+@end example
+This configuration is more portable in case the same data is to be read in a different architecture because endianess of integer and double are explicit given.
+
+If the bcd number is read with @code{bcd_le_3} it would look as 
+@example
+bcd_number = 5411 (x45x11x2f)
+@end example
+Note that nybbles are swapped and last byte is handled as @code{f2} (@code{f} stops the printing) causing only first two bytes to be printed. 
+
+and if hexadecimal data is read with @code{hex_le_4} it would look as
+@example
+hex = 88915af1 (xf1x5ax91x88)
+@end example
+Bytes are printed starting from the end of the data.
+
+@subheading Printing nested XML
+The keyword @code{level} in record definition can be used to print data in multi-level nested form. In this
+example a parent row is in level one and a child row is in level two. Children after a parent row belongs
+to the parent before child rows, so they are enclosed in a parent element.
+
+Example data:
+@example
+P,John Smith,3 
+C,Kathren,6,Blue 
+C,Jimmy,4,Red
+C,Peter,2,Green
+P,Margaret Eelers,2
+C,Aden,16,White
+C,Amanda,20,Black
+@end example
+
+A parent row consistd of ID (P), parent name, and the count of the children. A child row consists of id (C), child name, age and favorite color.
+
+This can be printed in nested XML using rc file:
+@example
+structure family
+@{
+    type separated ,
+    record parent
+    @{
+        id 1 P
+        field FILLER
+        field Name
+        field Child_count
+        level 1 parent
+    @}
+
+    record child
+    @{
+        id 1 C
+        field FILLER
+        field Name
+        field Age
+        field FavoriteColor
+        level 2 child children
+    @}
+@}
+
+output nested_xml
+@{
+    file_header "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    data "<%n>%t</%n>\n"
+    indent " "
+    record_trailer ""
+    group_header "<%g>\n"
+    group_trailer "</%g>\n"
+    element_header "<%m>\n"
+    element_trailer "</%m>\n"
+@}
+@end example
+
+Output:
+
+@example
+<?xml version="1.0" encoding="UTF-8"?>
+ <parent>
+  <Name>John Smith</Name>
+  <Child_count>3</Child_count>
+  <children>
+   <child>
+    <Name>Kathren</Name>
+    <Age>6</Age>
+    <FavoriteColor>Blue</FavoriteColor>
+   </child>
+   <child>
+    <Name>Jimmy</Name>
+    <Age>4</Age>
+    <FavoriteColor>Red</FavoriteColor>
+   </child>
+   <child>
+    <Name>Peter</Name>
+    <Age>2</Age>
+    <FavoriteColor>Green</FavoriteColor>
+   </child>
+  </children>
+ </parent>
+ <parent>
+  <Name>Margaret Eelers</Name>
+  <Child_count>2</Child_count>
+  <children>
+   <child>
+    <Name>Aden</Name>
+    <Age>16</Age>
+    <FavoriteColor>White</FavoriteColor>
+   </child>
+   <child>
+    <Name>Amanda</Name>
+    <Age>20</Age>
+    <FavoriteColor>Black</FavoriteColor>
+   </child>
+  </children>
+ </parent>
+@end example
+
+@subheading Some examples put in a single file
+@example
+structure personel_fix @{
+    type fixed
+    record header @{
+        id 1 H
+        field type 1
+        field date 10
+    @}
+    record employee @{
+        id 1 E
+        field EmpType 1 Type
+        field FirstName 9
+        field LastName  13
+        field Age 2
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+    @}
+    record trailer @{
+        id 1 T
+        field type 1
+        field count 4
+    @}
+@}
+
+structure personel_sep @{
+    type separated ,
+    record header @{
+        id 1 H
+        field type 
+        field date 
+    @}
+    record employee @{
+        id 1 E
+        field type 
+        field FirstName 
+        field LastName  
+        field Age 
+    @}
+    record boss @{
+        id 1 B
+        fields-from employee
+    @}
+        record trailer @{
+        id 1 T
+        field type 
+        field count
+    @}
+@}
+
+structure bin_data
+@{
+    type binary
+    record b
+    @{
+        field text 5
+        field byte_int int8
+        field integer int32_le
+        field number double_le
+        field bcd_number bcd_be_3
+        field hex hex_be_4
+    @}
+@}
+
+output xml @{
+    file_header "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    data "<%n>%t</%n>\n"
+    record_header "<%r>\n"
+    record_trailer "</%r>\n"
+    indent " "
+@}
+
+output sql @{
+    file_header "delete table boss;\ndelete table employee;\n"
+    record_header "insert into %r values("
+    data "'%t'"
+    separator ","
+    record_trailer ");\n"
+    file_trailer "commit\nquit\n"
+    no-data-print no
+    field-list FirstName,LastName,Age
+@}
+
+output nice @{
+    record_header "%s - %r - %f - %o\n"
+    data "%n=%t\n"
+    lookup "%n=%t (%l)\n"
+    justify =
+    indent " "
+@}
+
+output html @{
+    file_header "<html>\n<head>\n</head>\n<body>\n<table border=\"1\">\n<tr>\n"
+    header "<th>%n</th>\n"
+    record_header "<tr>\n"
+    data "<td>%t</td>\n"
+    file_trailer "</table>\n</body>\n</html>\n"
+    no-data-print no
+@}
+
+output fixed 
+@{
+    data "%D"
+@}
+
+lookup Type
+@{
+    search exact
+    pair H Header
+    pair B "He is a Boss!"
+    pair E "Not a Boss!"
+    pair T Trailer
+    default-value "Unknown record type!"
+@}   
+@end example
+
+@subheading Using @command{ffe} to test file integrity
+@command{ffe} can be used to check flat file integrity, because @command{ffe} 
+checks for all lines the line length and id's for fixed length structure 
+and field count and id's for separated structure.
+
+@noindent
+Integrity can be checked using command 
+
+@code{ffe -p no -l inputfiles@dots{}}
+
+@noindent
+Because option @option{-p} has value @code{no} nothing is printed to output except the error messages.
+Option @option{-l} causes all erroneous lines to be reported, not just the first one.
+
+@noindent
+Example output:
+
+@example
+ffe: Invalid input line in file 'inputfileB', line 14550
+ffe: Invalid input line in file 'inputfileD', line 12
+@end example
+
+@node Problems, , ffe configuration, Top
+@chapter Reporting Bugs
+@cindex bugs
+@cindex problems
+
+If you find a bug in @command{ffe}, please send electronic mail to
+@email{tjsa@@iki.fi}.  Include the version number, which you can find by
+running @w{@samp{ffe --version}}.  Also include in your message the
+output that the program produced and the output you expected.@refill
+
+If you have other questions, comments or suggestions about
+@command{ffe}, contact the author via electronic mail to
+@email{tjsa@@iki.fi}.  The author will try to help you out, although he
+may not have time to fix your problems.
+
+@contents
+@bye
