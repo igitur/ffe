@@ -1,6 +1,6 @@
 This is ffe.info, produced by makeinfo version 5.2 from ffe.texi.
 
-This file documents version 0.3.5 of 'ffe', a flat file extractor.
+This file documents version 0.3.5-1 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -27,7 +27,7 @@ File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 ffe
 ***
 
-This file documents version 0.3.5 of 'ffe', a flat file extractor.
+This file documents version 0.3.5-1 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -1753,15 +1753,15 @@ problems.
 
 
 Tag Table:
-Node: Top896
-Node: Overview1956
-Node: Samples2612
-Node: Invoking ffe4101
-Node: Invocation4688
-Node: Configuration8853
-Node: Guessing30435
-Node: Limits32035
-Node: ffe configuration32443
-Node: Problems52229
+Node: Top898
+Node: Overview1960
+Node: Samples2616
+Node: Invoking ffe4105
+Node: Invocation4692
+Node: Configuration8857
+Node: Guessing30439
+Node: Limits32039
+Node: ffe configuration32447
+Node: Problems52233
 
 End Tag Table

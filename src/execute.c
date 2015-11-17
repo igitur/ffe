@@ -2429,7 +2429,10 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
                     }
                 }
             } 
-            if(first_line) first_line = 0;
+            if(first_line) {
+                if(headers) r = NULL;
+                first_line = 0;
+            }
         }
     }
     print_level_end(r);

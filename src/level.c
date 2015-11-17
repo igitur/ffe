@@ -170,7 +170,7 @@ print_level_end(struct record *last)
 {
         int i = last_level;
 
-        while(i >= 1)
+        while(levels[i] && i >= 1)
         {
             if(levels[i]->element_name)
                 print_level(levels[i],last->o->element_trailer,last->o->indent,get_indent_depth(i) - 1);

@@ -1,3 +1,7 @@
+2015-09-13 Timo Savinen <tjsa@iki.fi>
+    * Version 0.3.5-1
+    * Fixed few level printing issues: Level end tag could be printed erroneously after headers 
+
 2015-05-14 Timo Savinen <tjsa@iki.fi>
 
     * Version 0.3.5
