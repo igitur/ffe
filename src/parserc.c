@@ -790,11 +790,11 @@ expand_home(char *path)
     return r;
 }
 
+
 /* read key value pairs from file */
 /* to struct lookup data chain */
-/* returns pointer to last element */
-struct lookup_data *
-read_lookup_from_file(struct lookup_data **data,char *file,char separator,int *max_key_len)
+void
+read_lookup_from_file(struct lookup_data **data,char *file,char separator)
 {
     FILE *fp;
     register int line_len;
@@ -802,15 +802,13 @@ read_lookup_from_file(struct lookup_data **data,char *file,char separator,int *m
     char *efile;
     char *line;
     register char *p;
-    struct lookup_data *c_data = *data;
+    struct lookup_data *c_data;
 
     efile = expand_home(file);
     
     fp = xfopen(efile,"r");
 
     line = xmalloc(max_line_size);
-
-    if(c_data != NULL) while(c_data->next != NULL) c_data = c_data->next;
 
     do
     {
@@ -842,27 +840,28 @@ read_lookup_from_file(struct lookup_data **data,char *file,char separator,int *m
                 *p = 0;
                 p++;
 
+                c_data = data[hash(line,0)];
+
                 if(c_data == NULL) 
                 {
-                    *data = xmalloc(sizeof(struct lookup_data));
-                    c_data = *data;
+                    c_data = xmalloc(sizeof(struct lookup_data));
+                    data[hash(line,0)] = c_data;
                 } else
                 {
+                    while(c_data->next != NULL) c_data = c_data->next;
+
                     c_data->next = xmalloc(sizeof(struct lookup_data));
                     c_data = c_data->next;
                 }
                 c_data->next = NULL;
                 c_data->key = xstrdup(line);
                 c_data->value = xstrdup(p);
-                c_data->key_len = strlen(c_data->key);
-                if(*max_key_len < c_data->key_len) *max_key_len = c_data->key_len;
             }
         }
     } while(line_len != -1);
     fclose(fp);
     free(line);
     free(efile);
-    return c_data;
 }
 
 /* non printable characters in form \xnn will be expanded 
@@ -1255,6 +1254,7 @@ parserc(char *rcfile,char *include_field_list)
                             status = PS_W_OUTPUT;
                         } else if(strcmp(values[0],N_LOOKUP) == 0)
                         {
+                            register int i;
                             if(c_lookup == NULL)
                             {
                                 c_lookup = xmalloc(sizeof(struct lookup));
@@ -1268,8 +1268,7 @@ parserc(char *rcfile,char *include_field_list)
                             c_lookup->name = xstrdup(values[1]);
                             c_lookup->type = EXACT;
                             c_lookup->default_value = "";
-                            c_lookup->max_key_len = 0;
-                            c_lookup->data = NULL;
+                            for(i = 0;i < MAX_EXPR_HASH;i++) c_lookup->data[i] = NULL;
                             status = PS_W_LOOKUP;
                         } else if(strcmp(values[0],N_CONST) == 0)
                         {
@@ -1701,28 +1700,30 @@ parserc(char *rcfile,char *include_field_list)
                             }
                         } else if(strcmp(values[0],N_PAIR) == 0)
                         {
-                            if(c_lookup->data == NULL)
+                            c_lookup_data = c_lookup->data[hash(values[1],0)];
+
+                            if(c_lookup_data == NULL)
                             {
-                                c_lookup->data = xmalloc(sizeof(struct lookup_data));
-                                c_lookup_data = c_lookup->data;
+                                c_lookup_data = xmalloc(sizeof(struct lookup_data));
+                                c_lookup->data[hash(values[1],0)] = c_lookup_data;
                             } else
                             {
+                                while(c_lookup_data->next != NULL) c_lookup_data = c_lookup_data->next;
+
                                 c_lookup_data->next = xmalloc(sizeof(struct lookup_data));
                                 c_lookup_data = c_lookup_data->next;
                             }
                             c_lookup_data->next = NULL;
                             c_lookup_data->key = xstrdup(values[1]);
                             c_lookup_data->value = xstrdup(values[2]);
-                            c_lookup_data->key_len = strlen(c_lookup_data->key);
-                            if(c_lookup->max_key_len < c_lookup_data->key_len) c_lookup->max_key_len = c_lookup_data->key_len;
                         } else if(strcmp(values[0],N_FILE) == 0)
                         {
                             if(opt_count == 1)
                             {
-                                c_lookup_data = read_lookup_from_file(&(c_lookup->data),values[1],';',&c_lookup->max_key_len);
+                                read_lookup_from_file(c_lookup->data,values[1],';');
                             } else
                             {
-                                c_lookup_data = read_lookup_from_file(&(c_lookup->data),values[1],values[2][0],&c_lookup->max_key_len);
+                                read_lookup_from_file(c_lookup->data,values[1],values[2][0]);
                             }
                         } else if(strcmp(values[0],N_DEFAULT) == 0)
                         {

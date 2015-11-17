@@ -1,11 +1,6 @@
-This is ffe.info, produced by makeinfo version 4.13 from ffe.texi.
+This is ffe.info, produced by makeinfo version 5.2 from ffe.texi.
 
-INFO-DIR-SECTION Utilities
-START-INFO-DIR-ENTRY
-* ffe: (ffe).                 Flat File Extractor.
-END-INFO-DIR-ENTRY
-
-   This file documents version 0.3.4 of `ffe', a flat file extractor.
+This file documents version 0.3.5 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -21,6 +16,10 @@ END-INFO-DIR-ENTRY
      Permission is granted to copy and distribute translations of this
      manual into another language, under the above conditions for
      modified versions.
+INFO-DIR-SECTION Utilities
+START-INFO-DIR-ENTRY
+* ffe: (ffe).                 Flat File Extractor.
+END-INFO-DIR-ENTRY
 
 
 File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
@@ -28,7 +27,7 @@ File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 ffe
 ***
 
-This file documents version 0.3.4 of `ffe', a flat file extractor.
+This file documents version 0.3.5 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -48,9 +47,9 @@ This file documents version 0.3.4 of `ffe', a flat file extractor.
 * Menu:
 
 * Overview::                    Preliminary information.
-* Samples::                     Samples using `ffe'.
-* Invoking ffe::                How to run `ffe'.
-* ffe configuration::           How `ffe' works.
+* Samples::                     Samples using 'ffe'.
+* Invoking ffe::                How to run 'ffe'.
+* ffe configuration::           How 'ffe' works.
 * Problems::                    Reporting bugs.
 
 
@@ -59,14 +58,14 @@ File: ffe.info,  Node: Overview,  Next: Samples,  Prev: Top,  Up: Top
 1 Preliminary information
 *************************
 
-The `ffe' is a program to extract fields from text and binary flat
-files and to print them in different formats. The input file structure
-and printing definitions are specified in a configuration file, which
-is always required. Default configuration file is `~/.fferc' (`ffe.rc'
-in windows).
+The 'ffe' is a program to extract fields from text and binary flat files
+and to print them in different formats.  The input file structure and
+printing definitions are specified in a configuration file, which is
+always required.  Default configuration file is '~/.fferc' ('ffe.rc' in
+windows).
 
-   `ffe' is a command line tool developed for GNU/Linux and UNIX
-systems. `ffe' can read from standard input and write to standard
+   'ffe' is a command line tool developed for GNU/Linux and UNIX
+systems.  'ffe' can read from standard input and write to standard
 output, so it can be used as a part of a pipeline.
 
    There is also binary distribution for windows.
@@ -74,10 +73,10 @@ output, so it can be used as a part of a pipeline.
 
 File: ffe.info,  Node: Samples,  Next: Invoking ffe,  Prev: Overview,  Up: Top
 
-2 Samples using `ffe'
+2 Samples using 'ffe'
 *********************
 
-One example of using `ffe' for printing personnel information in XML
+One example of using 'ffe' for printing personnel information in XML
 format from fixed length flat file:
 
      $ cat personnel
@@ -86,8 +85,8 @@ format from fixed length flat file:
      Mary     Moore        41
      $
 
-A file `personnel' contains three fixed length fields: `FirstName',
-`LastName' and `Age', their respective lengths are 9,13 and 2.
+A file 'personnel' contains three fixed length fields: 'FirstName',
+'LastName' and 'Age', their respective lengths are 9,13 and 2.
 
 In order to print data above in XML, following configuration file must
 be available:
@@ -136,17 +135,17 @@ Using ffe:
 
 File: ffe.info,  Node: Invoking ffe,  Next: ffe configuration,  Prev: Samples,  Up: Top
 
-3 How to run `ffe'
+3 How to run 'ffe'
 ******************
 
-`ffe' is a command line tool. Normally `ffe' can be invoked as:
+'ffe' is a command line tool.  Normally 'ffe' can be invoked as:
 
-   `ffe -o OUTPUTFILE INPUTFILE...'
+   'ffe -o OUTPUTFILE INPUTFILE...'
 
-`ffe' uses the definitions from the configuration file and tries to
+'ffe' uses the definitions from the configuration file and tries to
 guess the input file structure.
 
-If the structure cannot be guessed the option `-s' must be used.
+If the structure cannot be guessed the option '-s' must be used.
 
 * Menu:
 
@@ -161,114 +160,114 @@ File: ffe.info,  Node: Invocation,  Next: Configuration,  Up: Invoking ffe
 3.1 Program invocation
 ======================
 
-The format for running the `ffe' program is:
+The format for running the 'ffe' program is:
 
      ffe OPTION ...
 
-`ffe' supports the following options:
+'ffe' supports the following options:
 
-`-c FILE'
-`--configuration=FILE'
-     Configuration is read from FILE, instead of `~/.fferc' (`ffe.rc'
-     in windows).
+'-c FILE'
+'--configuration=FILE'
+     Configuration is read from FILE, instead of '~/.fferc' ('ffe.rc' in
+     windows).
 
-`-s STRUCTURE'
-`--structure=STRUCTURE'
+'-s STRUCTURE'
+'--structure=STRUCTURE'
      Use structure STRUCTURE for input file, suppresses guessing.
 
-`-p OUTPUT'
-`--print=OUTPUT'
-     Use output format OUTPUT for printing. If not given, then the
-     record or structure related output format is used. Printing can be
-     suppressed using format NO. Original data is printed using format
+'-p OUTPUT'
+'--print=OUTPUT'
+     Use output format OUTPUT for printing.  If not given, then the
+     record or structure related output format is used.  Printing can be
+     suppressed using format NO.  Original data is printed using format
      RAW.
 
-`-o FILE'
-`--output=FILE'
+'-o FILE'
+'--output=FILE'
      Write output to FILE instead of standard output.
 
-`-f LIST'
-`--field-list=LIST'
+'-f LIST'
+'--field-list=LIST'
      Print only fields and constants listed in the comma separated list
-     LIST. Order of names in LIST specifies also the printing order.
+     LIST.  Order of names in LIST specifies also the printing order.
 
-`-e EXPRESSION'
-`--expression=EXPRESSION'
+'-e EXPRESSION'
+'--expression=EXPRESSION'
      Print only those records for which the EXPRESSION evaluates to
      true.
 
-`-a'
-`--and'
+'-a'
+'--and'
      Expressions are combined with logical and, default is logical or.
      Note that if the same field and operator appear several time in
      expressions they are always compared with logical or.
 
-`-X'
-`--casecmp'
+'-X'
+'--casecmp'
      Expressions are evaluated using case insensitive comparison
 
-`-v'
-`--invert-match'
+'-v'
+'--invert-match'
      Print only those records which don't match the expression.
 
-`-l'
-`--loose'
-     Normally `ffe' stops when it encounters an input line or binary
-     block which doesn't match any of the records in selected
-     structure. Defining this option causes `ffe' continue despite the
-     error.  Note that invalid lines are reported only for text input.
-     In case of binary input next valid block is silently searched.
+'-l'
+'--loose'
+     Normally 'ffe' stops when it encounters an input line or binary
+     block which doesn't match any of the records in selected structure.
+     Defining this option causes 'ffe' continue despite the error.  Note
+     that invalid lines are reported only for text input.  In case of
+     binary input next valid block is silently searched.
 
-`-r'
-`--replace=FIELD=VALUE'
-     Replace FIELDs contents with VALUE in output. VALUE can contain
-     same directives as output option `data'.
+'-r'
+'--replace=FIELD=VALUE'
+     Replace FIELDs contents with VALUE in output.  VALUE can contain
+     same directives as output option 'data'.
 
-`-d'
-`--debug'
-     All invalid input lines are written to `ffe_error_<pid>.log',
-     where `<pid>' is the process ID.
+'-d'
+'--debug'
+     All invalid input lines are written to 'ffe_error_<pid>.log', where
+     '<pid>' is the process ID.
 
-`-I'
-`--info'
+'-I'
+'--info'
      Show structure information in the configuration file and exit
-     successfully. For every structure following information in shown:
+     successfully.  For every structure following information in shown:
      Structures: Name, type and maximum record length.
      Records: Name and length
-     Fields: Name, position and length. First position is number one.
+     Fields: Name, position and length.  First position is number one.
 
-`-?'
-`--help'
+'-?'
+'--help'
      Print an informative help message describing the options and then
      exit successfully.
 
-`-V'
-`--version'
-     Print the version number of `ffe' and then exit successfully.
+'-V'
+'--version'
+     Print the version number of 'ffe' and then exit successfully.
 
-   All remaining options are names of input files, if no input files
-are specified or `-' is given, then the standard input is read.
+   All remaining options are names of input files, if no input files are
+specified or '-' is given, then the standard input is read.
 
-Expressions (option `-e', `--expression')
+Expressions (option '-e', '--expression')
 -----------------------------------------
 
 Expression can be used to select specific records comparing field
 values.  Expression has syntax FIELD*x*VALUE, where *x* is the
 comparison operator.  Expression is used to compare field's contents to
-VALUE and if comparison is successful the record is printed. Several
-expressions can be given and at least one must evaluate to true in
-order to print a record. If option `-a' is given all expressions must
+VALUE and if comparison is successful the record is printed.  Several
+expressions can be given and at least one must evaluate to true in order
+to print a record.  If option '-a' is given all expressions must
 evaluate to true.
 
-   If VALUE starts with string `file:' then the rest of VALUE is
+   If VALUE starts with string 'file:' then the rest of VALUE is
 considered as a file name.  Every line in file is used as VALUE in
-comparison. Comparison evaluates true if one or more values matches, so
-this makes possible use several different values in comparison. *Note*:
+comparison.  Comparison evaluates true if one or more values matches, so
+this makes possible use several different values in comparison.  *Note*:
 The file size is limited by available memory because the file contents
 is loaded to memory.
 
    When comparing binary fields the VALUE must have the representation
-which can be shown using the `%d' output directive. Note that the
+which can be shown using the '%d' output directive.  Note that the
 printing option HEX-CAPS takes effect in comparison.
 
 Expression notation:
@@ -286,7 +285,7 @@ FIELD*!*VALUE
      Field FIELD is not equal to VALUE.
 
 FIELD*?*VALUE
-     Field FIELD matches the regular expression VALUE.  `ffe' supports
+     Field FIELD matches the regular expression VALUE.  'ffe' supports
      POSIX extended regular expressions.
 
 
@@ -295,16 +294,16 @@ File: ffe.info,  Node: Configuration,  Next: Guessing,  Prev: Invocation,  Up: I
 3.2 Configuration
 =================
 
-`ffe' uses configuration file in order to read the input file and print
+'ffe' uses configuration file in order to read the input file and print
 the output.
 
-   Configuration file for `ffe' is a text file. The file may contain
-empty lines.  Commands are case sensitive. Comments  begin with the
-`#'-character and end at the end of the line.  The `string' definitions
-can be enclosed in double quotation `"' characters.  `char' is a single
-character. `string' and `char' can contain following escape codes:
-`\a', `\b', `\t', `\n', `\v', `\f', `\r', `\"' and `\#'.  A backslash
-can be escaped as `\\'.
+   Configuration file for 'ffe' is a text file.  The file may contain
+empty lines.  Commands are case sensitive.  Comments begin with the
+'#'-character and end at the end of the line.  The 'string' definitions
+can be enclosed in double quotation '"' characters.  'char' is a single
+character.  'string' and 'char' can contain following escape codes:
+'\a', '\b', '\t', '\n', '\v', '\f', '\r', '\"' and '\#'.  A backslash
+can be escaped as '\\'.
 
    Configuration has two main parts: the structure, which specifies the
 input file structure and the output, which specifies how the input data
@@ -357,19 +356,20 @@ Common syntax for configuration file is:
 Structure
 ---------
 
-Keyword `structure' is used to specify the input file content. An input
+Keyword 'structure' is used to specify the input file content.  An input
 file can contain several types of records (lines or binary blocks).
-E.g. file can have a header, data and trailer record types. Records
+E.g.  file can have a header, data and trailer record types.  Records
 must be distinguishable from each other, this can be achieved defining
-different 'keys' (`id' in record definition) or having different line
+different 'keys' ('id' in record definition) or having different line
 lengths (for fixed length) or different count of fields (for separated
 structure) for different records.
 
    If binary structure has several records, then all records must have
-at least one key (`id'), because binary blocks can be distinguished
-only by using keys.
+at least one key ('id'), because binary blocks can be distinguished only
+by using keys.
 
 The structure notation:
+
      structure NAME {
          option value ...
          ...
@@ -377,86 +377,86 @@ The structure notation:
 
 A structure can contain following options:
 
-`type fixed|binary|separated [CHAR] [*]'
-     The fields in the input are fixed length fields (text or binary)
-     or text fields separated by CHAR. If * is given, multiple
-     sequential separators are considered as one. Default separator is
-     comma.
+'type fixed|binary|separated [CHAR] [*]'
+     The fields in the input are fixed length fields (text or binary) or
+     text fields separated by CHAR.  If * is given, multiple sequential
+     separators are considered as one.  Default separator is comma.
 
-`quoted [CHAR]'
+'quoted [CHAR]'
      Fields may be quoted with char, default quotation mark is the
      double quotation mark '"'.  A quotation mark is assumed to be
      escaped as \CHAR or doubling the mark as CHARCHAR in input.  Non
      escaped quotation marks are not preserved in output.
 
-`header first|all|no'
-     Controls the occurrence of the header line. Default is no. If set
+'header first|all|no'
+     Controls the occurrence of the header line.  Default is no.  If set
      as _first_ or _all_, the first line of the first input file is
-     considered as header line containing the names of  the  fields.
-     _first_ means  that  only  the  first  file  has  a header, _all_
-     means means that all files have a header, although the names are
-     still taken from the header of the first file. Header line is
-     handled according the record definition, meaning that the name
-     positions, separators etc. are the same as for the fields. Binary
-     files cannot have a header.
+     considered as header line containing the names of the fields.
+     _first_ means that only the first file has a header, _all_ means
+     means that all files have a header, although the names are still
+     taken from the header of the first file.  Header line is handled
+     according the record definition, meaning that the name positions,
+     separators etc.  are the same as for the fields.  Binary files
+     cannot have a header.
 
-`output NAME|no|raw'
+'output NAME|no|raw'
      All records belonging to this structure are printed according
-     output format name.  Default is to use output named as `default'.
-     `no' prints nothing and `raw' prints only the original data.
+     output format name.  Default is to use output named as 'default'.
+     'no' prints nothing and 'raw' prints only the original data.
 
-`record NAME {options ...}'
-     Specifies one record for a structure. A structure can contain
+'record NAME {options ...}'
+     Specifies one record for a structure.  A structure can contain
      several record types.
 
 Record
 ------
 
 A record specifies one type of input line or binary block in a file.
-Different records can be distinguished using the `id' option or
-different line lengths or field counts. In multi-record binary
-structure every record must have at least one `id' because binary
+Different records can be distinguished using the 'id' option or
+different line lengths or field counts.  In multi-record binary
+structure every record must have at least one 'id' because binary
 records do not have a special end of record marker as text lines have.
 
 The record notation:
+
      record NAME {
          option value ...
          ...
      }
 A record can contain following options:
 
-`id POSITION STRING'
-`rid POSITION REGEXP'
-     Identifies a record in the input file. Records are identified by
+'id POSITION STRING'
+'rid POSITION REGEXP'
+     Identifies a record in the input file.  Records are identified by
      the STRING or by the regular expression REGEXP in input record
-     position POSITION. For fixed length and binary input the position
+     position POSITION.  For fixed length and binary input the position
      is the byte position of input record and for separated input the
-     POSITION is the POSITION'th field of the input record. Positions
+     POSITION is the POSITION'th field of the input record.  Positions
      starts always from one.
 
      A record definition can contain several id's, then all id's must
-     match the input line (`id''s are _and-ed_).
+     match the input line ('id''s are _and-ed_).
 
-     Non printable characters can be escaped as `\xnn', where `nn' is
+     Non printable characters can be escaped as '\xnn', where 'nn' is
      characters hexadecimal value.
 
-`field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]'
+'field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]'
      Defines one field in a text input structure.  LENGTH is mandatory
      for fixed length input structure.
 
      The last field of a fixed length input structure can have a _*_ in
-     place of LENGTH. That means that the last field has no exact
+     place of LENGTH.  That means that the last field has no exact
      length specified and it gets the remainder of the input line after
-     all other fields. This allows a fixed record to have arbitrary
+     all other fields.  This allows a fixed record to have arbitrary
      long last field.
 
      Length is also used for printing the fields in fixed length format
-     (directive `%D' in output definitions).
+     (directive '%D' in output definitions).
 
      If _*_ is given instead of the name, then the NAME will be the
-     ordinal number of the field, or if the `header' option has value
-     _first_ or _all_, then the name of the field will be taken from
-     the header line (first line of the input).
+     ordinal number of the field, or if the 'header' option has value
+     _first_ or _all_, then the name of the field will be taken from the
+     header line (first line of the input).
 
      If LOOKUP is given then the fields contents is used to make a
      lookup in lookup table LOOKUP.  If LENGTH is not needed (separated
@@ -464,422 +464,347 @@ A record can contain following options:
      definition.
 
      If OUTPUT is given the field will be printed using output
-     definition OUTPUT. If LENGTH and/or LOOKUP are not needed use
+     definition OUTPUT.  If LENGTH and/or LOOKUP are not needed use
      asterisk in place of them.
 
-     If field is named as `FILLER', the field will not appear in output.
+     If field is named as 'FILLER', the field will not appear in output.
 
      The order of fields in configuration file is essential, it
      specifies the field order in a record.
-
-`field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]'
-     Defines one field in a binary structure. All other features are
+'field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]'
+     Defines one field in a binary structure.  All other features are
      same as for text structure fields except the TYPE parameter.
 
-     TYPE specifies the field length and type and can have the
-     following values:
+     TYPE specifies the field length and type and can have the following
+     values:
 
-    `char'
+     'char'
           Printable character.
-
-    `short'
+     'short'
           Short integer having current system length and byte order.
-
-    `int'
+     'int'
           Integer having current system length and byte order.
-
-    `long'
+     'long'
           Long integer having current system length and byte order.
-
-    `llong'
+     'llong'
           Long long integer having current system length and byte order.
-
-    `ushort'
+     'ushort'
           Unsigned short integer having current system length and byte
           order.
-
-    `uint'
+     'uint'
           Unsigned integer having current system length and byte order.
-
-    `ulong'
+     'ulong'
           Unsigned long integer having current system length and byte
           order.
-
-    `ullong'
+     'ullong'
           Unsigned long long integer having current system length and
           byte order.
-
-    `int8'
+     'int8'
           8 bit integer.
-
-    `int16_be'
+     'int16_be'
           Big endian 16 bit integer.
-
-    `int32_be'
+     'int32_be'
           Big endian 32 bit integer.
-
-    `int64_be'
+     'int64_be'
           Big endian 64 bit integer.
-
-    `int16_le'
+     'int16_le'
           Little endian 16 bit integer.
-
-    `int32_le'
+     'int32_le'
           Little endian 32 bit integer.
-
-    `int64_le'
+     'int64_le'
           Little endian 64 bit integer.
-
-    `uint8'
+     'uint8'
           Unsigned 8 bit integer.
-
-    `uint16_be'
+     'uint16_be'
           Unsigned big endian 16 bit integer.
-
-    `uint32_be'
+     'uint32_be'
           Unsigned big endian 32 bit integer.
-
-    `uint64_be'
+     'uint64_be'
           Unsigned big endian 64 bit integer.
-
-    `uint16_le'
+     'uint16_le'
           Unsigned little endian 16 bit integer.
-
-    `uint32_le'
+     'uint32_le'
           Unsigned little endian 32 bit integer.
-
-    `uint64_le'
+     'uint64_le'
           Unsigned little endian 64 bit integer.
-
-    `float'
+     'float'
           Float having current system length and byte order.
-
-    `float_be'
+     'float_be'
           Float having current system length and big endian byte order.
-
-    `float_le'
+     'float_le'
           Float having current system length and little endian byte
           order.
-
-    `double'
+     'double'
           Double having current system length and byte order.
-
-    `double_be'
+     'double_be'
           Double having current system length and big endian byte order.
-
-    `double_le'
+     'double_le'
           Double having current system length and little endian byte
           order.
-
-    `bcd_be_LEN'
+     'bcd_be_LEN'
           Bcd number having length LEN and nybbles in big endian order.
-
-    `bcd_le_LEN'
+     'bcd_le_LEN'
           Bcd number having length LEN and nybbles in little endian
           order.
-
-    `hex_be_LEN'
+     'hex_be_LEN'
           Hexadecimal data in big endian order having length LEN.
-
-    `hex_le_LEN'
+     'hex_le_LEN'
           Hexadecimal data in little endian order having length LEN.
 
      If LENGTH is given instead of the TYPE, then the field is assumed
-     to be a printable string having length LENGTH. String is printed
+     to be a printable string having length LENGTH.  String is printed
      until LENGTH characters are printed or NULL character is found.
 
-     Bcd number (`bcd_be_LEN' and `bcd_le_LEN') is printed until LEN
-     bytes are read or a nybble having hexadecimal value `f' is found.
+     Bcd number ('bcd_be_LEN' and 'bcd_le_LEN') is printed until LEN
+     bytes are read or a nybble having hexadecimal value 'f' is found.
      Bcd number having big endian order is printed in order: most
      significant nybble first and least significant nybble second and
      bcd number having little endian order is printed in order: least
-     significant nybble first and most significant nybble second. Bytes
+     significant nybble first and most significant nybble second.  Bytes
      are always read in big endian order.
 
-     Hexadecimal data (`hex_be_LEN' and `hex_le_LEN') is printed as
-     hexadecimal values. Big endian data is printed starting from lower
+     Hexadecimal data ('hex_be_LEN' and 'hex_le_LEN') is printed as
+     hexadecimal values.  Big endian data is printed starting from lower
      address and little endian data starting from upper address.
 
-`field-count NUMBER'
-     Same effect as having "`field *'" NUMBER times. This can be used
-     in separated structure instead of writing sequential "`field *'"
-     definitions. Several `field-count's can be used in the same record
-     and they can be mixed with `field'.
-
-`fields-from RECORD'
-     Fields in this record are the same as in record RECORD. `field'
-     and `fields-from' are mutually exclusive.
-
-`output NAME|no|raw'
-     This record is printed according to output format NAME. Default is
+'field-count NUMBER'
+     Same effect as having "'field *'" NUMBER times.  This can be used
+     in separated structure instead of writing sequential "'field *'"
+     definitions.  Several 'field-count's can be used in the same record
+     and they can be mixed with 'field'.
+'fields-from RECORD'
+     Fields in this record are the same as in record RECORD.  'field'
+     and 'fields-from' are mutually exclusive.
+'output NAME|no|raw'
+     This record is printed according to output format NAME.  Default is
      to use output format specified in structure.
-
-`level NUMBER [ELEMENT_NAME|*] [GROUP_NAME]'
+'level NUMBER [ELEMENT_NAME|*] [GROUP_NAME]'
      Levels can be used to print the file in hierarchical multi-level
      nested form document.  NUMBER is the level of the record, starting
      from number one (highest level), ELEMENT_NAME is the name for the
      record, GROUP_NAME is used to group records in the same and lower
-     levels. Only NUMBER is mandatory.  Use * instead of the element
+     levels.  Only NUMBER is mandatory.  Use * instead of the element
      name if group name is needed.
-
-`record-length strict|minimum'
-
-    `strict'
+'record-length strict|minimum'
+     'strict'
           Input record length (fixed format) or field count (separated
-          format)  must match the record definition in order to get it
-          processed. This is the default value.
-
-    `minimum'
+          format) must match the record definition in order to get it
+          processed.  This is the default value.
+     'minimum'
           Input record length or field count can be the same or longer
-          as defined for the record. The rest of the input line is
+          as defined for the record.  The rest of the input line is
           ignored.
 
 Output
 ------
 
-Keyword `output' specifies a output format for formatting the input
-data for output. Formatting is controlled using options and printf
-style directives. An output definition is independent from structur, so
-one output format can be used with different input file formats.
+Keyword 'output' specifies a output format for formatting the input data
+for output.  Formatting is controlled using options and printf style
+directives.  An output definition is independent from structur, so one
+output format can be used with different input file formats.
 
 The output notation:
+
      output NAME {
          option value ...
          ...
      }
-Actual formatting and printing is controlled using _pictures_ in output
-options. Pictures can contain following printf style directives:
 
-`%f'
+   Actual formatting and printing is controlled using _pictures_ in
+output options.  Pictures can contain following printf style directives:
+
+'%f'
      Name of the input file.
-
-`%s'
+'%s'
      Name of the current structure.
-
-`%r'
+'%r'
      Name of the current record.
-
-`%o'
+'%o'
      Input record number in current file.
-
-`%O'
+'%O'
      Input record number starting from the first file.
-
-`%i'
-     Byte offset of the current record in the current file. Starts from
+'%i'
+     Byte offset of the current record in the current file.  Starts from
      zero.
-
-`%I'
+'%I'
      Byte offset of the current record starting from the first file.
      Starts from zero.
-
-`%n'
+'%n'
      Field name.
-
-`%t'
+'%t'
      Field contents, without leading and trailing whitespaces.
-
-`%d'
-     Field contents. Binary integer is printed as a decimal value.
-     Floating point number is printed in the style `[-]ddd.ddd', where
-     the number of digits after the decimal-point character is 6. Bcd
+'%d'
+     Field contents.  Binary integer is printed as a decimal value.
+     Floating point number is printed in the style '[-]ddd.ddd', where
+     the number of digits after the decimal-point character is 6.  Bcd
      number is printed as a decimal number and hexadecimal data as
      consecutive hexadecimal values.
-
-`%D'
+'%D'
      Field contents, right padded to the field length (requires length
      definition for the field).
-
-`%C'
+'%C'
      Field contents, right padded to the field length (requires length
-     definition for the field). Contents is cutted if the input field
+     definition for the field).  Contents is cutted if the input field
      is longer than output length.
-
-`%x'
-     Unsigned hexadecimal value of a binary integer. Other fields are
-     printed as directive `%d' would be used.
-
-`%l'
+'%x'
+     Unsigned hexadecimal value of a binary integer.  Other fields are
+     printed as directive '%d' would be used.
+'%l'
      Lookup value which has been found using current field as a search
      key.
-
-`%L'
+'%L'
      Lookup value, right padded to the field length.
-
-`%p'
-     Fields start position in a record. For fixed and binary structure
+'%p'
+     Fields start position in a record.  For fixed and binary structure
      this is field's byte position in the input line and for separated
-     structure this is the ordinal number of the field. Starts from one.
-
-`%h'
-     Hexadecimal dump of a field. Byte values are printed as
-     consecutive `xnn' values, where the `nn' is the hexadecimal value
-     of a byte. Data is printed before any endian conversion.
-
-`%e'
-     Does not print anything, causes still the "field empty" check to
-     be performed.  Can be  used  when only the names of non-empty
-     fields should be printed.
-
-`%g'
-     Group name given by the keyword `group_name' in record definition.
-
-`%m'
-     Element name given by the keyword `element_name' in record
+     structure this is the ordinal number of the field.  Starts from
+     one.
+'%h'
+     Hexadecimal dump of a field.  Byte values are printed as
+     consecutive 'xnn' values, where the 'nn' is the hexadecimal value
+     of a byte.  Data is printed before any endian conversion.
+'%e'
+     Does not print anything, causes still the "field empty" check to be
+     performed.  Can be used when only the names of non-empty fields
+     should be printed.
+'%g'
+     Group name given by the keyword 'group_name' in record definition.
+'%m'
+     Element name given by the keyword 'element_name' in record
      definition.
-
-`%%'
+'%%'
      Percent sign.
 
 Output options:
-`file_header PICTURE'
+'file_header PICTURE'
      PICTURE is printed once before file contents.
-
-`file_trailer PICTURE'
+'file_trailer PICTURE'
      PICTURE is printed once after file contents.
-
-`header PICTURE'
+'header PICTURE'
      If given, then the header line describing the field names is
      printed before records.  Every field name is printed according the
      PICTURE using the same separator and field length as given for the
-     fields. Picture can contain only `%n' directive.
-
-`data PICTURE'
+     fields.  Picture can contain only '%n' directive.
+'data PICTURE'
      Field contents is printed according PICTURE.
-
-`lookup PICTURE'
+'lookup PICTURE'
      If current field is related to lookup table, then this PICTURE is
-     used instead of picture from `data'.  This makes possible to use
+     used instead of picture from 'data'.  This makes possible to use
      different picture when the field is related to a lookup table.
-     Default is to use the picture from `data'.
-
-`separator STRING'
+     Default is to use the picture from 'data'.
+'separator STRING'
      All fields are terminated by STRING, except the last field of the
      record.  Default is not to print separator.
-
-`record_header PICTURE'
-     PICTURE is printed before the record content. Default is not to
+'record_header PICTURE'
+     PICTURE is printed before the record content.  Default is not to
      print the record header.
-
-`record_trailer PICTURE'
-     PICTURE is printed after the record content. Default is newline.
-
-`justify left|right|CHAR'
-     The output from the `data' option is left or right justified.
-     CHAR justifies output according the first occurrence of CHAR in
-     the data picture. Default is left.
-
-`indent STRING'
+'record_trailer PICTURE'
+     PICTURE is printed after the record content.  Default is newline.
+'justify left|right|CHAR'
+     The output from the 'data' option is left or right justified.  CHAR
+     justifies output according the first occurrence of CHAR in the data
+     picture.  Default is left.
+'indent STRING'
      Record contents is intended by STRING.  Field contents is intended
-     by two times the string. Default is not to indent.  If file
-     contents is printed in hierarchial form (keyword `level' in record
+     by two times the string.  Default is not to indent.  If file
+     contents is printed in hierarchial form (keyword 'level' in record
      definition) then contents is indented according the level of a
      record.
-
-`field-list NAME1,NAME2,...'
+'field-list NAME1,NAME2,...'
      Only fields and constants named as NAME1,NAME2,... are printed,
-     same effect as has option `-f'.  Default is print all fields and
-     no constants. Fields and constants are also printed in the same
-     order as they are listed.
-
-`no-data-print yes|no'
-     If `field-list' is given and and this is set as no and none of the
-     fields in `field-list' does not belong to the current record, then
-     the `record_header' and `record_trailer' are not printed.  Default
+     same effect as has option '-f'.  Default is print all fields and no
+     constants.  Fields and constants are also printed in the same order
+     as they are listed.
+'no-data-print yes|no'
+     If 'field-list' is given and and this is set as no and none of the
+     fields in 'field-list' does not belong to the current record, then
+     the 'record_header' and 'record_trailer' are not printed.  Default
      is yes.
-
-`field-empty-print yes|no'
+'field-empty-print yes|no'
      When set as no, nothing is printed for the fields which consist
-     entirely of characters from `empty-chars'.  If none of the fields
-     of a record are printed, then the printing of `record_trailer' is
+     entirely of characters from 'empty-chars'.  If none of the fields
+     of a record are printed, then the printing of 'record_trailer' is
      also suppressed.  Default is yes.
-
-`empty-chars STRING'
+'empty-chars STRING'
      STRING specifies a set of characters which consist an "empty"
-     field. Default is " \f\n\r\t\v" (space, form-feed, newline,
+     field.  Default is " \f\n\r\t\v" (space, form-feed, newline,
      carriage return, horizontal tab and vertical tab).
-
-`output-file FILE'
+'output-file FILE'
      Output is written to FILE instead of the default output (standard
-     output or given by `-o, --output').  If - is given the output is
+     output or given by '-o, --output').  If - is given the output is
      written to standard output.
-
-`group_header PICTURE'
+'group_header PICTURE'
      If a record has a level and a group name defined, PICTURE is
-     printed before the first record in a group or if the group name
-     has changed in the same level.  *Note*: Level related pictures can
-     contain printing directives `%g' and `%n' only.
-
-`group_trailer PICTURE'
+     printed before the first record in a group or if the group name has
+     changed in the same level.  *Note*: Level related pictures can
+     contain printing directives '%g' and '%n' only.
+'group_trailer PICTURE'
      If a record has a level and a group name defined, PICTURE is
      printed after the records in lower levels are printed or if the
      group name has changed in the same level or if a higher level
      record is found.
-
-`element_header PICTURE'
+'element_header PICTURE'
      If a record has a level and a element name defined, PICTURE is
      printed before the records contents.
-
-`element_trailer PICTURE'
+'element_trailer PICTURE'
      If a record has a level and a element name defined, PICTURE is
      printed after the records contents or after the following lower
      level records.
-
-`hex-caps yes|no'
-     Print hexadecimal numbers in capital letters. Default is no.
+'hex-caps yes|no'
+     Print hexadecimal numbers in capital letters.  Default is no.
 
 Lookup
 ------
 
-Keyword `lookup' specifies a lookup table which can be searched using
-field contents. Found values can be printed using output directives
-`%l' and `%L'.
+Keyword 'lookup' specifies a lookup table which can be searched using
+field contents.  Found values can be printed using output directives
+'%l' and '%L'.
 
 The lookup table notation:
+
      lookup NAME {
          option value ...
          ...
      }
 
 Lookup options:
-`search exact | longest'
-     Search method for this table. Either exact or longest match is
-     used when searching the table. Default is `exact'.
-
-`pair KEY VALUE'
-     Defines one key/value pair for the lookup table. In case of binary
+'search exact | longest'
+     Search method for this table.  Either exact or longest match is
+     used when searching the table.  Default is 'exact'.
+'pair KEY VALUE'
+     Defines one key/value pair for the lookup table.  In case of binary
      file KEY must have the same representation as can be shown using
-     the `%d' printing directive.
-
-`file NAME [SEPARATOR]'
-     Data for the lookup table is read from file NAME. Each line in
+     the '%d' printing directive.
+'file NAME [SEPARATOR]'
+     Data for the lookup table is read from file NAME.  Each line in
      file NAME is considered as a key/value pair separated by a single
-     character SEPARATOR. Default separator is semicolon. Lines without
-     separator are silently omitted.  *Note*: The file size is limited
-     by available memory because the file contents is loaded to memory.
-
-`default-value VALUE'
-     If searching the lookup table is unsuccessful then VALUE is used
-     in printing. Default is empty string.
+     character SEPARATOR.  Default separator is semicolon.  Lines
+     without separator are silently omitted.  *Note*: The file size is
+     limited by available memory because the file contents is loaded to
+     memory.
+'default-value VALUE'
+     If searching the lookup table is unsuccessful then VALUE is used in
+     printing.  Default is empty string.
 
 Constants
 ---------
 
-Keyword `const' specifies one name/value pair which can be used as an
+Keyword 'const' specifies one name/value pair which can be used as an
 additional output field.  Constants can be used only in field lists
-(option `-f,--field-list', or output option `field-list').
+(option '-f,--field-list', or output option 'field-list').
 
    Constants can be used to add fields to output which do not appear in
-input. E.g. new fields for separated output or adding spaces after a
+input.  E.g.  new fields for separated output or adding spaces after a
 fixed length field (changing the field length).
 
-   Note that VALUE is printed as it is for every record. It cannot be
+   Note that VALUE is printed as it is for every record.  It cannot be
 changed record by record.
 
-   If a constant has the same name as one of the input fields, the
-value VALUE is printed instead of the input field contents.
+   If a constant has the same name as one of the input fields, the value
+VALUE is printed instead of the input field contents.
 
    The constant notation:
+
      const NAME VALUE
 
    When NAME appears in field list it is treated as one of the input
@@ -889,55 +814,53 @@ Command Substitution
 --------------------
 
 Command Substitution allows the output of a command to replace parts of
-the configuration file. Syntax for command substitution is:
-``command'`
-The `command' is executed and the ``command'` is substituted with the
+the configuration file.  Syntax for command substitution is:
+
+''command''
+
+The 'command' is executed and the ''command'' is substituted with the
 standard output of the command, with any trailing newlines deleted.
 Command substitutions may not be nested.
 
-   Before executing the `command' `ffe' sets following environment
+   Before executing the 'command' 'ffe' sets following environment
 variables:
-`FFE_STRUCTURE'
-     The name of the structure from `-s,--structure'.
-
-`FFE_OUTPUT'
-     The name of the output file from `-o,--output'.
-
-`FFE_FORMAT'
-     The name of the output format from `-p,--print'.
-
-`FFE_FIRST_FILE'
+'FFE_STRUCTURE'
+     The name of the structure from '-s,--structure'.
+'FFE_OUTPUT'
+     The name of the output file from '-o,--output'.
+'FFE_FORMAT'
+     The name of the output format from '-p,--print'.
+'FFE_FIRST_FILE'
      The name of the first input file.
-
-`FFE_FILES'
+'FFE_FILES'
      A space-separated list of all input files.
    If variable is already set it will not be replaced.
 
 Input Preprocessor
 ------------------
 
-It is possible to define an input preprosessor for `ffe'. An input
+It is possible to define an input preprosessor for 'ffe'.  An input
 preprocessor is simply an executable program which writes the contents
-of the input file to standard output which will be read by `ffe'. If
+of the input file to standard output which will be read by 'ffe'.  If
 the input preprosessor does not write any characters on its standard
-output, then `ffe' uses the original file.
+output, then 'ffe' uses the original file.
 
-   To set up an input preprocessor, set the `FFEOPEN' environment
+   To set up an input preprocessor, set the 'FFEOPEN' environment
 variable to a command line which will invoke your input preprocessor.
-This command line should include  one  occurrence  of  the string `%s',
-which will be replaced by the input filename when the input
-preprocessor command is invoked.
+This command line should include one occurrence of the string '%s',
+which will be replaced by the input filename when the input preprocessor
+command is invoked.
 
-   The input preprocessor is not used if `ffe' is reading standard
+   The input preprocessor is not used if 'ffe' is reading standard
 input.
 
-   Convenient way is to use `lesspipe' (or `lesspipe.sh'), which is
+   Convenient way is to use 'lesspipe' (or 'lesspipe.sh'), which is
 availabe in many UNIX-systems, for example
      export FFEOPEN="/usr/bin/lesspipe %s"
 
-   Using the example above is it possible to give a zipped input file
-to `ffe', then the input processor will unzip the file before it is
-processed by `ffe'.
+   Using the example above is it possible to give a zipped input file to
+'ffe', then the input processor will unzip the file before it is
+processed by 'ffe'.
 
 
 File: ffe.info,  Node: Guessing,  Next: Limits,  Prev: Configuration,  Up: Invoking ffe
@@ -945,38 +868,35 @@ File: ffe.info,  Node: Guessing,  Next: Limits,  Prev: Configuration,  Up: Invok
 3.3 Guessing
 ============
 
-If `-s' is not given, `ffe' tries to guess the input structure.
+If '-s' is not given, 'ffe' tries to guess the input structure.
 
-   When guessing binary data `ffe' reads the first block of input data
+   When guessing binary data 'ffe' reads the first block of input data
 and tries to match the structure definitions from configuration file to
-that block. The input block size is the maximum binary block size found
+that block.  The input block size is the maximum binary block size found
 in configuration file.
 
-   When guessing text data `ffe' reads the first 10 000 lines or 1 MB
-of input data and tries to match the structure definitions from
-configuration file to input stream. If all lines match one and only one
+   When guessing text data 'ffe' reads the first 10 000 lines or 1 MB of
+input data and tries to match the structure definitions from
+configuration file to input stream.  If all lines match one and only one
 structure, the structure is used for reading the input file.
 
 Guessing uses following execution cycle:
 
   1. A input line or a binary block is read
-
-  2. All record `id''s are compared to the input data, if all `id''s of
+  2. All record 'id''s are compared to the input data, if all 'id''s of
      a record match the input date and the records line length matches
      the total length (or total count for separated structure) of the
-     fields, the record is considered to match the input line. If there
-     are no `id''s, only the line length or field count is checked. In
-     case of binary data only  `id''s are used in matching.
-
+     fields, the record is considered to match the input line.  If there
+     are no 'id''s, only the line length or field count is checked.  In
+     case of binary data only 'id''s are used in matching.
   3. In case of text data: If all lines match at least one of the
      records in a particular structure, the structure is considered as
-     selected.  There must be only one structure matching all lines
-     used for guessing.
+     selected.  There must be only one structure matching all lines used
+     for guessing.
 
      In case of binary data: If the first block matches at least one
      record of a structure, the structure is considered as selected.
      Only one structure must match.
-
 
 
 File: ffe.info,  Node: Limits,  Prev: Guessing,  Up: Invoking ffe
@@ -984,17 +904,17 @@ File: ffe.info,  Node: Limits,  Prev: Guessing,  Up: Invoking ffe
 3.4 Limitations
 ===============
 
-At least in GNU/Linux `ffe' should be able to handle big files (> 4
-GB), other systems are not tested.
+At least in GNU/Linux 'ffe' should be able to handle big files (> 4 GB),
+other systems are not tested.
 
-   Regular expression can be used in operator *?* in option `-e',
-`--expression' and in record key word `rid' only in systems where
+   Regular expression can be used in operator *?*  in option '-e',
+'--expression' and in record key word 'rid' only in systems where
 regular expression functions (regcomp, regexec, ...) are available.
 
 
 File: ffe.info,  Node: ffe configuration,  Next: Problems,  Prev: Invoking ffe,  Up: Top
 
-4 How `ffe' works
+4 How 'ffe' works
 *****************
 
 Following examples use two different input files:
@@ -1014,8 +934,8 @@ trailer).
      T0004
      $
 
-Structure for reading file above. Note that record `boss' reuses fields
-from `employee'.
+Structure for reading file above.  Note that record 'boss' reuses fields
+from 'employee'.
 
      structure personel_fix {
          type fixed
@@ -1056,8 +976,8 @@ Same file as above, but now separated by comma.
      T,0004
      $
 
-Structure for reading file above. Note that the field lengths are not
-needed in separated format. Length is need if the separated data is to
+Structure for reading file above.  Note that the field lengths are not
+needed in separated format.  Length is need if the separated data is to
 be printed in fixed length format.
 
      structure personel_sep {
@@ -1102,7 +1022,7 @@ like:
 Example output using command (assuming definitions above are saved in
 ~/.fferc)
 
-   `ffe -p xml personnel.sep'
+   'ffe -p xml personnel.sep'
 
      <?xml version="1.0" encoding="UTF-8"?>
       <header>
@@ -1142,9 +1062,9 @@ Printing sql commands
 ---------------------
 
 Data in examples above can be loaded to database by generated sql
-commands. Note that the header and trailer are not loaded, because only
-fields `FirstName',`LastName' and `Age' are printed and `no-data-print'
-is set as no. This prevents the `record_header' and `record_trailer' to
+commands.  Note that the header and trailer are not loaded, because only
+fields 'FirstName','LastName' and 'Age' are printed and 'no-data-print'
+is set as no.  This prevents the 'record_header' and 'record_trailer' to
 be printed for file header and trailer.
 
      output sql {
@@ -1160,7 +1080,7 @@ be printed for file header and trailer.
 
 Output from command
 
-   `ffe -p sql personnel.sep'
+   'ffe -p sql personnel.sep'
 
      delete table boss;
      delete table employee;
@@ -1174,8 +1094,8 @@ Output from command
 Human readable output
 ---------------------
 
-This output format shows the fields in format suitable for displaying
-in screen or printing.
+This output format shows the fields in format suitable for displaying in
+screen or printing.
 
      output nice {
          record_header "%s - %r - %f - %o\n"
@@ -1186,7 +1106,7 @@ in screen or printing.
 
 Output from command
 
-   `ffe -p nice personnel.fix'
+   'ffe -p nice personnel.fix'
       personel - header - personnel.fix - 1
        type=H
        date=2006-02-25
@@ -1235,7 +1155,7 @@ Personnel data can be displayed as HTML table using output like:
 
 Output from command
 
-   `ffe -p html -f FirstName,LastName,Age personnel.fix'
+   'ffe -p html -f FirstName,LastName,Age personnel.fix'
      <html>
      <head>
      </head>
@@ -1275,7 +1195,7 @@ Using expression
 
 Printing only Scott's record using expression with previous example:
 
-   `ffe -p html -f FirstName,LastName,Age -e FirstName^Scott
+   'ffe -p html -f FirstName,LastName,Age -e FirstName^Scott
 personnel.fix'
      <html>
      <head>
@@ -1300,7 +1220,7 @@ Using replace
 -------------
 
 Make all bosses and write a new personnel file printing the fields in
-fixed length format using directive `%D':
+fixed length format using directive '%D':
 
 Output definition:
      output fixed
@@ -1323,16 +1243,16 @@ Using constant
 --------------
 
 The length of the fields FirstName and LastName in fixed length format
-will be made two bytes longer.  This will be done by printing a
-constant after those two fields.  We use dots instead of spaces in
-order to make change more visible.
+will be made two bytes longer.  This will be done by printing a constant
+after those two fields.  We use dots instead of spaces in order to make
+change more visible.
 
-   Because we do not want to change header and trailer we need
-specially crafted configuration file.  Employee and boss records will
-be printed using new output FIXED2 and other records will be printed
-using output DEFAULT.
+   Because we do not want to change header and trailer we need specially
+crafted configuration file.  Employee and boss records will be printed
+using new output FIXED2 and other records will be printed using output
+DEFAULT.
 
-   New definition file `new_fixed.rc':
+   New definition file 'new_fixed.rc':
      const 2dots ".."
 
      structure personel_fix {
@@ -1372,7 +1292,7 @@ using output DEFAULT.
          data "%D"
          field-list Emptype,FirstName,2dots,LastName,2dots,Age
      }
-   Print new flat file:
+Print new flat file:
      $ ffe -c new_fixed.rc personel_fix
      H2006-02-25
      EJohn     ..Ripper       ..23
@@ -1386,7 +1306,7 @@ Using lookup table
 ------------------
 
 Lookup table is used to explain the EmpTypes contents in output format
-`nice':
+'nice':
 
 Lookup definition:
      lookup Type
@@ -1398,7 +1318,7 @@ Lookup definition:
          pair T Trailer
          default-value "Unknown record type!"
      }
-   Mapping the EmpType field to lookup:
+Mapping the EmpType field to lookup:
      structure personel_fix {
          type fixed
          record header {
@@ -1423,7 +1343,7 @@ Lookup definition:
              field count 4
          }
      }
-   Adding the lookup option to output definition `nice'.
+Adding the lookup option to output definition 'nice'.
      output nice {
          record_header "%s - %r - %f - %o\n"
          data "%n=%t\n"
@@ -1431,7 +1351,7 @@ Lookup definition:
          justify =
          indent " "
      }
-   Running ffe:
+Running ffe:
       $ffe -p nice personnel.fix
       personel_fix - header - personel_fix - 1
        type=H
@@ -1477,7 +1397,7 @@ like:
      E;Not a Boss!
      T;Trailer
      $
-   Lookup definition using file above:
+Lookup definition using file above:
      lookup Type
      {
          search exact
@@ -1488,9 +1408,9 @@ like:
 Making universal csv reader using command substitution
 ------------------------------------------------------
 
-Command substitution can be used to make a configuration for reading
-any csv file.  The number of fields will be read from the first file
-using awk.  Input file names and date are printed in the file header:
+Command substitution can be used to make a configuration for reading any
+csv file.  The number of fields will be read from the first file using
+awk.  Input file names and date are printed in the file header:
 
      structure csv {
          type separated ,
@@ -1532,7 +1452,7 @@ read using following configuration:
      {
          data "%n = %d (%h)\n"
      }
-   The `%h' directive gives a hex dump of the input data.
+   The '%h' directive gives a hex dump of the input data.
 
    Hexadecimal dump of the data:
      $ od -t x1 example_bin
@@ -1549,7 +1469,7 @@ read using following configuration:
      bcd_number = 45112 (x45x11x2f)
      hex = f15a9188 (xf1x5ax91x88)
 
-   Note that the text has only 3 characters before NULL byte. Because
+   Note that the text has only 3 characters before NULL byte.  Because
 this example was made in little endian machine, same result can be
 achieved with different configuration:
      structure bin_data
@@ -1566,24 +1486,24 @@ achieved with different configuration:
          }
      }
    This configuration is more portable in case the same data is to be
-read in a different architecture because endianess of integer and
-double are explicit given.
+read in a different architecture because endianess of integer and double
+are explicit given.
 
-   If the bcd number is read with `bcd_le_3' it would look as
+   If the bcd number is read with 'bcd_le_3' it would look as
      bcd_number = 5411 (x45x11x2f)
-   Note that nybbles are swapped and last byte is handled as `f2' (`f'
+   Note that nybbles are swapped and last byte is handled as 'f2' ('f'
 stops the printing) causing only first two bytes to be printed.
 
-   and if hexadecimal data is read with `hex_le_4' it would look as
+   and if hexadecimal data is read with 'hex_le_4' it would look as
      hex = 88915af1 (xf1x5ax91x88)
    Bytes are printed starting from the end of the data.
 
 Printing nested XML
 -------------------
 
-The keyword `level' in record definition can be used to print data in
-multi-level nested form. In this example a parent row is in level one
-and a child row is in level two. Children after a parent row belongs to
+The keyword 'level' in record definition can be used to print data in
+multi-level nested form.  In this example a parent row is in level one
+and a child row is in level two.  Children after a parent row belongs to
 the parent before child rows, so they are enclosed in a parent element.
 
    Example data:
@@ -1596,7 +1516,7 @@ the parent before child rows, so they are enclosed in a parent element.
      C,Amanda,20,Black
 
    A parent row consistd of ID (P), parent name, and the count of the
-children. A child row consists of id (C), child name, age and favorite
+children.  A child row consists of id (C), child name, age and favorite
 color.
 
    This can be printed in nested XML using rc file:
@@ -1794,19 +1714,19 @@ Some examples put in a single file
          default-value "Unknown record type!"
      }
 
-Using `ffe' to test file integrity
+Using 'ffe' to test file integrity
 ----------------------------------
 
-`ffe' can be used to check flat file integrity, because `ffe' checks
-for all lines the line length and id's for fixed length structure and
-field count and id's for separated structure.
+'ffe' can be used to check flat file integrity, because 'ffe' checks for
+all lines the line length and id's for fixed length structure and field
+count and id's for separated structure.
 
 Integrity can be checked using command
 
-   `ffe -p no -l inputfiles...'
+   'ffe -p no -l inputfiles...'
 
-Because option `-p' has value `no' nothing is printed to output except
-the error messages.  Option `-l' causes all erroneous lines to be
+Because option '-p' has value 'no' nothing is printed to output except
+the error messages.  Option '-l' causes all erroneous lines to be
 reported, not just the first one.
 
 Example output:
@@ -1820,12 +1740,12 @@ File: ffe.info,  Node: Problems,  Prev: ffe configuration,  Up: Top
 5 Reporting Bugs
 ****************
 
-If you find a bug in `ffe', please send electronic mail to
+If you find a bug in 'ffe', please send electronic mail to
 <tjsa@iki.fi>.  Include the version number, which you can find by
-running `ffe --version'.  Also include in your message the output that
+running 'ffe --version'.  Also include in your message the output that
 the program produced and the output you expected.
 
-   If you have other questions, comments or suggestions about `ffe',
+   If you have other questions, comments or suggestions about 'ffe',
 contact the author via electronic mail to <tjsa@iki.fi>.  The author
 will try to help you out, although he may not have time to fix your
 problems.
@@ -1833,15 +1753,15 @@ problems.
 
 
 Tag Table:
-Node: Top901
-Node: Overview1961
-Node: Samples2614
-Node: Invoking ffe4103
-Node: Invocation4689
-Node: Configuration8841
-Node: Guessing30407
-Node: Limits32007
-Node: ffe configuration32414
-Node: Problems52206
+Node: Top896
+Node: Overview1956
+Node: Samples2612
+Node: Invoking ffe4101
+Node: Invocation4688
+Node: Configuration8853
+Node: Guessing30435
+Node: Limits32035
+Node: ffe configuration32443
+Node: Problems52229
 
 End Tag Table

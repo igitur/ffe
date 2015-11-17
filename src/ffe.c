@@ -898,6 +898,9 @@ main(int argc, char **argv)
     char *field_list = NULL;
 
 #ifdef HAVE_SIGACTION
+#ifndef SA_NOCLDWAIT
+#define SA_NOCLDWAIT 0
+#endif
     struct sigaction act;
     sigemptyset(&act.sa_mask);
     act.sa_handler = SIG_IGN;

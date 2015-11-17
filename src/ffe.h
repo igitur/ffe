@@ -137,10 +137,11 @@ struct output {
     struct output *next;
 };
 
+#define MAX_EXPR_HASH 32771
+
 struct lookup_data {
     uint8_t *key;
     uint8_t *value;
-    int key_len;
     struct lookup_data *next;
 };
 
@@ -148,8 +149,7 @@ struct lookup {
     char *name;
     char type; 
     uint8_t *default_value;
-    int max_key_len;
-    struct lookup_data *data;
+    struct lookup_data *data[MAX_EXPR_HASH];
     struct lookup *next;
 };
 
@@ -171,9 +171,7 @@ struct expr_list {
     struct expr_list *next;
 };
 
-#define MAX_EXPR_HASH 32771
 #define MAX_EXPR_FAST_LIST 61
-
 
 /* search expression */
 struct expression {

@@ -1484,49 +1484,50 @@ make_lookup(struct lookup *l,uint8_t *search)
 {
     register uint8_t *k,*s;
     int search_len = strlen(search);
-    int max_len = -1;
     uint8_t *ret_val = NULL;
     uint8_t *longest = NULL;
-    struct lookup_data *d = l->data;
+    struct lookup_data *d;
 
     switch(l->type)
     {
         case EXACT:
-            if(search_len <= l->max_key_len)
-            {
-                while(d != NULL && ret_val == NULL)
-                {
-                    k = d->key;
-                    s = search;
-                    while(*k == *s && *k) 
-                    {
-                        k++;
-                        s++;
-                    }
-                    if(!*s && !*k) ret_val = d->value;
-                    d = d->next;
-                }
-            }
-            break;
-        case LONGEST:
-            while(d != NULL && max_len < l->max_key_len)
-            {
+
+            d = l->data[hash(search,0)];
+
+	    while(d != NULL && ret_val == NULL)
+	    {
                 k = d->key;
-                s = search;
-                while(*k == *s && *k) 
-                {
-                    k++;
-                    s++;
-                }
-                if(!*k && d->key_len > max_len)
-                {
-                    max_len = d->key_len;
-                    longest = d->value;
-                }
-                d = d->next;
-            }
-            ret_val = longest; 
-            break;
+		s = search;
+		while(*k == *s && *k) 
+		{
+		   k++;
+		   s++;
+		}
+		if(!*s && !*k) ret_val = d->value;
+		d = d->next;
+	    }
+	    break;
+	case LONGEST:
+            while(search_len && ret_val == NULL)
+	    {
+                d = l->data[hash(search,0)];
+
+	        while(d != NULL && ret_val == NULL)
+	        {
+		    k = d->key;
+		    s = search;
+		    while(*k == *s && *k) 
+		    {
+			    k++;
+			    s++;
+		    }
+		    if(!*s && !*k) ret_val = d->value;
+		    d = d->next;
+	         }
+                 search_len--;
+                 search[search_len] = 0;
+	    }
+	    break;
     }
 
     if(ret_val == NULL) ret_val = l->default_value;

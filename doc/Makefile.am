@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = info-in-builddir
 man_MANS = ffe.1
 info_TEXINFOS = ffe.texi
 ffe_TEXINFOS = texinfo.css
