@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- This file documents version 0.3.5-1 of ffe, a flat file extractor. 
+<!-- This file documents version 0.3.6 of ffe, a flat file extractor. 
 
 Copyright (C) 2014 Timo Savinen
 
@@ -151,7 +151,7 @@ div.node hr {
 <a name="ffe"></a>
 <h1 class="top">ffe</h1>
 
-<p>This file documents version 0.3.5-1 of <code>ffe</code>, a flat file extractor. 
+<p>This file documents version 0.3.6 of <code>ffe</code>, a flat file extractor. 
 </p>
 <p>Copyright &copy; 2014 Timo Savinen
 </p>
@@ -440,6 +440,7 @@ the output, which specifies how the input data is formatted for output.
 <pre class="example">#comment
 `command`
 const <var>name</var> <var>value</var>
+filter <var>name</var> <var>value</var>
 &hellip;
 structure <var>name</var> {
     <i>option value</i> &hellip;
@@ -560,8 +561,8 @@ separated input the <var>position</var> is the <var>position</var>&rsquo;th fiel
 <p>Non printable characters can be escaped as &lsquo;<samp>\xnn</samp>&rsquo;, where &lsquo;<samp>nn</samp>&rsquo; is characters hexadecimal value.
 </p>
 </dd>
-<dt><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]</code></dt>
-<dd><p>Defines one field in a text input structure.  <var>length</var> is mandatory for fixed length input structure.
+<dt><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]</code></dt>
+<dd><p>Defines a field in a text input structure.  <var>length</var> is mandatory for fixed length input structure.
 </p>
 <p>The last field of a fixed length input structure can have a <em>*</em> in place of <var>length</var>. That means that the last field
 has no exact length specified and it gets the remainder of the input line after all other fields. This allows a
@@ -576,14 +577,16 @@ the header line (first line of the input).
 <p>If <var>lookup</var> is given then the fields contents is used to make a lookup in lookup table <var>lookup</var>. 
 If <var>length</var> is not needed (separated format) but lookup is needed, use asterisk (*) in place of length definition.
 </p>
-<p>If <var>output</var> is given the field will be printed using output definition <var>output</var>. If <var>length</var> and/or <var>lookup</var> are not needed use asterisk in place of them.
+<p>If <var>output</var> is given the field will be printed using output definition <var>output</var>. If <var>length</var> and/or <var>lookup</var> are not needed use asterisk in place of them. Use asterisk (*) if not needed.
+</p>
+<p>If <var>filter</var> is given the raw contents of the field is filtered through a program defined by <var>filter</var> and the output of the program is printed as field contents.
 </p>
 <p>If field is named as <code>FILLER</code>, the field will not appear in output.
 </p>
 <p>The order of fields in configuration file is essential, it specifies the field order in a record.
 </p></dd>
-<dt><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]</code></dt>
-<dd><p>Defines one field in a binary structure. All other features are same as for text structure fields except the <var>type</var> parameter.
+<dt><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]</code></dt>
+<dd><p>Defines a field in a binary structure. All other features are same as for text structure fields except the <var>type</var> parameter.
 </p>
 <p><var>type</var> specifies the field length and type and can have the following values:
 </p>
@@ -726,6 +729,14 @@ Use * instead of the element name if group name is needed.
 </p></dd>
 </dl>
 </dd>
+<dt><code>variable-length <var>record_length</var> <var>variable_length_field</var> <var>adjust</var></code></dt>
+<dd><p><var>record_length</var> and <var>variable_length_field</var> are the names of two fields in the record and <var>adjust</var> is a signed integer.
+Record length is read from field <var>record_length</var>. <var>record_length</var> is assumed to be an integer type for binary structures or contain only desimal numbers in fixed length structure. 
+<var>record_length</var> is assumed to contain the total length of the record. 
+<var>variable_length_field</var> is the field having variable length. The length of <var>variable_length_field</var> is calculated by subracting the total length of the all other fields from the length read from <var>record_length</var>.
+<br>
+The length given by keyword <var>field</var> for <var>variable_length_field</var> is ignored. After calculating the length it is adjusted by <var>adjust</var>. <var>adjust</var> can be used in cases where the length read from <var>variable_length_field</var> does not contain the total length of the record.  variable-length can be used with binary or fixed lengths strutures only.
+</p></dd>
 </dl>
 
 <a name="Output"></a>
@@ -922,7 +933,7 @@ be printed using output directives <code>%l</code> and <code>%L</code>.
 <dd><p>Search method for this table. Either exact or longest match is used when searching the table. Default is <code>exact</code>.
 </p></dd>
 <dt><code>pair <var>key</var> <var>value</var></code></dt>
-<dd><p>Defines one key/value pair for the lookup table. In case of binary file <var>key</var> must have the same representation as
+<dd><p>Defines a key/value pair for the lookup table. In case of binary file <var>key</var> must have the same representation as
 can be shown using the <code>%d</code> printing directive.
 </p></dd>
 <dt><code>file <var>name</var> [<var>separator</var>]</code></dt>
@@ -956,6 +967,20 @@ the input field contents.
 </pre></div>
 
 <p>When <var>name</var> appears in field list it is treated as one of the input fields having contents <var>value</var>.
+</p>
+<a name="Filter"></a>
+<h4 class="subheading">Filter</h4>
+<p>Keyword <code>filter</code> defines a command that can be used to format field raw contents. Command must read the standard input
+and write to standard output and it must not block. Field raw contents is filtered through the command and the output is printed as
+field contents.
+</p>
+<p>The filter notation:
+<br>
+</p><div class="example">
+<pre class="example">filter <var>name</var> <var>command</var>
+</pre></div>
+
+<p><var>name</var> is referred in field definition. <var>command</var> is the shell command to be executed.
 </p>
 <a name="Command-Substitution"></a>
 <h4 class="subheading">Command Substitution</h4>

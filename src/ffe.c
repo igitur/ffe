@@ -110,6 +110,7 @@ struct expression *expression = NULL;
 struct lookup *lookup = NULL;
 struct replace *replace = NULL;
 struct field *const_field = NULL;
+struct pipe *pipes = NULL;
 
 /* output no marker */
 struct output dummy_no;
@@ -274,7 +275,7 @@ usage(int opt)
 void
 print_version()
 {
-    printf("%s version %s\n%s %s\n",program,version,build_date,host);
+    printf("%s version %s\n%s\n",program,version,host);
     printf("Copyright (c) 2007 Timo Savinen\n\n");
     printf("This is free software; see the source for copying conditions.\n");
     printf("There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -322,6 +323,19 @@ search_output(char *name)
     return NULL;
 }
 
+struct pipe *
+search_pipe(char *name)
+{
+    struct pipe *p = pipes;
+
+    while(p != NULL)
+    {
+        if(strcmp(name,p->name) == 0) return p;
+        p = p->next;
+    }
+    return NULL;
+}
+
 /* returns a record after name */
 struct record *
 find_record(struct structure *s,char *name)
@@ -364,6 +378,7 @@ check_rc(char *use_output)
     int errors = 0;
     int ordinal;
     int field_count_first;
+    int var_field_found;
     char num[64];
 
     s = structure;
@@ -461,10 +476,17 @@ check_rc(char *use_output)
             }
             r->length = 0;
             ordinal = 1;
+            var_field_found = 0;
             while(f != NULL) 
             {
                 if(s->type[0] == FIXED_LENGTH || s->type[0] == BINARY)
                 {
+                    if (r->length_field_name != NULL && strcmp(r->length_field_name,f->name) == 0) r->length_field = f;
+                    if (r->var_field_name != NULL && strcmp(r->var_field_name,f->name) == 0) 
+                    {
+                         f->length = 0;  
+                         f->var_length = 1;  
+                    }
                     f->position = r->length;
                     f->bposition = r->length;
                     r->length += f->length;
@@ -489,19 +511,27 @@ check_rc(char *use_output)
 
                 if(s->type[0] == BINARY && f->length < 1)
                 {
-                    errors++;
-                    fprintf(stderr,"%s: The field \'%s\' must have length in binary structure \'%s\' record \'%s\'\n",program ,f->name,s->name,r->name);
+                    if((r->length_field != NULL && var_field_found) || !r->length_field_name)
+                    {
+                        errors++;
+                        fprintf(stderr,"%s: The field \'%s\' must have length in binary structure \'%s\' record \'%s\'\n",program ,f->name,s->name,r->name);
+                    }
+                    var_field_found = 1;
                 }
 
                 if(s->type[0] == FIXED_LENGTH && f->length < 1)
                 {
                     if(f->next) /* last field can have length 0 */
                     {
-                        errors++;
-                        fprintf(stderr,"%s: The field \'%s\' must have length in fixed length structure \'%s\' record \'%s\'\n",program,f->name,s->name,r->name);
+                        if(r->length_field != NULL && var_field_found)
+                        {
+                            errors++;
+                            fprintf(stderr,"%s: The field \'%s\' must have length in fixed length structure \'%s\' record \'%s\'\n",program,f->name,s->name,r->name);
+			            }
+                        var_field_found = 1;
                     } else
                     {
-                        r->arb_length = 1;
+                        if(r->length_field == NULL) r->arb_length = 1;
                     }
                 }
 
@@ -535,8 +565,27 @@ check_rc(char *use_output)
                     }
                 }
 
+                if(f->pipe_name != NULL)
+                {
+                    f->p = search_pipe(f->pipe_name);
+                    if(f->p == NULL) {
+                        errors++;
+                        fprintf(stderr,"%s: No filter named as '%s'\n",program,f->pipe_name);
+                    }
+                }
+
                 f = f->next;
                 ordinal++;
+            }
+
+            if (r->length_field_name != NULL && !r->length_field) {
+                errors++;
+                fprintf(stderr,"%s: Record \'%s\' does not contain length field '\%s\'\n",program,r->name,r->length_field_name);
+            }
+
+            if(r->length < 1 && s->type[0] == BINARY) {
+                errors++;
+                fprintf(stderr,"%s: Record \'%s\' in structure \'%s\' must have length\n",program,r->name,s->name);
             }
 
             if(r->length > s->max_record_len) s->max_record_len = r->length;

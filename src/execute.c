@@ -33,9 +33,13 @@ static char *program = PACKAGE;
 static char *program = "ffe";
 #endif
 
-#define GUESS_LINES 10000
-#define GUESS_BUFFER (1024 * 1024)
-#define READ_LINE_LEN (512 * 1024)
+#define READ_LINE_LEN 33554432
+#define READ_LINE_LEN_HIGH (READ_LINE_LEN - 524288)
+
+
+
+#define GUESS_LINES 1000
+#define GUESS_BUFFER 524288
 #define FIELD_SIZE (128 * 1024)
 #define WRITE_BUFFER (2 * 1024 * 1024)
 #define JUSTIFY_STRING 128
@@ -52,16 +56,18 @@ static FILE *default_output_fp = NULL;
 static char *output_file = NULL;
 static FILE *output_fp = NULL;
 
-static uint8_t *guess_buffer[GUESS_LINES];
-static int guess_line_length[GUESS_LINES];
 static uint8_t *read_buffer = NULL;
-static size_t read_buffer_size = READ_LINE_LEN;
+static uint8_t *read_buffer_start = NULL;
+static uint8_t *read_buffer_high_water = NULL;
+
 static size_t last_consumed = 0;  /* for binary reads */
 static uint8_t *field_buffer = NULL;
 static int field_buffer_size = FIELD_SIZE;
 static int guess_lines = 0;
-static int read_guess_line = 0;
-static int binary_guessed = 0;
+
+static int eocf = 0;
+static int ccount = -1;
+static int orig_ccount = -1;
 
 static uint8_t justify_string[JUSTIFY_STRING];
 
@@ -76,6 +82,11 @@ static long int current_file_lineno;
 static long int current_total_lineno;
 static long long int current_offset = 0;
 static long long int current_file_offset = 0;
+
+
+/* Pipe management */
+#define PIPE_OUTPUT_LEN 1048576
+static uint8_t pipe_output[PIPE_OUTPUT_LEN];
 
 /* examples of non matching lines */
 #define NO_MATCH_LINES 1
@@ -98,6 +109,10 @@ static uint8_t hex_to_ascii_low[]={'0','1','2','3','4','5','6','7','8','9','a','
 
 static uint8_t *bcd_to_ascii;
 static uint8_t *hex_to_ascii;
+
+
+static void print_binary_field(uint8_t,struct field *,uint8_t *);
+static void print_fixed_field(uint8_t,struct field *,uint8_t *);
 
 inline uint8_t
 htocl(uint8_t hex)
@@ -244,6 +259,9 @@ open_input_stream(char *file,char type)
             ret = xfopen(file,"r");
         }
     }
+
+    read_buffer = read_buffer_start;
+
     return ret;
 }
 
@@ -251,7 +269,10 @@ open_input_stream(char *file,char type)
 void
 open_input_file(int stype)
 {
-    read_buffer = xmalloc(read_buffer_size);
+    read_buffer_start = xmalloc(READ_LINE_LEN);
+    read_buffer = read_buffer_start;
+    read_buffer_high_water = read_buffer_start + READ_LINE_LEN_HIGH;
+
     field_buffer = xmalloc(field_buffer_size);
 
     if(files->name[0] == '-' && !files->name[1])
@@ -279,7 +300,7 @@ complete_line_in_bin_buffer(int *ccount)
         do
         {
             c = fgetc(input_fp);
-            if(*ccount >= read_buffer_size) panic("Input file cannot be guessed, use -s option",NULL,NULL);
+            if(*ccount >= READ_LINE_LEN) panic("Input file cannot be guessed, use -s option",NULL,NULL);
             if(c != EOF) read_buffer[(*ccount)++] = (uint8_t) c;
         } while(c != EOF && c != '\n');
     }
@@ -343,6 +364,23 @@ uc_fgets(uint8_t *s, int size, FILE *stream)
 }
 
 
+/* find next lineend and return line length
+*/
+static int
+find_next_LF(uint8_t *start,int length)
+{
+    register uint8_t *p;
+
+    p = memchr(start,'\n',length);
+      
+    if(p == NULL) 
+    {
+        start[length] = '\n';      // add  missing LF
+        return length;
+    }
+    return p - start;
+}
+
 
 
 /* reads one file from input */
@@ -351,95 +389,59 @@ uc_fgets(uint8_t *s, int size, FILE *stream)
 int
 read_input_line(int stype)
 {
-    static int eof = 0;
-    static int ccount = 0;
-    static uint8_t *bbuffer = NULL;
+    int retval;
+    size_t unused;
 
     do
     {
-        if(stype == BINARY)
+        if(stype == BINARY) 
         {
-            if(last_consumed)
-            {
-                current_offset += (long long) last_consumed;
-                current_file_offset += (long long) last_consumed;
-                memmove(read_buffer,read_buffer+last_consumed,read_buffer_size - last_consumed);
-                if(!eof)
-                {
-                    ccount = uc_fread(read_buffer + (read_buffer_size - last_consumed),1,last_consumed,input_fp);
-                    if(ccount < last_consumed) eof = 1;
-                    ccount += read_buffer_size - last_consumed; // number of usable octets
-                } else
-                {
-                    ccount -= last_consumed;
-                }
-            } else
-            {
-                if(binary_guessed) // do not read anything new if guessed
-                {
-                    binary_guessed = 0;   
-                    current_file_lineno = current_file->lineno;
-                    return ccount;  
-                }
-                ccount = uc_fread(read_buffer,1,read_buffer_size,input_fp);
-                if(ccount < read_buffer_size) eof = 1;
-            }
-
-            if(ccount <= 0) 
-            {
-                ccount = -1;
-            } 
-        } else
-        {
-            if(binary_guessed || bbuffer != NULL) // binary guess has been done or still reading from bin buffer
-            {
-                int len;
-
-                binary_guessed = 0;
-
-                if(bbuffer == NULL)
-                {
-                    complete_line_in_bin_buffer(&ccount);
-                } else
-                {
-                    memmove(read_buffer,bbuffer,ccount);
-                    current_file->lineno++; // not in first read, has been made allready in binary read once
-                }
-                 
-                bbuffer = read_buffer;
-
-                while(*bbuffer && *bbuffer != '\n' && (int) (bbuffer - read_buffer) < ccount) bbuffer++;
-                    
-#ifdef WIN32
-                if(bbuffer > read_buffer && (bbuffer[-1] == '\r')) 
-                {
-                    bbuffer[-1] = 0;
-                    len = (int) (&bbuffer[-1] - read_buffer);
-                } else
-#endif
-                {
-                    *bbuffer = 0;
-                    len = (int) (bbuffer - read_buffer);
-                }
-                
-                if ((int) (bbuffer - read_buffer) < ccount) bbuffer++;
-
-                ccount -= (int) (bbuffer - read_buffer);
-
-                current_file_lineno = current_file->lineno;
-
-                if(!ccount) bbuffer = NULL;
-
-                return len ;
-            }
-
-            ccount = uc_fgets(read_buffer,read_buffer_size,input_fp);
-#ifdef WIN32
-            if(eof)  ccount = -1;
-#endif
+            current_offset += (long long) last_consumed;
+            current_file_offset += (long long) last_consumed;
         }
 
-        if(ccount == -1)
+        if(ccount <= 0)
+        {
+             ccount = uc_fread(read_buffer_start,1,READ_LINE_LEN,input_fp);
+             if(ccount < READ_LINE_LEN) eocf = 1;
+             read_buffer = read_buffer_start;
+        } else
+        {
+            if(read_buffer + last_consumed >= read_buffer_high_water && !eocf)
+            {
+                unused = READ_LINE_LEN-(read_buffer-read_buffer_start)-last_consumed;
+
+                memmove(read_buffer_start,read_buffer+last_consumed,unused);
+                ccount = uc_fread(read_buffer_start+unused,1,READ_LINE_LEN - unused,input_fp);
+                if(ccount < READ_LINE_LEN - unused) eocf = 1;
+                read_buffer = read_buffer_start;
+                ccount += unused;
+            } else
+            {
+                read_buffer += last_consumed;
+                ccount -= last_consumed;
+            }
+        } 
+
+        retval = ccount;
+
+        if(ccount > 0 && stype != BINARY)
+        {
+            retval = find_next_LF(read_buffer,ccount);
+            last_consumed = retval + (ccount > retval ? 1 : 0);   // add lf
+#ifdef WIN32
+            if(retval && read_buffer[retval - 1]  == '\r') {
+                retval--;
+                if(retval && read_buffer[retval - 1]  == '\r') retval--; /* There might be two CRs? */
+            }
+#endif
+        } else
+        {
+            last_consumed = 0;
+        }
+
+
+        if(ccount == 0)
         {
             if(fclose(input_fp))
             {
@@ -457,40 +459,29 @@ read_input_line(int stype)
                     input_fp = open_input_stream(current_file->name,stype);
                     if(stype == BINARY)
                     {
-                        last_consumed = 0;
                         current_file_offset = 0;
                     } 
-                    eof = 0;
                 }
+                eocf = 0;
+                last_consumed = 0;
                 current_file_name = current_file->name;
                 current_file->lineno = 0;
                 current_file_offset = 0;
+            } else
+            {
+                retval = -1;
             }
         } else
         {
-            current_file->lineno++;
+            if(stype != BINARY) current_file->lineno++;
         }
-    } while(ccount == -1 && current_file != NULL);
+    } while(ccount == 0 && current_file != NULL);
+
     if(ccount > 0)
     {
         current_file_lineno = current_file->lineno;
-        if(stype != BINARY)
-        {
-            if(read_buffer[ccount - 1] == '\n')
-            {
-                ccount--;   /* remove newline */
-                read_buffer[ccount] = 0;
-#ifdef WIN32 // setmode might not work after operations performed on file
-                if(read_buffer[ccount - 1] == '\r')
-                {
-                    ccount--;   /* remove carriage return */
-                    read_buffer[ccount] = 0;
-                }
-#endif
-            }
-        }
     }
-    return ccount;
+    return retval;
 }
 
 /* calculate field count from line containing separated fields */
@@ -503,9 +494,18 @@ get_field_count(uint8_t quote, uint8_t *type, uint8_t *line)
 
     if(type[0] != SEPARATED) return 0;
 
-    if (*p) fields++; /* at least one */
+#ifdef WIN32
+    if (*p != '\n' || *p != '\r') fields++; /* at least one */
+#else
+    if (*p != '\n') fields++; /* at least one */
+#endif
 
-    while(*p)
+
+#ifdef WIN32
+    while(*p != '\n' && *p != '\r')
+#else
+    while(*p != '\n')
+#endif
     {
         if(*p == type[1] && !inside_quote)
         {
@@ -520,7 +520,11 @@ get_field_count(uint8_t quote, uint8_t *type, uint8_t *line)
         {
             inside_quote = !inside_quote;
         }
-        if(*p) p++;
+#ifdef WIN32
+        if(*p != '\n' && *p != '\r') p++;
+#else
+        if(*p != '\n') p++;
+#endif
     }
     return fields;
 }
@@ -561,7 +565,11 @@ get_separated_field(int position, uint8_t quote,char *type, uint8_t *line)
     int inside_quote = 0;
     register int i = 0;
 
-    while(*p && fieldno <= position)
+#ifdef WIN32
+    while(*p != '\n' && *p != '\r' && fieldno <= position)
+#else
+    while(*p != '\n' && fieldno <= position)
+#endif
     {
         if(*p == type[1] && !inside_quote)
         {
@@ -599,18 +607,86 @@ get_separated_field(int position, uint8_t quote,char *type, uint8_t *line)
                 field_buffer = xrealloc(field_buffer,field_buffer_size);
             }
         }
-        if(*p) p++;
+#ifdef WIN32
+        if(*p != '\n' && *p != '\r') p++;
+#else
+        if(*p != '\n') p++;
+#endif
     }
     field_buffer[i] = 0;
     return field_buffer;
 }
     
 
-/* calculates votes for record, length has the buffer len and buffer 
- contains the line to be examined
+
+/* read input stream once to read_buffer
+   if allready read (orig_ccount > -1)
+   reset pointrs and ccount
  */
 int
-vote_record(uint8_t quote,char *type,int header,struct record *record,int length,uint8_t *buffer)
+init_guessing()
+{            
+    if(orig_ccount == -1)
+    {
+        ccount = uc_fread(read_buffer_start,1,READ_LINE_LEN,input_fp);
+        orig_ccount = ccount;
+        if(ccount < READ_LINE_LEN) eocf = 1;
+    } else
+    {
+        ccount = orig_ccount;
+    }
+    read_buffer = read_buffer_start;
+    last_consumed = 0;
+
+    return ccount;
+}
+
+/* read one input line from buffer for guessing, 
+   return line length
+   -1 if buffer consumed
+ */
+static int
+read_guess_line()
+{
+    int retval = -1;
+
+    read_buffer += last_consumed;
+    ccount -= last_consumed;
+
+    if(ccount > 0)
+    {
+        retval = find_next_LF(read_buffer,ccount);
+        last_consumed = retval + (ccount > retval ? 1 : 0);
+        current_file->lineno++;
+        current_file_lineno = current_file->lineno;
+#ifdef WIN32
+        if(retval && read_buffer[retval - 1]  == '\r') {
+            retval--;
+            if(retval && read_buffer[retval - 1]  == '\r') retval--; /* There might be two CRs? */
+        }
+#endif
+    }
+    return retval;
+}
+
+/* guessing done, reset ccount and pointer
+ */
+static void
+reset_guessing()
+{
+    ccount = orig_ccount;
+    read_buffer = read_buffer_start;
+    last_consumed = 0;
+    current_file_lineno = 0;
+    current_file->lineno = 0;
+    current_file_offset = 0;
+}
+
+/* calculates votes for record, length has the buffer len and buffer 
+   contains the line to be examined
+ */
+    int
+vote_record(uint8_t quote,char *type,int header,struct record *record,int length)
 {
     register struct id *i = record->i;
     int vote = 0,len;
@@ -625,11 +701,13 @@ vote_record(uint8_t quote,char *type,int header,struct record *record,int length
 #ifdef HAVE_REGEX
                 if(i->regexp)
                 {
-                    if(regexec(&i->reg,&buffer[i->position - 1],(size_t) 0, NULL, 0) == 0) vote++;
+                    uint8_t *field;
+                    field = get_fixed_field(i->position,length - i->position + 1,length,read_buffer);
+                    if(length >= i->position && regexec(&i->reg,field,(size_t) 0, NULL, 0) == 0) vote++;
                 } else
 #endif
                 {
-                    if(strcmp(i->key,get_fixed_field(i->position, strlen(i->key),length,buffer)) == 0) vote++;
+                    if(strncmp(i->key,&read_buffer[i->position -1],i->length) == 0) vote++;
                 }
                 break;
             case SEPARATED:
@@ -641,11 +719,11 @@ vote_record(uint8_t quote,char *type,int header,struct record *record,int length
 #ifdef HAVE_REGEX
                     if(i->regexp)
                     {
-                        if(regexec(&i->reg,get_separated_field(i->position,quote,type,buffer),(size_t) 0, NULL, 0) == 0) vote++;
+                        if(regexec(&i->reg,get_separated_field(i->position,quote,type,read_buffer),(size_t) 0, NULL, 0) == 0) vote++;
                     } else
 #endif
                     {
-                        if(strcmp(i->key,get_separated_field(i->position,quote,type,buffer)) == 0) vote++;
+                        if(strcmp(i->key,get_separated_field(i->position,quote,type,read_buffer)) == 0) vote++;
                     }
                 }
                 break;
@@ -653,13 +731,19 @@ vote_record(uint8_t quote,char *type,int header,struct record *record,int length
 #ifdef HAVE_REGEX
                 if(i->regexp)
                 {
-                    if(regexec(&i->reg,&buffer[i->position - 1],(size_t) 0, NULL, 0) == 0) vote++;
+                    uint8_t *field;
+                    int flen = 64;
+
+                    flen = length - i->position + 1 < flen ? length - i->position + 1 : flen;
+                    field = get_fixed_field(i->position,flen,length,read_buffer);
+
+                    if(length >= i->position && regexec(&i->reg,field,(size_t) 0, NULL, 0) == 0) vote++;
                 } else
 #endif
                 {
-                    if(memcmp(i->key,get_fixed_field(i->position,i->length,length,buffer),i->length) == 0) vote++;
+                    if(memcmp(i->key,&read_buffer[i->position - 1],i->length) == 0) vote++;
                 }
-               break;
+                break;
         }
         i = i->next;
     }
@@ -668,13 +752,13 @@ vote_record(uint8_t quote,char *type,int header,struct record *record,int length
         switch(type[0])
         {
             case FIXED_LENGTH:
-                if((record->arb_length == RL_MIN && record->length <= length) ||
-                   (record->arb_length == RL_STRICT && record->length == length)) vote++;
+                if(((record->arb_length == RL_MIN || record->length_field != NULL) && record->length <= length) ||
+                        (record->arb_length == RL_STRICT && record->length == length)) vote++;
                 break;
             case SEPARATED:
-                len = get_field_count(quote,type,buffer);
+                len = get_field_count(quote,type,read_buffer);
                 if((record->arb_length == RL_STRICT && record->length == len)  ||
-                   (record->arb_length == RL_MIN && record->length <= len)) vote++;
+                        (record->arb_length == RL_MIN && record->length <= len)) vote++;
                 break;
             case BINARY:
                 if(((vote == ids && ids) || !ids) && record->length <= length) vote++; /* exact binary length cannot be checked */
@@ -690,11 +774,11 @@ vote_record(uint8_t quote,char *type,int header,struct record *record,int length
         return 0;
     }
 }
-            
+
 
 /* calculates votes for one input line */
-void
-vote(int bindex)
+    void
+vote(int bindex,int line_length)
 {
     struct structure *s = structure;
     struct record *r;
@@ -708,7 +792,7 @@ vote(int bindex)
         {
             while(r != NULL && !votes)
             {
-                votes = vote_record(s->quote,s->type,s->header,r,guess_line_length[bindex],guess_buffer[bindex]);
+                votes = vote_record(s->quote,s->type,s->header,r,line_length);
                 s->vote += votes;             /* only one vote per line */
                 r = r->next;
             }
@@ -719,11 +803,11 @@ vote(int bindex)
     if(!total_votes && no_matching_lines < NO_MATCH_LINES)
     {
         no_matching_lines++;
-        fprintf(stderr,"%s: Line %ld in \'%s\' does not match, line length = %d\n",program,current_file->lineno,current_file->name,guess_line_length[bindex]);
+        fprintf(stderr,"%s: Line %ld in \'%s\' does not match, line length = %d\n",program,current_file->lineno,current_file->name,line_length);
     }
 }
 
-void
+    void
 vote_binary(int buffer_size)
 {
     struct structure *s = structure;
@@ -738,7 +822,7 @@ vote_binary(int buffer_size)
             {
                 if(r->i != NULL)
                 {
-                    if(vote_record(s->quote,s->type,s->header,r,buffer_size,read_buffer)) s->vote = 1;
+                    if(vote_record(s->quote,s->type,s->header,r,buffer_size)) s->vote = 1;
                 }
                 r = r->next;
             }
@@ -751,7 +835,7 @@ vote_binary(int buffer_size)
 /* calculates votes for structures */
 /* returns pointer for structure name having all lines/blocks matched, in other case NULL */
 /* votes has the vote count hat must mach */
-char *
+    char *
 check_votes(int votes)
 {
     struct structure *s = structure;
@@ -775,6 +859,7 @@ check_votes(int votes)
                 errors++;
             }
         }
+        s->vote = 0;
         s = s->next;
     }
     if(errors) 
@@ -788,7 +873,7 @@ check_votes(int votes)
 
 /* guesses using binary only
  */
-char *
+    char *
 guess_binary_structure()
 {
     int buffer_size;
@@ -796,30 +881,19 @@ guess_binary_structure()
 
     if(!max_binary_record_length)  // no binary structs
     {
-        file_to_text(input_fp);
+        //file_to_text(input_fp);
         return NULL;
     }
 
-    read_buffer_size = max_binary_record_length;
-    read_buffer = xrealloc(read_buffer,read_buffer_size);
-
-    buffer_size = read_input_line(BINARY);
+    buffer_size = init_guessing();
 
     if(buffer_size > 0)
     {
         vote_binary(buffer_size);
         ret = check_votes(1);
+        reset_guessing();
     }
     
-    if(ret == NULL)
-    {
-        file_to_text(input_fp);
-        read_buffer_size = READ_LINE_LEN;
-        read_buffer = xrealloc(read_buffer,read_buffer_size);
-    }
-    
-    binary_guessed = 1;
-
     return ret;
 }
 
@@ -833,19 +907,24 @@ guess_structure()
 {
     int memory_used = 0;
     int len;
+        
+    len = init_guessing();
+
+    if(len <= 0) return NULL;
 
     do
     {
-        len = read_input_line(FIXED_LENGTH);
+        len = read_guess_line();
         if(len != -1)
         {
-            guess_buffer[guess_lines] = xstrdup(read_buffer);
-            guess_line_length[guess_lines] = len;
-            memory_used += len;
-            vote(guess_lines);
+            memory_used += last_consumed;
+            vote(guess_lines,len);
             guess_lines++;
         }
     } while(len != -1 && guess_lines < GUESS_LINES && memory_used < GUESS_BUFFER);
+
+    reset_guessing();
+
     return check_votes(guess_lines);
 }
 
@@ -1037,9 +1116,6 @@ print_header(struct structure *s, struct record *r)
 }
 
 /* returns pointer to next input line
-   lines are first read from guess buffer (if allocated)
-   and after that from input stream, current_file_name,current_file_lineno etc
-   are updated accordingly.
 
    returns NULL if no more lines
    length will be written to len
@@ -1047,35 +1123,13 @@ print_header(struct structure *s, struct record *r)
 uint8_t *
 get_input_line(int *len,int stype)
 {
-    static struct input_file *curr_guess_file = NULL;
     uint8_t *ret = NULL;
 
     *len = -1;
 
-    if(curr_guess_file == NULL) {
-        curr_guess_file = files;
-        current_file_name = curr_guess_file->name;
-    }
-
     do 
     {
-        if(read_guess_line < guess_lines)
-        {
-            if(current_file_lineno == curr_guess_file->lineno)
-            {
-                curr_guess_file = curr_guess_file->next;
-                while(!curr_guess_file->lineno)
-                {
-                    curr_guess_file = curr_guess_file->next;
-                }
-                current_file_name = curr_guess_file->name;
-                current_file_lineno = 0;
-            }
-            current_file_lineno++;
-            ret = guess_buffer[read_guess_line];
-            *len = guess_line_length[read_guess_line];
-            read_guess_line++;
-        } else if(current_file != NULL)
+        if(current_file != NULL)
         {
             *len = read_input_line(stype);
             ret = read_buffer;
@@ -1093,20 +1147,47 @@ get_input_line(int *len,int stype)
 }
 
 /* bpositions will be updated according current input buffer 
+ * the real length of bytes consumed returned
    */
-void 
-update_field_positions(char *type,uint8_t quote,int arbit_len,struct field *fields,int len,uint8_t *buffer)
+ 
+size_t update_field_positions(char *type,uint8_t quote,struct record *r,int len,uint8_t *buffer)
 {
     register uint8_t *p = buffer;
+    uint8_t *field_start;
     register int inside_quote = 0;
-    struct field *f = fields;
+    struct field *f = r->f;
+    int var_record_length;
+    int var_field_length;
+    int cur_pos,var_field_passed;
+    size_t retval;
+
+    retval = last_consumed;
+
+    if(r->length_field)    // If dynamic length
+    {
+        start_write();
+        field_start = write_pos;
+        switch(type[0])
+        {
+             case BINARY:
+                 print_binary_field('d',r->length_field,buffer);
+             break;
+             case FIXED_LENGTH:
+                 print_fixed_field('d',r->length_field,buffer);
+             break;
+         }
+         writec(0);  // end of string
+         sscanf(field_start,"%d",&var_record_length);
+         var_record_length += r->var_length_adjust;
+         if(var_record_length >= len) var_record_length = len - 1;
+         var_field_length = var_record_length - r->length;
+         if(var_field_length < 0) var_field_length = 0;
+    }     
 
     switch(type[0])
     {
-        case BINARY:
-            break;
         case FIXED_LENGTH:
-            if(arbit_len == RL_MIN)
+            if(r->arb_length == RL_MIN)
             {
                 while(f != NULL)
                 {
@@ -1123,6 +1204,38 @@ update_field_positions(char *type,uint8_t quote,int arbit_len,struct field *fiel
                     f = f->next;
                 }
             }
+        case BINARY:		   // no break here
+            if(type[0] == BINARY) 
+            {
+                current_file->lineno++;
+                current_file_lineno = current_file->lineno;
+            }
+
+            if(r->length_field)    // If dynamic length
+            {
+                if (type[0] == BINARY) retval = var_record_length;
+                cur_pos = 0;
+                var_field_passed = 0;
+                while(f != NULL)
+                { 
+                    if(var_field_passed && f->const_data == NULL)
+                    {
+                        f->bposition = cur_pos;
+                        cur_pos+=f->length;
+                    }
+                  
+                    if(f->var_length)
+                    {
+                        f->length = var_field_length;
+                        cur_pos = f->bposition + f->length;
+                        var_field_passed = 1;
+                    }
+                    f = f->next;
+                }
+	        } else
+            {
+                if (type[0] == BINARY) retval = r->length;
+            }
             break;
         case SEPARATED:
             while(f != NULL) 
@@ -1131,9 +1244,13 @@ update_field_positions(char *type,uint8_t quote,int arbit_len,struct field *fiel
                 f = f->next;
             }
 
-            f = fields;
+            f = r->f;
 
-            while(*p && f != NULL)
+#ifdef WIN32
+            while(*p != '\n' && *p != '\r' && f != NULL)
+#else
+            while(*p != '\n' && f != NULL)
+#endif
             {
                 if(p == buffer)  // first
                 {
@@ -1160,10 +1277,15 @@ update_field_positions(char *type,uint8_t quote,int arbit_len,struct field *fiel
                 {
                     inside_quote = !inside_quote;
                 }
-                if(*p) p++;
+#ifdef WIN32
+                if(*p != '\n' && *p != '\r') p++;
+#else
+                if(*p != '\n') p++;
+#endif
             }
             break;
     }
+    return retval;
 }
                        
 /* check which record applies to current line */
@@ -1176,12 +1298,61 @@ select_record(struct structure *s,int length,uint8_t *buffer)
 
     while(r != NULL)
     {
-        if(vote_record(s->quote,s->type,s->header,r,length,buffer)) return r;
+        if(vote_record(s->quote,s->type,s->header,r,length)) return r;
         r = r->next;
     }
 
     return NULL;
 }
+
+/* write field content to pipe and read the output, returns bytes read. Output is written to pipe_output  */
+int execute_pipe(uint8_t *input,int input_length,struct pipe *p)
+{
+     int in_fds[2];
+     int out_fds[2];
+     pid_t pid;
+     FILE *rfd,*wfd;
+     int ret=0;
+
+     if(!input_length) return 0; // dont pipe with no data
+
+#if defined(HAVE_WORKING_FORK) && defined(HAVE_DUP2) && defined(HAVE_PIPE)
+       if (pipe(in_fds) != 0 || pipe(out_fds) != 0) panic("Cannot create pipe",strerror(errno),NULL);
+       pid = fork();
+       if(pid == (pid_t) 0) /* Child */
+       {
+          close(in_fds[1]);
+          close(out_fds[0]);
+          if(dup2(in_fds[0],STDIN_FILENO) == -1) panic("dup2 error",strerror(errno),NULL);
+          close(in_fds[0]);
+          if(dup2(out_fds[1],STDOUT_FILENO) == -1) panic("dup2 error",strerror(errno),NULL);
+          close(out_fds[1]);
+          if(execl(SHELL_CMD, "sh", "-c", p->command, NULL) == -1) panic("Starting a shell with execl failed",p->command,strerror(errno));
+          _exit(EXIT_SUCCESS);
+       } else if(pid > (pid_t) 0)
+       {
+          close(in_fds[0]);
+          close(out_fds[1]);
+          wfd = fdopen(in_fds[1],"w");
+          if(wfd == NULL) panic("Cannot write to command",p->command,strerror(errno));
+          rfd = fdopen(out_fds[0],"r");
+          if(rfd == NULL) panic("Cannot read from command",p->command,strerror(errno));
+
+	      if(fwrite(input,input_length,1,wfd) != 1) panic("Cannot write to command",p->command,strerror(errno));
+          fclose(wfd);
+	      ret = (int) fread(pipe_output,1,PIPE_OUTPUT_LEN,rfd);
+          fclose(rfd);
+          if(ret && pipe_output[ret - 1] == '\n')  pipe_output[ret - 1] = '\000';    // remove last linefeed
+       } else
+       {
+	      panic("Cannot fork",strerror(errno),NULL);
+       }
+#else
+panic("pipe is not supported in this system",NULL,NULL);
+#endif
+return ret;
+}
+
 
 /* print a single fixed field */
 void
@@ -1190,6 +1361,9 @@ print_fixed_field(uint8_t format,struct field *f,uint8_t *buffer)
     register int i = 0;
     register uint8_t *data;
     uint8_t *start = write_pos;
+    int len = f->length;
+
+    if(!f->length && f->var_length) return;
 
     if(f->const_data != NULL)
     {
@@ -1199,6 +1373,12 @@ print_fixed_field(uint8_t format,struct field *f,uint8_t *buffer)
     {
         if(f->bposition < 0) return;  /* last variable length field is missing */
         data = &buffer[f->bposition];
+
+        if(f->p != NULL)
+        {
+	        len = execute_pipe(data,f->length,f->p);
+	        data = pipe_output;
+        }
     }
 
     switch(format)
@@ -1208,23 +1388,53 @@ print_fixed_field(uint8_t format,struct field *f,uint8_t *buffer)
         case 'C':
         case 'e':
         case 'x':
-            if(f->length)
+            if(data == pipe_output)
             {
-                while(i < f->length && data[i]) writec(data[i++]);
+                while(i < len) writec(data[i++]);
             } else
             {
-                writes(data);
+                if(f->length)
+                {
+#ifdef WIN32
+                    while(i < len && data[i] != '\n' && data[i] != '\r' && data[i]) writec(data[i++]);
+#else
+                    while(i < len && data[i] != '\n' && data[i]) writec(data[i++]);
+#endif
+                } else
+                {
+#ifdef WIN32
+                    while(data[i] != '\n' && data[i] != '\r' && data[i]) writec(data[i++]);
+#else
+                    while(data[i] != '\n' && data[i]) writec(data[i++]);
+#endif
+                }
             }
             break;
         case 't':
-            while(isspace(data[i])) i++;
-            if(f->length)
+            if(data == pipe_output)
             {
-                while(i < f->length && data[i]) writec(data[i++]);
+                while(isblank(data[i])) i++;
+                while(i < len) writec(data[i++]);
             } else
-            {
-                writes(&data[i]);
+            {  
+                while(isblank(data[i])) i++;
+                if(f->length)
+                {
+#ifdef WIN32
+                    while(i < len && data[i] != '\n' && data[i] != '\r' && data[i]) writec(data[i++]);
+#else
+                    while(i < len && data[i] != '\n' && data[i]) writec(data[i++]);
+#endif
+                } else
+                {
+#ifdef WIN32
+                    while(data[i] != '\n' && data[i] != '\r' && data[i]) writec(data[i++]);
+#else
+                    while(data[i] != '\n' && data[i]) writec(data[i++]);
+#endif
+                }
             }
+            
             if(write_pos > start && isspace(write_pos[-1]))
             {
                 write_pos--;
@@ -1246,11 +1456,23 @@ print_binary_field(uint8_t format,struct field *f,uint8_t *buffer)
     char *pf;
     static uint8_t pb[2 * FIELD_SIZE];
     
+    if(!f->length && f->var_length) return;
+    
     if(f->const_data != NULL || (f->type == F_ASC && format != 'h'))
     {
         print_fixed_field(format,f,buffer);
         return;
     }
+
+    if(f->p != NULL)
+    {
+        int i=0,len;
+	    len = execute_pipe(&buffer[f->bposition],f->length,f->p);
+	    data = pipe_output;
+        while(i < len && data[i]) writec(data[i++]);
+        return;
+    }
+
 
     switch(f->type)
     {
@@ -1426,6 +1648,39 @@ print_separated_field(uint8_t format,uint8_t quote,uint8_t separator,struct fiel
             return;
         }
 
+        if(f->p != NULL)
+        {
+            p = &buffer[f->bposition];
+            if(*p == quote && quote) {
+                p++;
+                inside_quote = 1;
+            }
+#ifdef WIN32
+            while((*p != separator || inside_quote) && *p != '\n' && *p != '\r')
+#else
+            while((*p != separator || inside_quote) && *p != '\n')
+#endif
+            {
+                if(((*p == quote && p[1] == quote) || (*p == '\\' && p[1] == quote)) && quote) 
+                {
+                    p++;
+                } else if(*p == quote)
+                {
+                    if(inside_quote) inside_quote=0;
+                }
+#ifdef WIN32
+                if(*p != '\n' && *p != '\r') p++;
+#else
+                if(*p != '\n') p++;
+#endif
+            }            
+            int i=0,len;
+	        len = execute_pipe(&buffer[f->bposition],p - &buffer[f->bposition],f->p);
+            while(i < len && pipe_output[i]) writec(pipe_output[i++]);
+            return;
+        }
+
+
         switch(format)
         {
             case 'd':
@@ -1435,14 +1690,18 @@ print_separated_field(uint8_t format,uint8_t quote,uint8_t separator,struct fiel
             case 'e':
             case 'x':
                 p = &buffer[f->bposition];
-                if(quote || format == 't') while(*p != separator && isspace(*p)) p++;
+                if(quote || format == 't') while(*p != separator && isblank(*p)) p++;
                 if(*p == quote && quote) 
                 {
                     p++;
                     inside_quote = 1;
-                    if(format == 't') while(isspace(*p)) p++;
+                    if(format == 't') while(isblank(*p)) p++;
                 }
-                while((*p != separator || inside_quote) && *p)
+#ifdef WIN32
+                while((*p != separator || inside_quote) && *p != '\n' && *p != '\r')
+#else
+                while((*p != separator || inside_quote) && *p != '\n')
+#endif
                 {
                     if(((*p == quote && p[1] == quote) || (*p == '\\' && p[1] == quote)) && quote) 
                     {
@@ -1451,10 +1710,10 @@ print_separated_field(uint8_t format,uint8_t quote,uint8_t separator,struct fiel
                     {
                         if(inside_quote)
                         {
-                            if(format == 't' && isspace(write_pos[-1]))
+                            if(format == 't' && isblank(write_pos[-1]))
                             {
                                 write_pos--;     
-                                while(write_pos > start && isspace(*write_pos)) write_pos--;
+                                while(write_pos > start && isblank(*write_pos)) write_pos--;
                                 write_pos++;
                             }
                             if(format == 'D' || format == 'C') while(write_pos - start == f->length) writec(' ');
@@ -1463,8 +1722,19 @@ print_separated_field(uint8_t format,uint8_t quote,uint8_t separator,struct fiel
                     }
 
                     if(format == 'C' && (write_pos - start) == f->length) return;
-                    writec(*p);
-                    if(*p) p++;
+#ifdef WIN32
+                    if(*p != '\n' && *p != '\r') {
+                       writec(*p);
+                       p++;
+                    }
+#else
+                    if(*p != '\n') {
+                       writec(*p);
+                       p++;
+                    }
+#endif
+
+
                 }            
                 if(format == 't' && isspace(write_pos[-1]))
                 {
@@ -1485,7 +1755,6 @@ make_lookup(struct lookup *l,uint8_t *search)
     register uint8_t *k,*s;
     int search_len = strlen(search);
     uint8_t *ret_val = NULL;
-    uint8_t *longest = NULL;
     struct lookup_data *d;
 
     switch(l->type)
@@ -2136,7 +2405,6 @@ static int
 full_scan_expression(struct expression *e,char *value,int casecmp)
 {
     register int i = 0;
-    struct expr_list *l;
 
 
     if(e->fast_entries)
@@ -2166,7 +2434,6 @@ eval_expression(struct structure *s,struct record *r, int and,int invert, int ca
     struct expression *e = expression;
     struct expr_list *el;
     int retval = 0;
-    int eq_found;
     int prev_retval;
     int loop_break = 0;
     int expression_count = 0;
@@ -2207,7 +2474,6 @@ eval_expression(struct structure *s,struct record *r, int and,int invert, int ca
             }
             writec(0);  // end of string
             prev_retval = retval;
-            eq_found = 0;
 
             switch(e->op)
             {
@@ -2316,7 +2582,7 @@ write_debug_file(uint8_t *line,int len,int stype)
         fwrite(line,len,1,debug_fp);
     } else if(line != NULL)
     {
-        fputs(line,debug_fp);
+        while(*line != '\n') fputc(*line++,debug_fp);
         fputs("\n",debug_fp);
     }
     debug_lineno++;
@@ -2363,12 +2629,6 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
     write_buffer = xmalloc(write_buffer_size);
     write_buffer_end = write_buffer + (write_buffer_size - 1);
 
-    if(s->type[0] == BINARY && read_buffer_size == READ_LINE_LEN)
-    {
-        read_buffer_size = s->max_record_len;
-        read_buffer = xrealloc(read_buffer,read_buffer_size);
-    }
-
     select_output(s->o);
     print_text(s,NULL,s->o->file_header);
     while((input_line = get_input_line(&length,s->type[0])) != NULL)
@@ -2386,7 +2646,6 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
 
         } else
         {
-            last_consumed = r->length;
             if(first_line)
             {
                 init_structure(s,r,length,input_line);
@@ -2396,12 +2655,13 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
             {
                 init_expression_list(r);
             }
+            
+            last_consumed = update_field_positions(s->type,s->quote,r,length,input_line);
 
             if((!first_line || !headers) && r->o != no_output)
             {
                 if((r->pf == NULL && r->o->no_data == 1) || r->pf != NULL || r->o == raw)
                 {
-                    update_field_positions(s->type,s->quote,r->arb_length,r->f,length,input_line);
                     if(expression == NULL || (eval_expression(s,r,expression_and,expression_invert,expression_case,input_line)))
                     {
                         if(r->o == raw)
@@ -2429,9 +2689,10 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
                     }
                 }
             } 
+
             if(first_line) {
-                if(headers) r = NULL;
                 first_line = 0;
+                if(headers) r = NULL;
             }
         }
     }

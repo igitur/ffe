@@ -1,6 +1,6 @@
 This is ffe.info, produced by makeinfo version 5.2 from ffe.texi.
 
-This file documents version 0.3.5-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.6 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -27,7 +27,7 @@ File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 ffe
 ***
 
-This file documents version 0.3.5-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.6 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -317,6 +317,7 @@ Common syntax for configuration file is:
      #comment
      `command`
      const NAME VALUE
+     filter NAME VALUE
      ...
      structure NAME {
          option value ...
@@ -440,9 +441,9 @@ A record can contain following options:
      Non printable characters can be escaped as '\xnn', where 'nn' is
      characters hexadecimal value.
 
-'field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]'
-     Defines one field in a text input structure.  LENGTH is mandatory
-     for fixed length input structure.
+'field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]|* [FILTER]'
+     Defines a field in a text input structure.  LENGTH is mandatory for
+     fixed length input structure.
 
      The last field of a fixed length input structure can have a _*_ in
      place of LENGTH.  That means that the last field has no exact
@@ -465,15 +466,19 @@ A record can contain following options:
 
      If OUTPUT is given the field will be printed using output
      definition OUTPUT.  If LENGTH and/or LOOKUP are not needed use
-     asterisk in place of them.
+     asterisk in place of them.  Use asterisk (*) if not needed.
+
+     If FILTER is given the raw contents of the field is filtered
+     through a program defined by FILTER and the output of the program
+     is printed as field contents.
 
      If field is named as 'FILLER', the field will not appear in output.
 
      The order of fields in configuration file is essential, it
      specifies the field order in a record.
-'field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]'
-     Defines one field in a binary structure.  All other features are
-     same as for text structure fields except the TYPE parameter.
+'field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]|* [FILTER]'
+     Defines a field in a binary structure.  All other features are same
+     as for text structure fields except the TYPE parameter.
 
      TYPE specifies the field length and type and can have the following
      values:
@@ -594,6 +599,22 @@ A record can contain following options:
           Input record length or field count can be the same or longer
           as defined for the record.  The rest of the input line is
           ignored.
+'variable-length RECORD_LENGTH VARIABLE_LENGTH_FIELD ADJUST'
+     RECORD_LENGTH and VARIABLE_LENGTH_FIELD are the names of two fields
+     in the record and ADJUST is a signed integer.  Record length is
+     read from field RECORD_LENGTH.  RECORD_LENGTH is assumed to be an
+     integer type for binary structures or contain only desimal numbers
+     in fixed length structure.  RECORD_LENGTH is assumed to contain the
+     total length of the record.  VARIABLE_LENGTH_FIELD is the field
+     having variable length.  The length of VARIABLE_LENGTH_FIELD is
+     calculated by subracting the total length of the all other fields
+     from the length read from RECORD_LENGTH.
+     The length given by keyword FIELD for VARIABLE_LENGTH_FIELD is
+     ignored.  After calculating the length it is adjusted by ADJUST.
+     ADJUST can be used in cases where the length read from
+     VARIABLE_LENGTH_FIELD does not contain the total length of the
+     record.  variable-length can be used with binary or fixed lengths
+     strutures only.
 
 Output
 ------
@@ -772,7 +793,7 @@ Lookup options:
      Search method for this table.  Either exact or longest match is
      used when searching the table.  Default is 'exact'.
 'pair KEY VALUE'
-     Defines one key/value pair for the lookup table.  In case of binary
+     Defines a key/value pair for the lookup table.  In case of binary
      file KEY must have the same representation as can be shown using
      the '%d' printing directive.
 'file NAME [SEPARATOR]'
@@ -809,6 +830,20 @@ VALUE is printed instead of the input field contents.
 
    When NAME appears in field list it is treated as one of the input
 fields having contents VALUE.
+
+Filter
+------
+
+Keyword 'filter' defines a command that can be used to format field raw
+contents.  Command must read the standard input and write to standard
+output and it must not block.  Field raw contents is filtered through
+the command and the output is printed as field contents.
+
+   The filter notation:
+     filter NAME COMMAND
+
+   NAME is referred in field definition.  COMMAND is the shell command
+to be executed.
 
 Command Substitution
 --------------------
@@ -1753,15 +1788,15 @@ problems.
 
 
 Tag Table:
-Node: Top898
-Node: Overview1960
-Node: Samples2616
-Node: Invoking ffe4105
-Node: Invocation4692
-Node: Configuration8857
-Node: Guessing30439
-Node: Limits32039
-Node: ffe configuration32447
-Node: Problems52233
+Node: Top896
+Node: Overview1956
+Node: Samples2612
+Node: Invoking ffe4101
+Node: Invocation4688
+Node: Configuration8853
+Node: Guessing32135
+Node: Limits33735
+Node: ffe configuration34143
+Node: Problems53929
 
 End Tag Table

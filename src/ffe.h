@@ -139,6 +139,12 @@ struct output {
 
 #define MAX_EXPR_HASH 32771
 
+struct pipe {
+    char *name;
+    char *command;
+    struct pipe *next;
+};
+
 struct lookup_data {
     uint8_t *key;
     uint8_t *value;
@@ -198,11 +204,14 @@ struct field {
     int bposition; /* position in current input buffer */
     int length;
     int print;
+    int var_length;	/* is this field variable length */
     char *lookup_table_name;
     struct lookup *lookup;
     struct replace *rep;  /* non NULL if value should be replaced */
     char *output_name;
     struct output *o;
+    char *pipe_name;
+    struct pipe *p;
     struct field *next;
 };
 
@@ -245,7 +254,12 @@ struct record {
     char *output_name;
     int vote;
     int length;
+    int var_length_adjust;
     int arb_length; /* arbitrary length */
+    char *length_field_name;
+    struct field *length_field;
+    char *var_field_name;
+    //struct field *var_field;
     struct level *level;
     struct record *next;
 };
@@ -414,4 +428,5 @@ extern struct field *const_field;
 extern int system_endianess;
 extern int max_binary_record_length;
 extern char *ffe_open;
+extern struct pipe *pipes;
 

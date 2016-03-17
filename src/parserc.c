@@ -124,6 +124,8 @@ char *values[100];            /* poister to option name and parameters */
 #define N_LEVEL             "level"
 #define N_RECORD_LENGTH     "record-length"
 #define N_HEX_CAP           "hex-caps"
+#define N_PIPE		    "filter"
+#define N_VARLEN	    "variable-length"
 
 
 
@@ -137,7 +139,7 @@ static struct rc_option rc_opts[] = {
     {N_OUTPUT,"S"},
     {N_ID,"NS"},
     {N_RID,"NS"},
-    {N_FIELD,"Ssss"},
+    {N_FIELD,"Sssss"},
     {N_FIELDSFROM,"S"},
     {N_FILE_HEADER,"S"},
     {N_FILE_TRAILER,"S"},
@@ -166,6 +168,8 @@ static struct rc_option rc_opts[] = {
     {N_LEVEL,"Nss"},
     {N_RECORD_LENGTH,"S"},
     {N_HEX_CAP,"S"},
+    {N_PIPE,"SS"},
+    {N_VARLEN,"SSn"},
     {NULL,NULL}
 };
 
@@ -728,6 +732,7 @@ int parse_option(char *buf)
                                 *rpos=0;
                             } else
                             {
+                                if (*rpos == '-') rpos++;
                                 while(isdigit(*rpos)) rpos++;
                                 if(!isspace(*rpos) && *rpos)
                                 {
@@ -746,7 +751,7 @@ int parse_option(char *buf)
                         }
                         break;
                 }
-                if(valc > 4)
+                if(valc > 6)
                 {
                     error_in_line();
                     panic("Too many parameters",values[0],NULL);
@@ -1126,7 +1131,7 @@ print_info()
         {
             f = r->f;
             pos = 1;
-            printf("  Record %s  %d\n",r->name,r->length);
+            printf("  Record %s  %d%s\n",r->name,r->length,r->length_field_name != NULL ? "+" : "");
             while(f != NULL)
             {
                 if(s->type[0] == SEPARATED)
@@ -1153,6 +1158,7 @@ parserc(char *rcfile,char *include_field_list)
 {
     struct structure *c_structure = structure;
     struct field *c_field = NULL;
+    struct pipe *c_pipe = NULL;
     struct id *c_id =  NULL;
     struct record *c_record = NULL;
     struct output *c_output = output;
@@ -1292,6 +1298,20 @@ parserc(char *rcfile,char *include_field_list)
                             c_field->position = 0;
                             c_field->length = strlen(c_field->const_data);
                             c_field->o = NULL;
+                        } else if(strcmp(values[0],N_PIPE) == 0)
+                        { 
+                            if (pipes == NULL)
+                            {
+                               c_pipe = xmalloc(sizeof(struct pipe));
+                               pipes = c_pipe;
+                            } else
+                            {
+                                c_pipe->next = xmalloc(sizeof(struct pipe));
+                                c_pipe = c_pipe->next;
+                            }
+                            c_pipe->next = NULL;
+                            c_pipe->name = xstrdup(values[1]);
+                            c_pipe->command = xstrdup(values[2]);
                         } else 
                         {
                             error_in_line();
@@ -1382,6 +1402,10 @@ parserc(char *rcfile,char *include_field_list)
                             c_record->output_name = NULL;
                             c_record->vote = 0;
                             c_record->arb_length = RL_STRICT;
+                            c_record->var_length_adjust = 0;
+                            c_record->length_field_name = NULL;
+                            c_record->length_field = NULL;
+                            c_record->var_field_name = NULL;
                             c_record->level = NULL;
                             status = PS_W_RECORD;
                         } else if(strcmp(values[0],N_QUOTE) == 0)
@@ -1463,8 +1487,11 @@ parserc(char *rcfile,char *include_field_list)
                             c_field->next = NULL;
                             c_field->const_data = NULL;
                             c_field->length = 0;
+                            c_field->var_length = 0;
                             c_field->output_name = NULL;
                             c_field->o = NULL;
+                            c_field->pipe_name = NULL;
+                            c_field->p = NULL;
 
                             if(values[1][0] == '*' && !values[1][1])
                             {
@@ -1493,9 +1520,17 @@ parserc(char *rcfile,char *include_field_list)
                                     }
                                     if(opt_count > 3)
                                     {
-                                        c_field->output_name = xstrdup(values[4]);
+                                        if(!(values[4][0] == '*' && !values[4][1]))
+                                        {
+                                            c_field->output_name = xstrdup(values[4]);
+                                        }
+                                        if(opt_count > 4)
+                                        {
+                                            c_field->pipe_name = xstrdup(values[5]);
+                                        }
                                     }
                                 }
+                                
                             } 
                         } else if(strcmp(values[0],N_FIELDSFROM) == 0)
                         {
@@ -1523,9 +1558,12 @@ parserc(char *rcfile,char *include_field_list)
                                 c_field->next = NULL;
                                 c_field->const_data = NULL;
                                 c_field->length = 0;
+                                c_field->var_length = 0;
                                 c_field->name = NULL;
                                 c_field->output_name = NULL;
                                 c_field->o = NULL;
+                                c_field->p = NULL;
+                                c_field->pipe_name = NULL;
                             }
                         } else if(strcmp(values[0],N_LEVEL) == 0)
                         {
@@ -1562,6 +1600,11 @@ parserc(char *rcfile,char *include_field_list)
                                 error_in_line();
                                 panic("Unknown option value in record",NULL,NULL);
                             }
+                        } else if(strcmp(values[0],N_VARLEN) == 0)                      
+                        {
+			    c_record->length_field_name = strdup(values[1]);
+                            c_record->var_field_name  = strdup(values[2]);
+                            if(opt_count > 2) sscanf(values[3],"%d",&c_record->var_length_adjust);
                         } else
                         {
                             error_in_line();
