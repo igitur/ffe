@@ -1,3 +1,8 @@
+2016-04-17 Timo Savinen <tjsa@iki.fi>
+
+    * Version 0.3.6-1
+    * A fix for configuration file parsing: Curly brackets were considered as part of the configuration even when enclosed in double quotes
+
 2015-12-29 Timo Savinen <tjsa@iki.fi>
     * Version 0.3.6
     * Field contents can be formatted using a filter program. Configuration keyword 'filter' implemented for this purpose.

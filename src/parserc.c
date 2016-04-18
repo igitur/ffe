@@ -410,6 +410,7 @@ read_logical_line(char **buffer,size_t *bufsize)
     static char last_eol_char = 0;      /* for what did previous read end */
     register char *bp;
     int prev_char = 0,c;
+    int inside_quote = 0;
     register int i=0;
     int retval = 0;
 
@@ -492,48 +493,69 @@ read_logical_line(char **buffer,size_t *bufsize)
                     i++;
                     break;
             }
+        } else
+        {
+            if(c == '"') inside_quote = !inside_quote;
         }
         
         prev_char = c;
-
-        switch(c)
+                
+        if(i >= *bufsize - 10) 
         {
-            case COMMENT:
-                do
-                {
-                    c = read_char();
-                } while (c != '\n' && c != EOF);  /* no break !*/
-            case '\n':
-                if(c == '\n' && child == NULL) lineno++;
-                bp[i] = 0;
-                retval = LL_OPTION;
-                break;
-            case BLOCK_START:
-                bp[i] = 0;
-                retval = LL_OPTION;
-                break;
-            case BLOCK_END:
-                bp[i] = 0;
-                retval = LL_OPTION;
-                break;
-            case EOF:
-                bp[i] = 0;
-                retval = LL_OPTION;
-                break;
-            case '\\':
-            case '\r':  /* skip win32 CR */
-            case 0:
-                break;
-            default:
-                if(i >= *bufsize - 10) 
-                {
-                    *bufsize *= 2;
-                    *buffer = xrealloc(*buffer,*bufsize);
-                    bp = *buffer;
-                }
-                bp[i] = (char) c;
-                i++;
-                break;
+            *bufsize *= 2;
+            *buffer = xrealloc(*buffer,*bufsize);
+            bp = *buffer;
+        }
+
+        if(inside_quote)
+        {
+            switch(c)
+            {
+                case '\\':
+                case '\r':  /* skip win32 CR */
+                case 0:
+                    break;
+                default:
+                    bp[i] = (char) c;
+                    i++;
+                    break;
+            }
+
+        } else
+        {
+            switch(c)
+            {
+                case COMMENT:
+                    do
+                    {
+                        c = read_char();
+                    } while (c != '\n' && c != EOF);  /* no break !*/
+                case '\n':
+                    if(c == '\n' && child == NULL) lineno++;
+                    bp[i] = 0;
+                    retval = LL_OPTION;
+                    break;
+                case BLOCK_START:
+                    bp[i] = 0;
+                    retval = LL_OPTION;
+                    break;
+                case BLOCK_END:
+                    bp[i] = 0;
+                    retval = LL_OPTION;
+                    break;
+                case EOF:
+                    bp[i] = 0;
+                    retval = LL_OPTION;
+                    break;
+                case '\\':
+                case '\r':  /* skip win32 CR */
+                case 0:
+                    break;
+                default:
+                    bp[i] = (char) c;
+                    i++;
+                    break;
+            }
         }
 
         if(retval)
