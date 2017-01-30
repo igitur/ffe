@@ -2605,7 +2605,7 @@ select_output(struct output *o)
 
 /* main loop for execution */
 void 
-execute(struct structure *s,int strict, int expression_and,int expression_invert,int expression_case, int debug)
+execute(struct structure *s,int strict, int expression_and,int expression_invert,int expression_case, int debug,int anon_field_count)
 {
     uint8_t *input_line;
     struct record *r = NULL;
@@ -2664,6 +2664,7 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
                 {
                     if(expression == NULL || (eval_expression(s,r,expression_and,expression_invert,expression_case,input_line)))
                     {
+                        if(anon_field_count > 0) anonymize_fields(s->type,s->quote,r,length,input_line);  // anonymize after exp. evaluation
                         if(r->o == raw)
                         {
                             print_raw(s->type[0] == BINARY ? r->length : length,input_line,s->type[0]);

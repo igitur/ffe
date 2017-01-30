@@ -70,7 +70,7 @@ static char *email_address = PACKAGE_BUGREPORT;
 static char *email_address = "tjsa@iki.fi";
 #endif
 
-static char short_opts[] = "c:s:o:p:f:e:r:l?VavdIX";
+static char short_opts[] = "c:s:o:p:f:e:r:A:l?VavdIX";
 
 #ifdef HAVE_GETOPT_LONG
 static struct option long_opts[] = {
@@ -89,11 +89,14 @@ static struct option long_opts[] = {
     {"debug",0,NULL,'d'},
     {"info",0,NULL,'I'},
     {"casecmp",0,NULL,'X'},
+    {"anonymize",1,NULL,'A'},
     {NULL,0,NULL,0}
 };
 #endif
 
 extern void print_info();
+extern void init_libgcrypt();
+
 
 extern struct input_file *files;
 
@@ -111,6 +114,7 @@ struct lookup *lookup = NULL;
 struct replace *replace = NULL;
 struct field *const_field = NULL;
 struct pipe *pipes = NULL;
+struct anon_field *anonymize = NULL;
 
 /* output no marker */
 struct output dummy_no;
@@ -224,6 +228,8 @@ help(FILE *stream)
     fprintf(stream,"\t\tWrite invalid input lines to error log.\n");
     fprintf(stream,"-I, --info\n");
     fprintf(stream,"\t\tShow the structure information and exit.\n");
+    fprintf(stream,"-A, --anonymize=ANONYMIZE\n");
+    fprintf(stream,"\t\tUse anonymization ANONYMIZE to anomymize certain input fields.\n");
     fprintf(stream,"-?, --help\n");
     fprintf(stream,"\t\tDisplay this help and exit.\n");
     fprintf(stream,"-V, --version\n");
@@ -254,6 +260,8 @@ help(FILE *stream)
     fprintf(stream,"\t\tWrite invalid input lines to error log.\n");
     fprintf(stream,"-I\n");
     fprintf(stream,"\t\tShow the structure information and exit.\n");
+    fprintf(stream,"-A ANONYMIZE\n");
+    fprintf(stream,"\t\tUse anonymization ANONYMIZE to anomymize certain input fields.\n");
     fprintf(stream,"-?\n");
     fprintf(stream,"\t\tDisplay this help and exit.\n");
     fprintf(stream,"-V\n");
@@ -303,6 +311,47 @@ hash(char *str,size_t len)
     }
     return (size_t) (h % MAX_EXPR_HASH);
 }
+
+/* update anonymization pointers to fields which should be anonymized
+ * return the number of found fields
+ */
+int update_anon_info(struct structure *s,char *anon)
+{
+     struct record *r = s->r;
+     struct field *f;
+     struct anon_field *a;
+     int retval = 0;
+     int found = 0;
+
+     if(anon == NULL) return;
+
+     while(r != NULL)
+     {
+         f = r->f;
+         while(f != NULL)
+         {
+             a = anonymize;
+             while(f->a == NULL && a != NULL)
+             {
+                 if(strcasecmp(a->anon_name,anon) == 0 && strcasecmp(f->name,a->field_name) == 0)
+                 {
+                     if(!found) found = 1;
+                     if(strcasecmp(f->name,a->field_name) == 0)
+                     {
+                         f->a = a;
+                         retval++;
+                     }
+                 }
+                 a = a->next;
+             }
+             f = f->next;
+         }
+         r = r->next;
+     }
+     if(!found) panic("Unknown anonymization",anon,NULL);
+     return retval;
+}
+
 
 
 
@@ -939,11 +988,13 @@ main(int argc, char **argv)
     int expression_and = 0;
     int expression_invert = 0;
     int expression_casecmp = 0;
+    int anon_field_count = 0;
     struct structure *s = NULL;
     char *structure_to_use = NULL;
     char *output_to_use = NULL;
     char *config_to_use = NULL;
     char *ofile_to_use = NULL;
+    char *anon_to_use = NULL;
     char *field_list = NULL;
 
 #ifdef HAVE_SIGACTION
@@ -1042,6 +1093,15 @@ main(int argc, char **argv)
                 case 'I':
                     info = 1;
                     break;
+                case 'A':
+                    if(anon_to_use == NULL)
+                    {
+                        anon_to_use = xstrdup(optarg);
+                    } else
+                    {
+                        panic("Only one -A option allowed",NULL,NULL);
+                    }
+                    break;
                 default:
                     usage(opt);
                     exit(EXIT_FAILURE);
@@ -1099,14 +1159,20 @@ main(int argc, char **argv)
             panic("No structure named as",structure_to_use,NULL);
         }
     }
+ 
+    anon_field_count = update_anon_info(s,anon_to_use);
+
+    if(anon_field_count) init_libgcrypt();
 
     free(config_to_use); /* to avoid strange valgrind memory lost */
 
     set_output_file(ofile_to_use);
 
-    execute(s,strict,expression_and,expression_invert,expression_casecmp,debug);
+    execute(s,strict,expression_and,expression_invert,expression_casecmp,debug,anon_field_count);
 
     close_output_file();
+
+    if(output_to_use != NULL) free(output_to_use);
 
     exit(EXIT_SUCCESS);
 }

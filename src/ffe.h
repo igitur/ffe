@@ -177,6 +177,26 @@ struct expr_list {
     struct expr_list *next;
 };
 
+/* anonymization methods */
+#define A_MASK 0
+#define A_RANDOM 1
+#define A_NRANDOM 2
+#define A_HASH 3
+#define A_NHASH 4
+#define A_UNKNOWN 999
+
+struct anon_field {
+   char *anon_name;  /* anonymize block name */
+   char *field_name;
+   int method;
+   int start;
+   int length;
+   int key_length;
+   uint8_t *key;
+   struct anon_field *next;
+};
+
+
 #define MAX_EXPR_FAST_LIST 61
 
 /* search expression */
@@ -212,6 +232,7 @@ struct field {
     struct output *o;
     char *pipe_name;
     struct pipe *p;
+    struct anon_field *a; 
     struct field *next;
 };
 
@@ -362,7 +383,7 @@ extern void
 close_output_file();
 
 extern void 
-execute(struct structure *,int,int,int,int,int);
+execute(struct structure *,int,int,int,int,int,int);
 
 extern char *
 expand_home(char *);
@@ -415,6 +436,10 @@ print_indent(uint8_t *,int);
 extern size_t
 hash(char *,size_t);
 
+extern void
+anonymize_fields(char *,uint8_t,struct record *,int,uint8_t *);
+
+
 
 
 /* global variables */
@@ -429,4 +454,5 @@ extern int system_endianess;
 extern int max_binary_record_length;
 extern char *ffe_open;
 extern struct pipe *pipes;
+extern struct anon_field *anonymize;
 

@@ -126,6 +126,9 @@ char *values[100];            /* poister to option name and parameters */
 #define N_HEX_CAP           "hex-caps"
 #define N_PIPE		    "filter"
 #define N_VARLEN	    "variable-length"
+#define N_ANON		    "anonymize"
+#define N_METHOD	    "method"
+
 
 
 
@@ -170,8 +173,38 @@ static struct rc_option rc_opts[] = {
     {N_HEX_CAP,"S"},
     {N_PIPE,"SS"},
     {N_VARLEN,"SSn"},
+    {N_ANON,"S"},
+    {N_METHOD,"SSnns"},
     {NULL,NULL}
 };
+
+struct anon_method {
+    char *name;
+    int	method;
+};
+
+
+static struct anon_method methods[] = {
+    {"MASK",A_MASK},
+    {"RANDOM",A_RANDOM},
+    {"NRANDOM",A_NRANDOM},
+    {"HASH",A_HASH},
+    {"NHASH",A_NHASH},
+    {NULL,A_UNKNOWN}
+};
+
+static int find_anon_method(char *name)
+{
+    int i=0;
+
+    while(methods[i].name != NULL)
+    {
+        if(strcmp(methods[i].name,name) == 0) return methods[i].method;
+        i++;
+    }
+    return A_UNKNOWN;
+}
+   
 
 int
 is_digit(char *number)
@@ -1122,6 +1155,8 @@ parse_field_type(char *t,struct field *f)
 #define PS_W_OUTPUT 7
 #define PS_LOOKUP 8
 #define PS_W_LOOKUP 9
+#define PS_ANON 10
+#define PS_W_ANON 11
 
 void
 print_info()
@@ -1187,6 +1222,7 @@ parserc(char *rcfile,char *include_field_list)
     struct lookup *c_lookup = NULL;
     struct lookup_data *c_lookup_data = NULL;
     struct include_field *fl = parse_include_list(include_field_list);
+    struct anon_field *c_anon = anonymize;
 
     char *read_buffer;
     size_t read_buffer_size;
@@ -1194,6 +1230,7 @@ parserc(char *rcfile,char *include_field_list)
     int status = PS_MAIN;
     int opt_count;
     int field_count;
+    char anon_name[100];
 
     open_rc_file(rcfile);
 
@@ -1324,8 +1361,8 @@ parserc(char *rcfile,char *include_field_list)
                         { 
                             if (pipes == NULL)
                             {
-                               c_pipe = xmalloc(sizeof(struct pipe));
-                               pipes = c_pipe;
+                                c_pipe = xmalloc(sizeof(struct pipe));
+                                pipes = c_pipe;
                             } else
                             {
                                 c_pipe->next = xmalloc(sizeof(struct pipe));
@@ -1334,6 +1371,10 @@ parserc(char *rcfile,char *include_field_list)
                             c_pipe->next = NULL;
                             c_pipe->name = xstrdup(values[1]);
                             c_pipe->command = xstrdup(values[2]);
+                        } else if(strcmp(values[0],N_ANON) == 0)
+                        {
+                            strcpy(anon_name,values[1]);
+                            status = PS_W_ANON;
                         } else 
                         {
                             error_in_line();
@@ -1514,6 +1555,7 @@ parserc(char *rcfile,char *include_field_list)
                             c_field->o = NULL;
                             c_field->pipe_name = NULL;
                             c_field->p = NULL;
+                            c_field->a = NULL;
 
                             if(values[1][0] == '*' && !values[1][1])
                             {
@@ -1585,6 +1627,7 @@ parserc(char *rcfile,char *include_field_list)
                                 c_field->output_name = NULL;
                                 c_field->o = NULL;
                                 c_field->p = NULL;
+                                c_field->a = NULL;
                                 c_field->pipe_name = NULL;
                             }
                         } else if(strcmp(values[0],N_LEVEL) == 0)
@@ -1624,7 +1667,7 @@ parserc(char *rcfile,char *include_field_list)
                             }
                         } else if(strcmp(values[0],N_VARLEN) == 0)                      
                         {
-			    c_record->length_field_name = strdup(values[1]);
+                            c_record->length_field_name = strdup(values[1]);
                             c_record->var_field_name  = strdup(values[2]);
                             if(opt_count > 2) sscanf(values[3],"%d",&c_record->var_length_adjust);
                         } else
@@ -1799,10 +1842,62 @@ parserc(char *rcfile,char *include_field_list)
                             panic("Unknown option for lookup",values[0],NULL);
                         }
                         break;
+                    case PS_ANON:
+                        if(strcmp(values[0],N_METHOD) == 0)
+                        {
+                            if(c_anon == NULL)
+                            {
+                                c_anon = xmalloc(sizeof(struct anon_field));
+                                anonymize = c_anon;
+                            } else
+                            {
+                                c_anon->next = xmalloc(sizeof(struct anon_field));
+                                c_anon = c_anon->next;
+                            }
+
+                        c_anon->anon_name = xstrdup(anon_name);
+                        c_anon->field_name = xstrdup(values[1]);
+                        c_anon->method = find_anon_method(values[2]);
+                        if(c_anon->method == A_UNKNOWN) {
+                            error_in_line();
+                            panic("Unknown method for anonymization",values[2],NULL);
+                        }
+                        c_anon->start = 1;
+                        c_anon->length = 0;
+                        c_anon->next = NULL;
+                        c_anon->key_length = 0;
+                        c_anon->key = NULL;
+
+                        if(opt_count > 2)
+                        {
+                            sscanf(values[3],"%d",&c_anon->start);
+                            if(c_anon->start == 0) panic("Anonymization method start cannot be zero",NULL,NULL);
+                            if(opt_count > 3)
+                            {
+                                sscanf(values[4],"%d",&c_anon->length);
+                                if(c_anon->length < 0)
+                                {
+                                    error_in_line();
+                                    panic("Anonymization method length cannot be negative",NULL,NULL);
+                                } 
+
+                                if(opt_count > 4)
+                                {
+                                    c_anon->key_length = expand_non_print(values[5],&c_anon->key);
+                                }
+                            }
+                        }
+                        } else
+                        {
+                            error_in_line();
+                            panic("Unknown option for anonymize",values[0],NULL);
+                        }
+                        break;
                     case PS_W_RECORD:
                     case PS_W_OUTPUT:
                     case PS_W_STRUCT:
                     case PS_W_LOOKUP:
+                    case PS_W_ANON:
                         error_in_line();
                         panic("{ expected, found",values[0],NULL);
                         break;
@@ -1823,6 +1918,9 @@ parserc(char *rcfile,char *include_field_list)
                     case PS_W_LOOKUP:
                         status = PS_LOOKUP;
                         break;
+                    case PS_W_ANON:
+                        status = PS_ANON;
+                        break;
                     default:
                         error_in_line();
                         panic("{ not expected",NULL,NULL);
@@ -1835,6 +1933,7 @@ parserc(char *rcfile,char *include_field_list)
                     case PS_STRUCT:
                     case PS_OUTPUT:
                     case PS_LOOKUP:
+                    case PS_ANON:
                         status = PS_MAIN;
                         break;
                     case PS_RECORD:
@@ -1854,4 +1953,4 @@ parserc(char *rcfile,char *include_field_list)
     free(read_buffer);
     fclose(fp);
 }
- 
+

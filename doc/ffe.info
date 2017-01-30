@@ -1,6 +1,6 @@
 This is ffe.info, produced by makeinfo version 5.2 from ffe.texi.
 
-This file documents version 0.3.6-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.7 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -27,7 +27,7 @@ File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 ffe
 ***
 
-This file documents version 0.3.6-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.7 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -603,25 +603,25 @@ A record can contain following options:
      RECORD_LENGTH and VARIABLE_LENGTH_FIELD are the names of two fields
      in the record and ADJUST is a signed integer.  Record length is
      read from field RECORD_LENGTH.  RECORD_LENGTH is assumed to be an
-     integer type for binary structures or contain only desimal numbers
+     integer type for binary structures or contain only decimal numbers
      in fixed length structure.  RECORD_LENGTH is assumed to contain the
      total length of the record.  VARIABLE_LENGTH_FIELD is the field
      having variable length.  The length of VARIABLE_LENGTH_FIELD is
-     calculated by subracting the total length of the all other fields
+     calculated by subtracting the total length of the all other fields
      from the length read from RECORD_LENGTH.
      The length given by keyword FIELD for VARIABLE_LENGTH_FIELD is
      ignored.  After calculating the length it is adjusted by ADJUST.
      ADJUST can be used in cases where the length read from
      VARIABLE_LENGTH_FIELD does not contain the total length of the
      record.  variable-length can be used with binary or fixed lengths
-     strutures only.
+     structures only.
 
 Output
 ------
 
 Keyword 'output' specifies a output format for formatting the input data
 for output.  Formatting is controlled using options and printf style
-directives.  An output definition is independent from structur, so one
+directives.  An output definition is independent from structure, so one
 output format can be used with different input file formats.
 
 The output notation:
@@ -653,7 +653,7 @@ output options.  Pictures can contain following printf style directives:
 '%n'
      Field name.
 '%t'
-     Field contents, without leading and trailing whitespaces.
+     Field contents, without leading and trailing white-spaces.
 '%d'
      Field contents.  Binary integer is printed as a decimal value.
      Floating point number is printed in the style '[-]ddd.ddd', where
@@ -665,8 +665,8 @@ output options.  Pictures can contain following printf style directives:
      definition for the field).
 '%C'
      Field contents, right padded to the field length (requires length
-     definition for the field).  Contents is cutted if the input field
-     is longer than output length.
+     definition for the field).  Contents is cut if the input field is
+     longer than output length.
 '%x'
      Unsigned hexadecimal value of a binary integer.  Other fields are
      printed as directive '%d' would be used.
@@ -728,7 +728,7 @@ Output options:
 'indent STRING'
      Record contents is intended by STRING.  Field contents is intended
      by two times the string.  Default is not to indent.  If file
-     contents is printed in hierarchial form (keyword 'level' in record
+     contents is printed in hierarchical form (keyword 'level' in record
      definition) then contents is indented according the level of a
      record.
 'field-list NAME1,NAME2,...'
@@ -845,6 +845,51 @@ the command and the output is printed as field contents.
    NAME is referred in field definition.  COMMAND is the shell command
 to be executed.
 
+Anonymization
+-------------
+
+Keyword 'anonymize' defines a set of fields which will be anonymized by
+using command line option '-A,--anonymize' is given.  Ffe uses
+non-reversible anonymization methods and preserves the original field
+length.
+
+   Notation:
+     anonymize NAME {
+         method ...
+         ...
+     }
+   The anonymization will be done if command line option
+'-A,--anonymize' is given with NAME.  Anonymize options:
+'method FIELD METHOD START LENGTH PARAMETER'
+     All fields named as FIELD in the current structure will be
+     anonymized using method METHOD.  As default the whole field is
+     anonymized.  Some parts of the field can be left non-anonymized
+     using START and LENGTH.  START is the byte position where the
+     anonymization starts, first byte is number 1.  If START is negative
+     the anonymization starts from the end of the field.  If LENGTH is
+     given then LENGTH number of bytes is anonymized after start
+     position, default value 0 means the rest of the field.  Only FIELD
+     and METHOD are mandatory.
+
+     Values for METHOD:
+     'MASK'
+          Field will be masked with character '0'.  Different character
+          can be given with PARAMETER.
+     'RANDOM'
+     'NRANDOM'
+          Field will be filled with randomly selected bytes.
+     'HASH'
+     'NHASH'
+          Field will be filled with data from hash calculated from the
+          original field.  This method yields always the same result
+          with same input.  The hash length in bytes can be given with
+          PARAMETER.  Default hash length is 16, valid values for hash
+          length are 16, 32 and 64.
+     Methods RANDOM and HASH use characters '0-9,A-Z,a-z' and space for
+     text fields.  Methods NRANDOM and NHASH use only characters '0-9'.
+     For binary fields all byte values are used.  BCD coded fields are
+     always filled with BCD values '0-9'.
+
 Command Substitution
 --------------------
 
@@ -890,7 +935,7 @@ command is invoked.
 input.
 
    Convenient way is to use 'lesspipe' (or 'lesspipe.sh'), which is
-availabe in many UNIX-systems, for example
+available in many UNIX-systems, for example
      export FFEOPEN="/usr/bin/lesspipe %s"
 
    Using the example above is it possible to give a zipped input file to
@@ -1550,7 +1595,7 @@ the parent before child rows, so they are enclosed in a parent element.
      C,Aden,16,White
      C,Amanda,20,Black
 
-   A parent row consistd of ID (P), parent name, and the count of the
+   A parent row consists of ID (P), parent name, and the count of the
 children.  A child row consists of id (C), child name, age and favorite
 color.
 
@@ -1749,6 +1794,77 @@ Some examples put in a single file
          default-value "Unknown record type!"
      }
 
+Anonymization
+-------------
+
+Anonymize fields FirstName, LastName and Age for personnel data:
+     anonymize personnel
+     {
+         method FirstName HASH 2
+         method LastName HASH 2
+         method Age NRANDOM
+     }
+
+   Data before anonymization:
+     $cat personnel.fix
+     H2006-02-25
+     EJohn     Ripper       23
+     BScott    Tiger        45
+     EMary     Moore        41
+     ERidge    Forrester    31
+     T0004
+
+   Anonymize the data to new file 'personnel_anon.fix' (using the
+default configuration file '~/.fferc' and raw output):
+
+     ffe -A personnel -praw -o personnel_anon.fix personnel.fix
+
+   Anonymized data:
+     $cat personnel_anon.fix
+     H2006-02-25
+     EJQIQ9C5oBR2rDU0qiSTv7E62
+     BSqUcsYzSTTNTuTraspsG4154
+     EMTsXkHltVMsV8qmK1tkgq 00
+     ER1e90zv1dFjP4 xgflVGQF87
+     T0004
+
+     $ffe -pnice personnel_anon.fix
+      personel - header - personnel_anon.fix - 1
+        type=H
+        date=2006-02-25
+
+      personel - employee - personnel_anon.fix - 2
+          EmpType=E
+        FirstName=JQIQ9C5oB
+         LastName=R2rDU0qiSTv7E
+              Age=62
+
+      personel - boss - personnel_anon.fix - 3
+         EmpType=B
+       FirstName=SqUcsYzST
+        LastName=TNTuTraspsG41
+             Age=54
+
+      personel - employee - personnel_anon.fix - 4
+         EmpType=E
+       FirstName=MTsXkHltV
+        LastName=MsV8qmK1tkgq
+             Age=00
+
+      personel - employee - personnel_anon.fix - 5
+         EmpType=E
+       FirstName=R1e90zv1d
+        LastName=FjP4 xgflVGQF
+             Age=87
+
+      personel - trailer - personnel_anon.fix - 6
+        type=T
+       count=0004
+   FirstName and LastName have preserved the first letter because
+anonymization started from the second byte.  Age is a two digit random
+number.  Name fields will get the same anonymized value for each run,
+but Age will have a random value for each run.
+
 Using 'ffe' to test file integrity
 ----------------------------------
 
@@ -1788,15 +1904,15 @@ problems.
 
 
 Tag Table:
-Node: Top898
-Node: Overview1960
-Node: Samples2616
-Node: Invoking ffe4105
-Node: Invocation4692
-Node: Configuration8857
-Node: Guessing32139
-Node: Limits33739
-Node: ffe configuration34147
-Node: Problems53933
+Node: Top896
+Node: Overview1956
+Node: Samples2612
+Node: Invoking ffe4101
+Node: Invocation4688
+Node: Configuration8853
+Node: Guessing34034
+Node: Limits35634
+Node: ffe configuration36042
+Node: Problems57709
 
 End Tag Table

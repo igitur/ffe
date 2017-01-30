@@ -562,17 +562,17 @@ Input record length or field count can be the same or longer as defined for the 
 @end table
 @item variable-length @var{record_length} @var{variable_length_field} @var{adjust}
 @var{record_length} and @var{variable_length_field} are the names of two fields in the record and @var{adjust} is a signed integer.
-Record length is read from field @var{record_length}. @var{record_length} is assumed to be an integer type for binary structures or contain only desimal numbers in fixed length structure. 
+Record length is read from field @var{record_length}. @var{record_length} is assumed to be an integer type for binary structures or contain only decimal numbers in fixed length structure. 
 @var{record_length} is assumed to contain the total length of the record. 
-@var{variable_length_field} is the field having variable length. The length of @var{variable_length_field} is calculated by subracting the total length of the all other fields from the length read from @var{record_length}.
+@var{variable_length_field} is the field having variable length. The length of @var{variable_length_field} is calculated by subtracting the total length of the all other fields from the length read from @var{record_length}.
 @*
-The length given by keyword @var{field} for @var{variable_length_field} is ignored. After calculating the length it is adjusted by @var{adjust}. @var{adjust} can be used in cases where the length read from @var{variable_length_field} does not contain the total length of the record.  variable-length can be used with binary or fixed lengths strutures only.
+The length given by keyword @var{field} for @var{variable_length_field} is ignored. After calculating the length it is adjusted by @var{adjust}. @var{adjust} can be used in cases where the length read from @var{variable_length_field} does not contain the total length of the record.  variable-length can be used with binary or fixed lengths structures only.
 @end table
 
 @subheading Output
 Keyword @code{output} specifies a output format for formatting the input data for output. Formatting
 is controlled using options and printf style directives. An output definition is independent
-from structur, so one output format can be used with different input file formats.
+from structure, so one output format can be used with different input file formats.
 
 @noindent
 The output notation:
@@ -607,13 +607,13 @@ Byte offset of the current record starting from the first file. Starts from zero
 @item %n
 Field name.
 @item %t
-Field contents, without leading and trailing whitespaces. 
+Field contents, without leading and trailing white-spaces. 
 @item %d
 Field contents. Binary integer is printed as a decimal value. Floating point number is printed in the style @code{[-]ddd.ddd}, where the number of digits after the decimal-point character is 6. Bcd number is printed as a decimal number and hexadecimal data as consecutive hexadecimal values.
 @item %D
 Field contents, right padded to the field length (requires length definition for the field).
 @item %C
-Field contents, right padded to the field length (requires length definition for the field). Contents is cutted if the input field
+Field contents, right padded to the field length (requires length definition for the field). Contents is cut if the input field
 is longer than output length.
 @item %x
 Unsigned hexadecimal value of a binary integer. Other fields are printed as directive @code{%d} would be used.
@@ -667,7 +667,7 @@ in the data picture. Default is left.
 @item indent @var{string}
 Record contents is intended by @var{string}. 
 Field contents is intended by two times the string. Default is not to indent.
-If file contents is printed in hierarchial form (keyword @code{level} in record definition) then
+If file contents is printed in hierarchical form (keyword @code{level} in record definition) then
 contents is indented according the level of a record.
 @item field-list @var{name1},@var{name2},@dots{}
 Only fields and constants named as @var{name1},@var{name2},@dots{} are printed, same effect as has option @option{-f}. 
@@ -768,6 +768,48 @@ filter @var{name} @var{command}
 
 @var{name} is referred in field definition. @var{command} is the shell command to be executed.
 
+@subheading Anonymization
+Keyword @code{anonymize} defines a set of fields which will be anonymized by using command line option @option{-A,--anonymize}
+is given. Ffe uses non-reversible anonymization methods and preserves the original field length.
+
+Notation:
+@*
+@example
+anonymize @var{name} @{
+    @i{method} @dots{}
+    @dots{}
+@}
+@end example
+The anonymization will be done if command line option @option{-A,--anonymize} is given with @var{name}.
+@noindent
+Anonymize options:
+@table @code
+@item method @var{field} @var{method} @var{start} @var{length} @var{parameter}
+All fields named as @var{field} in the current structure will be anonymized using method @var{method}.
+As default the whole field is anonymized. Some parts of the field can be left non-anonymized using
+@var{start} and @var{length}. @var{start} is the byte position where the anonymization starts, first byte is number 1.
+If @var{start} is negative the anonymization starts from the end of the field.
+If @var{length} is given then @var{length} number of bytes is anonymized after start position, default value 0 means the rest of the field.
+Only @var{field} and @var{method} are mandatory.
+@*
+@*
+Values for @var{method}:
+@table @code
+@item MASK
+Field will be masked with character '0'. Different character can be given with @var{parameter}.
+@item RANDOM
+@itemx NRANDOM
+Field will be filled with randomly selected bytes.
+@item HASH
+@itemx NHASH
+Field will be filled with data from hash calculated from the original field. 
+This method yields always the same result with same input. The hash length in bytes can be given with @var{parameter}.
+Default hash length is 16, valid values for hash length are 16, 32 and 64.
+@end table
+Methods RANDOM and HASH use characters @code{0-9,A-Z,a-z} and space for text fields. Methods NRANDOM and NHASH use only characters @code{0-9}. 
+For binary fields all byte values are used. BCD coded fields are always filled with BCD values @code{0-9}. 
+@end table
+
 @subheading Command Substitution
 Command Substitution allows the output of a command to replace parts of the configuration file. Syntax for 
 command substitution is:
@@ -805,7 +847,7 @@ which will be replaced by the input filename when the input preprocessor command
 
 The input preprocessor is not used if @command{ffe} is reading standard input.
 
-Convenient way is to use @command{lesspipe} (or @command{lesspipe.sh}), which is availabe in many UNIX-systems, for example
+Convenient way is to use @command{lesspipe} (or @command{lesspipe.sh}), which is available in many UNIX-systems, for example
 @*
 @example
 export FFEOPEN="/usr/bin/lesspipe %s"
@@ -1482,7 +1524,7 @@ C,Aden,16,White
 C,Amanda,20,Black
 @end example
 
-A parent row consistd of ID (P), parent name, and the count of the children. A child row consists of id (C), child name, age and favorite color.
+A parent row consists of ID (P), parent name, and the count of the children. A child row consists of id (C), child name, age and favorite color.
 
 This can be printed in nested XML using rc file:
 @example
@@ -1682,6 +1724,80 @@ lookup Type
     default-value "Unknown record type!"
 @}   
 @end example
+
+@subheading Anonymization
+Anonymize fields FirstName, LastName and Age for personnel data:
+@example
+anonymize personnel
+@{
+    method FirstName HASH 2
+    method LastName HASH 2
+    method Age NRANDOM
+@}
+@end example
+
+Data before anonymization:
+@example
+$cat personnel.fix
+H2006-02-25
+EJohn     Ripper       23
+BScott    Tiger        45
+EMary     Moore        41
+ERidge    Forrester    31
+T0004
+@end example
+
+Anonymize the data to new file @file{personnel_anon.fix} (using the default configuration file @file{~/.fferc} and raw output):
+
+@example
+ffe -A personnel -praw -o personnel_anon.fix personnel.fix
+@end example
+
+Anonymized data:
+@example
+$cat personnel_anon.fix
+H2006-02-25
+EJQIQ9C5oBR2rDU0qiSTv7E62
+BSqUcsYzSTTNTuTraspsG4154
+EMTsXkHltVMsV8qmK1tkgq 00
+ER1e90zv1dFjP4 xgflVGQF87
+T0004
+
+$ffe -pnice personnel_anon.fix
+ personel - header - personnel_anon.fix - 1
+   type=H
+   date=2006-02-25
+      
+ personel - employee - personnel_anon.fix - 2
+     EmpType=E
+   FirstName=JQIQ9C5oB
+    LastName=R2rDU0qiSTv7E
+         Age=62
+                        
+ personel - boss - personnel_anon.fix - 3
+    EmpType=B
+  FirstName=SqUcsYzST
+   LastName=TNTuTraspsG41
+        Age=54
+                                          
+ personel - employee - personnel_anon.fix - 4
+    EmpType=E
+  FirstName=MTsXkHltV
+   LastName=MsV8qmK1tkgq 
+        Age=00
+                                                     
+ personel - employee - personnel_anon.fix - 5
+    EmpType=E
+  FirstName=R1e90zv1d
+   LastName=FjP4 xgflVGQF
+        Age=87
+                                                                             
+ personel - trailer - personnel_anon.fix - 6
+   type=T
+  count=0004
+@end example
+FirstName and LastName have preserved the first letter because anonymization started from the second byte. Age is a two digit random number.
+Name fields will get the same anonymized value for each run, but Age will have a random value for each run.
 
 @subheading Using @command{ffe} to test file integrity
 @command{ffe} can be used to check flat file integrity, because @command{ffe} 

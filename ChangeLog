@@ -1,3 +1,8 @@
+2017-01-29 Timo Savinen <tjsa@iki.fi>
+
+    * version 0.3.7
+    * Data anonymization implemented: New option -A,--anonymize and configuration keyword 'anonymize'
+
 2016-04-17 Timo Savinen <tjsa@iki.fi>
 
     * Version 0.3.6-1

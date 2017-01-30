@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([ffe], [0.3.6-1], [tjsa@iki.fi])
+AC_INIT([ffe], [0.3.7], [tjsa@iki.fi])
 AC_CONFIG_SRCDIR([src/ffe.c])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR([config])
@@ -22,15 +22,19 @@ AC_DEFINE_UNQUOTED([BUILD_DATE],["$ISODATE"],[Build date.])
 AC_DEFINE_UNQUOTED([SHELL_CMD],["$SHELL_CMD"],[Define to the shell for command substitution and input preprosessing.])
 
 # Checks for programs.
-AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for libraries.
+# when compiling for mingw32 the AM_PATH_LIBGCRYPT gives false positive
+if test "x$cross_compiling" = xno; then
+    AM_PATH_LIBGCRYPT([],[AC_DEFINE(HAVE_WORKING_LIBGCRYPT, 1, [Define to 1 if gcrypt is working.])],[])
+fi
+
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h features.h error.h errno.h getopt.h regex.h signal.h])
+AC_CHECK_HEADERS([fcntl.h features.h error.h errno.h getopt.h regex.h signal.h gcrypt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

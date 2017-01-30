@@ -94,9 +94,12 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_ffe_OBJECTS = ffe.$(OBJEXT) xmalloc.$(OBJEXT) parserc.$(OBJEXT) \
-	execute.$(OBJEXT) endian.$(OBJEXT) level.$(OBJEXT)
+	execute.$(OBJEXT) endian.$(OBJEXT) level.$(OBJEXT) \
+	anonymize.$(OBJEXT)
 ffe_OBJECTS = $(am_ffe_OBJECTS)
 ffe_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+ffe_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -181,6 +184,9 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 ISODATE = @ISODATE@
 LDFLAGS = @LDFLAGS@
+LIBGCRYPT_CFLAGS = @LIBGCRYPT_CFLAGS@
+LIBGCRYPT_CONFIG = @LIBGCRYPT_CONFIG@
+LIBGCRYPT_LIBS = @LIBGCRYPT_LIBS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -250,8 +256,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CPPFLAGS = $(LIBGCRYPT_CFLAGS)
+LDADD = $(LIBGCRYPT_LIBS)
 AM_CFLAGS = -I.. 
-ffe_SOURCES = ffe.c xmalloc.c parserc.c execute.c endian.c level.c
+ffe_SOURCES = ffe.c xmalloc.c parserc.c execute.c endian.c level.c anonymize.c
 noinst_HEADERS = ffe.h
 all: all-am
 
@@ -340,6 +348,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/anonymize.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/endian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ffe.Po@am__quote@

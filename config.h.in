@@ -24,6 +24,9 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
+/* Define to 1 if you have the <gcrypt.h> header file. */
+#undef HAVE_GCRYPT_H
+
 /* Define to 1 if you have the `getline' function. */
 #undef HAVE_GETLINE
 
@@ -122,6 +125,9 @@
 
 /* Define to 1 if `fork' works. */
 #undef HAVE_WORKING_FORK
+
+/* Define to 1 if gcrypt is working. */
+#undef HAVE_WORKING_LIBGCRYPT
 
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
