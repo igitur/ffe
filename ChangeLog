@@ -1,3 +1,9 @@
+2017-02-12 Timo Savinen <tjsa@iki.fi>
+
+    * version 0.3.7-1
+    * Anonymization works now with data having header line
+    * Fixed the return value in 'update_anon_info'
+
 2017-01-29 Timo Savinen <tjsa@iki.fi>
 
     * version 0.3.7

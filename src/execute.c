@@ -44,6 +44,9 @@ static char *program = "ffe";
 #define WRITE_BUFFER (2 * 1024 * 1024)
 #define JUSTIFY_STRING 128
 
+extern int update_anon_info(struct structure *,char *);
+
+
 extern struct replace *replace;
 
 struct input_file *files = NULL;
@@ -1157,7 +1160,7 @@ size_t update_field_positions(char *type,uint8_t quote,struct record *r,int len,
     register int inside_quote = 0;
     struct field *f = r->f;
     int var_record_length;
-    int var_field_length;
+    int var_field_length = 0;
     int cur_pos,var_field_passed;
     size_t retval;
 
@@ -1825,7 +1828,7 @@ print_fields(struct structure *s, struct record *r,uint8_t *buffer)
     int i;
     uint8_t justify = LEFT_JUSTIFY;
     uint8_t *indent,*separator;
-    uint8_t *data_start,*rep_start,*rep_pos;
+    uint8_t *data_start,*rep_start = NULL,*rep_pos = NULL;
     uint8_t *field_start;
     uint8_t *lookup_value;
     int retval = 0;
@@ -2355,7 +2358,7 @@ hash_scan_expression_len(struct expr_list **list,char *value,int casecmp,size_t 
         return 0;
 } 
 
-static inline
+static inline int
 scan_expression_list(struct expr_list *l,char *value,char op,int casecmp)
 {
     while(l != NULL)
@@ -2432,7 +2435,6 @@ int
 eval_expression(struct structure *s,struct record *r, int and,int invert, int casecmp, uint8_t *buffer)
 {
     struct expression *e = expression;
-    struct expr_list *el;
     int retval = 0;
     int prev_retval;
     int loop_break = 0;
@@ -2605,7 +2607,7 @@ select_output(struct output *o)
 
 /* main loop for execution */
 void 
-execute(struct structure *s,int strict, int expression_and,int expression_invert,int expression_case, int debug,int anon_field_count)
+execute(struct structure *s,int strict, int expression_and,int expression_invert,int expression_case, int debug,char *anon_to_use)
 {
     uint8_t *input_line;
     struct record *r = NULL;
@@ -2615,6 +2617,7 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
     int fields_printed;
     int first_line = 1;
     int i;
+    int anon_field_count=0;
 
     current_file_lineno = 0;
     current_total_lineno = 0;
@@ -2649,6 +2652,9 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
             if(first_line)
             {
                 init_structure(s,r,length,input_line);
+                anon_field_count = update_anon_info(s,anon_to_use);
+                if(anon_field_count) init_libgcrypt();
+
             }
 
             if(expression != NULL && (prev_record != r || prev_record == NULL))
@@ -2664,7 +2670,7 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
                 {
                     if(expression == NULL || (eval_expression(s,r,expression_and,expression_invert,expression_case,input_line)))
                     {
-                        if(anon_field_count > 0) anonymize_fields(s->type,s->quote,r,length,input_line);  // anonymize after exp. evaluation
+                        if(anon_field_count) anonymize_fields(s->type,s->quote,r,length,input_line);  // anonymize after exp. evaluation
                         if(r->o == raw)
                         {
                             print_raw(s->type[0] == BINARY ? r->length : length,input_line,s->type[0]);

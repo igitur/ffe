@@ -78,7 +78,7 @@ void init_libgcrypt()
  */
 static int get_normalized_field(struct field *f,char *type,uint8_t quote,int len,uint8_t *buffer,uint8_t *nbuffer)
 {
-   int copy_length;
+   int copy_length = 0;
    register int i;
    register uint8_t *data;
    int inside_quote;
@@ -229,7 +229,7 @@ static uint8_t ascii_to_bcd(uint8_t asc)
 
 /* Write scrambled field back to buffer
  */
-static int write_scrambled_field(struct field *f,char *type,uint8_t quote,uint8_t *buffer,int scramble_len,uint8_t *scrambled_data)
+static void write_scrambled_field(struct field *f,char *type,uint8_t quote,uint8_t *buffer,int scramble_len,uint8_t *scrambled_data)
 {
     int quoted;
     uint8_t *data;
@@ -260,6 +260,7 @@ static int write_scrambled_field(struct field *f,char *type,uint8_t quote,uint8_
                 case F_BCD:  // write in big endian and swap after that if little endian
                     data = &buffer[f->bposition];
                     i = 0;
+                    c = 0;
                     while(i < scramble_len)
                     {
                         c = (uint8_t) (ascii_to_bcd(scrambled_data[i]) & 0x0f);
@@ -302,7 +303,6 @@ static void scramble_MASK(uint8_t *scramble,int length,uint8_t mask)
 static void scramble_HASH(int ftype,int hash_length,unsigned char *hash,int scramble_length,uint8_t *scramble,int num_chars,char *chars)
 {
     register int i;
-    register uint8_t *s,c;
 
     if(hash_length < 1) return;
 
@@ -405,7 +405,7 @@ static int md_random(unsigned char *rand,int rand_length)
  * return scramble length
  */
 #define HASH_BUFFER_LEN (MAX_NFIELD_LEN)
-static int create_scramble(int ftype,uint8_t *scramble,int normalized_length,uint8_t *normalized_field,int nlen,struct anon_field *a)
+static int create_scramble(int ftype,uint8_t *scramble,int normalized_length,uint8_t *normalized_field,struct anon_field *a)
 {
     int scramble_length;
     int hash_length;
@@ -413,12 +413,12 @@ static int create_scramble(int ftype,uint8_t *scramble,int normalized_length,uin
 
     if(a->start >= 0)   // from beginning
     {
-        if(a->start > nlen) return 0;
-        scramble_length = nlen - a->start + 1;
+        if(a->start > normalized_length) return 0;
+        scramble_length = normalized_length - a->start + 1;
     } else 
     {
-        if(abs(a->start) > nlen) return 0;
-        scramble_length = nlen + a->start + 1;
+        if(abs(a->start) > normalized_length) return 0;
+        scramble_length = normalized_length + a->start + 1;
     }
     if(scramble_length > a->length && a->length > 0) scramble_length = a->length;    
     if(scramble_length > MAX_NFIELD_LEN) scramble_length = MAX_NFIELD_LEN;
@@ -485,7 +485,7 @@ void anonymize_fields(char *type,uint8_t quote,struct record *r,int len,uint8_t 
             normalized_length = get_normalized_field(f,type,quote,len,buffer,normalized_field);
             if(normalized_length)
             {
-                scramble_len = create_scramble(f->type,scramble,normalized_length,normalized_field,normalized_length,f->a);
+                scramble_len = create_scramble(f->type,scramble,normalized_length,normalized_field,f->a);
                 if(scramble_len)
                 {
                     scramble_normalized(scramble_len,scramble,normalized_length,normalized_field,f->a);

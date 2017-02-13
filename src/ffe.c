@@ -58,12 +58,6 @@ static char *host = HOST;
 static char *host = "";
 #endif
 
-#ifdef BUILD_DATE
-static char *build_date = BUILD_DATE;
-#else
-static char *build_date = "";
-#endif
-
 #ifdef PACKAGE_BUGREPORT
 static char *email_address = PACKAGE_BUGREPORT;
 #else
@@ -323,7 +317,7 @@ int update_anon_info(struct structure *s,char *anon)
      int retval = 0;
      int found = 0;
 
-     if(anon == NULL) return;
+     if(anon == NULL) return 0;
 
      while(r != NULL)
      {
@@ -788,9 +782,7 @@ add_expression(char *optarg)
     char *op_pos;
     char op = 0;
     struct expression *e,*last;
-    struct expr_list *el;
     int found = 0;
-    size_t buflen;
     char *value_file;
 
     if((op_pos = strchr(optarg,OP_REQEXP)) != NULL)
@@ -988,7 +980,6 @@ main(int argc, char **argv)
     int expression_and = 0;
     int expression_invert = 0;
     int expression_casecmp = 0;
-    int anon_field_count = 0;
     struct structure *s = NULL;
     char *structure_to_use = NULL;
     char *output_to_use = NULL;
@@ -1160,15 +1151,12 @@ main(int argc, char **argv)
         }
     }
  
-    anon_field_count = update_anon_info(s,anon_to_use);
-
-    if(anon_field_count) init_libgcrypt();
 
     free(config_to_use); /* to avoid strange valgrind memory lost */
 
     set_output_file(ofile_to_use);
 
-    execute(s,strict,expression_and,expression_invert,expression_casecmp,debug,anon_field_count);
+    execute(s,strict,expression_and,expression_invert,expression_casecmp,debug,anon_to_use);
 
     close_output_file();
 

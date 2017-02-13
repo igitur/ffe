@@ -383,7 +383,7 @@ extern void
 close_output_file();
 
 extern void 
-execute(struct structure *,int,int,int,int,int,int);
+execute(struct structure *,int,int,int,int,int,char *);
 
 extern char *
 expand_home(char *);
