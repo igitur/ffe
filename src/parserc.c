@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef HAVE_PRINTF_H
+#include <printf.h>
+#endif
 
 #ifdef HAVE_PROCESS_H
 #include <process.h>
@@ -142,7 +145,7 @@ static struct rc_option rc_opts[] = {
     {N_OUTPUT,"S"},
     {N_ID,"NS"},
     {N_RID,"NS"},
-    {N_FIELD,"Sssss"},
+    {N_FIELD,"Ssssss"},
     {N_FIELDSFROM,"S"},
     {N_FILE_HEADER,"S"},
     {N_FILE_TRAILER,"S"},
@@ -1210,6 +1213,30 @@ print_info()
     }
 }
 
+struct format *
+parse_conversion(char *conv_spec)
+{
+    struct format *ret = NULL;
+    int argtypes[2];
+
+#ifdef HAVE_PARSE_PRINTF_FORMAT
+    if(conv_spec != NULL && parse_printf_format(conv_spec,2,argtypes) == 1 && !(argtypes[0] & PA_FLAG_PTR))
+    {
+        ret = xmalloc(sizeof(struct format));
+        ret->conversion = xstrdup(conv_spec);
+        ret->type = argtypes[0];
+    }
+#else
+    error_in_line();
+    panic("printf style formatting not supported in this system (function parse_printf_format missing)",NULL,NULL);
+#endif
+
+    
+    return ret;
+}
+
+
+
 void 
 parserc(char *rcfile,char *include_field_list)
 {
@@ -1357,6 +1384,7 @@ parserc(char *rcfile,char *include_field_list)
                             c_field->position = 0;
                             c_field->length = strlen(c_field->const_data);
                             c_field->o = NULL;
+                            c_field->f = NULL;
                         } else if(strcmp(values[0],N_PIPE) == 0)
                         { 
                             if (pipes == NULL)
@@ -1556,6 +1584,7 @@ parserc(char *rcfile,char *include_field_list)
                             c_field->pipe_name = NULL;
                             c_field->p = NULL;
                             c_field->a = NULL;
+                            c_field->f = NULL;
 
                             if(values[1][0] == '*' && !values[1][1])
                             {
@@ -1590,8 +1619,22 @@ parserc(char *rcfile,char *include_field_list)
                                         }
                                         if(opt_count > 4)
                                         {
-                                            c_field->pipe_name = xstrdup(values[5]);
+                                            if(!(values[5][0] == '*' && !values[5][1]))
+                                            {
+                                                c_field->pipe_name = xstrdup(values[5]);
+                                            }
+                                            if(opt_count > 5)
+                                            {
+                                                c_field->f = parse_conversion(values[6]);
+                                                if(c_field->f == NULL) 
+                                                {
+
+                                                    error_in_line();
+                                                    panic("Invalid conversion syntax",values[6],NULL);
+                                                }
+                                            }
                                         }
+
                                     }
                                 }
                                 
@@ -1628,6 +1671,7 @@ parserc(char *rcfile,char *include_field_list)
                                 c_field->o = NULL;
                                 c_field->p = NULL;
                                 c_field->a = NULL;
+                                c_field->f = NULL;
                                 c_field->pipe_name = NULL;
                             }
                         } else if(strcmp(values[0],N_LEVEL) == 0)

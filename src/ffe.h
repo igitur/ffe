@@ -214,6 +214,13 @@ struct expression {
 };
 
 
+struct format
+{
+    char *conversion;      /* printf conversion spec */
+    int type;              /* data type for conversion, argtypes from parse_printf_format */
+};
+
+
 /* Information for one field */
 struct field {
     char *name;
@@ -233,6 +240,7 @@ struct field {
     char *pipe_name;
     struct pipe *p;
     struct anon_field *a; 
+    struct format *f;
     struct field *next;
 };
 

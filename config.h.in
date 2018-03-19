@@ -45,8 +45,14 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to 1 if you have the `parse_printf_format' function. */
+#undef HAVE_PARSE_PRINTF_FORMAT
+
 /* Define to 1 if you have the `pipe' function. */
 #undef HAVE_PIPE
+
+/* Define to 1 if you have the <printf.h> header file. */
+#undef HAVE_PRINTF_H
 
 /* Define to 1 if you have the `putenv' function. */
 #undef HAVE_PUTENV

@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- This file documents version 0.3.7-1 of ffe, a flat file extractor. 
+<!-- This file documents version 0.3.8 of ffe, a flat file extractor. 
 
 Copyright (C) 2014 Timo Savinen
 
@@ -15,7 +15,7 @@ notice identical to this one.
 
 Permission is granted to copy and distribute translations of this manual
 into another language, under the above conditions for modified versions. -->
-<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<!-- Created by GNU Texinfo 6.3, http://www.gnu.org/software/texinfo/ -->
 <head>
 <title>ffe - flat file extractor</title>
 
@@ -31,16 +31,16 @@ into another language, under the above conditions for modified versions. -->
 <style type="text/css">
 <!--
 a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
 blockquote.smallquotation {font-size: smaller}
 div.display {margin-left: 3.2em}
 div.example {margin-left: 3.2em}
-div.indentedblock {margin-left: 3.2em}
 div.lisp {margin-left: 3.2em}
 div.smalldisplay {margin-left: 3.2em}
 div.smallexample {margin-left: 3.2em}
-div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
 div.smalllisp {margin-left: 3.2em}
-kbd {font-style:oblique}
+kbd {font-style: oblique}
 pre.display {font-family: inherit}
 pre.format {font-family: inherit}
 pre.menu-comment {font-family: serif}
@@ -49,10 +49,9 @@ pre.smalldisplay {font-family: inherit; font-size: smaller}
 pre.smallexample {font-size: smaller}
 pre.smallformat {font-family: inherit; font-size: smaller}
 pre.smalllisp {font-size: smaller}
-span.nocodebreak {white-space:nowrap}
-span.nolinebreak {white-space:nowrap}
-span.roman {font-family:serif; font-weight:normal}
-span.sansserif {font-family:sans-serif; font-weight:normal}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
 ul.no-bullet {list-style: none}
 body {
 	margin: 1%;
@@ -140,7 +139,7 @@ div.node hr {
 
 </head>
 
-<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<body lang="en">
 <h1 class="settitle" align="center">ffe - flat file extractor</h1>
 
 
@@ -151,7 +150,7 @@ div.node hr {
 <a name="ffe"></a>
 <h1 class="top">ffe</h1>
 
-<p>This file documents version 0.3.7-1 of <code>ffe</code>, a flat file extractor. 
+<p>This file documents version 0.3.8 of <code>ffe</code>, a flat file extractor. 
 </p>
 <p>Copyright &copy; 2014 Timo Savinen
 </p>
@@ -561,7 +560,7 @@ separated input the <var>position</var> is the <var>position</var>&rsquo;th fiel
 <p>Non printable characters can be escaped as &lsquo;<samp>\xnn</samp>&rsquo;, where &lsquo;<samp>nn</samp>&rsquo; is characters hexadecimal value.
 </p>
 </dd>
-<dt><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]</code></dt>
+<dt><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></dt>
 <dd><p>Defines a field in a text input structure.  <var>length</var> is mandatory for fixed length input structure.
 </p>
 <p>The last field of a fixed length input structure can have a <em>*</em> in place of <var>length</var>. That means that the last field
@@ -581,11 +580,13 @@ If <var>length</var> is not needed (separated format) but lookup is needed, use 
 </p>
 <p>If <var>filter</var> is given the raw contents of the field is filtered through a program defined by <var>filter</var> and the output of the program is printed as field contents.
 </p>
+<p>If <var>conversion</var> is given it should contain a single printf style conversion specification, which will be used in printing. Conversion specification must start with <code>%</code> and the last character must be from set <code>diuoxXfeEgGcs</code>.
+</p>
 <p>If field is named as <code>FILLER</code>, the field will not appear in output.
 </p>
 <p>The order of fields in configuration file is essential, it specifies the field order in a record.
 </p></dd>
-<dt><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]</code></dt>
+<dt><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></dt>
 <dd><p>Defines a field in a binary structure. All other features are same as for text structure fields except the <var>type</var> parameter.
 </p>
 <p><var>type</var> specifies the field length and type and can have the following values:
@@ -1145,7 +1146,7 @@ T0004
 $
 </pre></div>
 
-<p>Structure for reading file above. Note that record &lsquo;<samp>boss</samp>&rsquo; reuses fields from &lsquo;<samp>employee</samp>&rsquo;.
+<p>Structure for reading file above. Note that record &lsquo;<samp>boss</samp>&rsquo; reuses fields from &lsquo;<samp>employee</samp>&rsquo;. Age will be printed three numbers long with padded zeros.
 </p>
 <div class="example">
 <pre class="example">structure personel_fix {
@@ -1160,7 +1161,7 @@ $
         field EmpType 1
         field FirstName 9
         field LastName  13
-        field Age 2
+        field Age 2 * * * &quot;%03d&quot;
     }
     record boss {
         id 1 B
@@ -1330,25 +1331,25 @@ quit
     EmpType=E
   FirstName=John
    LastName=Ripper
-        Age=23
+        Age=023
  
  personel - boss - personnel.fix - 3
     EmpType=B
   FirstName=Scott
    LastName=Tiger
-        Age=45
+        Age=045
  
  personel - employee - personnel.fix - 4
     EmpType=E
   FirstName=Mary
    LastName=Moore
-        Age=41
+        Age=041
  
  personel - employee - personnel.fix - 5
     EmpType=E
   FirstName=Ridge
    LastName=Forrester
-        Age=31
+        Age=031
  
  personel - trailer - personnel.fix - 6
    type=T
@@ -1387,22 +1388,22 @@ quit
 &lt;tr&gt;
 &lt;td&gt;John&lt;/td&gt;
 &lt;td&gt;Ripper&lt;/td&gt;
-&lt;td&gt;23&lt;/td&gt;
+&lt;td&gt;023&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td&gt;Scott&lt;/td&gt;
 &lt;td&gt;Tiger&lt;/td&gt;
-&lt;td&gt;45&lt;/td&gt;
+&lt;td&gt;045&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td&gt;Mary&lt;/td&gt;
 &lt;td&gt;Moore&lt;/td&gt;
-&lt;td&gt;41&lt;/td&gt;
+&lt;td&gt;041&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td&gt;Ridge&lt;/td&gt;
 &lt;td&gt;Forrester&lt;/td&gt;
-&lt;td&gt;31&lt;/td&gt;
+&lt;td&gt;031&lt;/td&gt;
 
 &lt;/table&gt;
 &lt;/body&gt;
@@ -1428,7 +1429,7 @@ quit
 &lt;tr&gt;
 &lt;td&gt;Scott&lt;/td&gt;
 &lt;td&gt;Tiger&lt;/td&gt;
-&lt;td&gt;45&lt;/td&gt;
+&lt;td&gt;045&lt;/td&gt;
 
 &lt;/table&gt;
 &lt;/body&gt;
@@ -1453,10 +1454,10 @@ using directive <code>%D</code>:
 <pre class="example">$ffe -p fixed -r EmpType=B -o personnel.fix.new personnel.fix
 $cat personnel.fix.new
 H2006-02-25
-BJohn     Ripper       23
-BScott    Tiger        45
-BMary     Moore        41
-BRidge    Forrester    31
+BJohn     Ripper       023
+BScott    Tiger        045
+BMary     Moore        041
+BRidge    Forrester    031
 T0004
 $
 </pre></div>
@@ -1517,10 +1518,10 @@ output fixed2
 </p><div class="example">
 <pre class="example">$ ffe -c new_fixed.rc personel_fix
 H2006-02-25
-EJohn     ..Ripper       ..23
-BScott    ..Tiger        ..45
-EMary     ..Moore        ..41
-ERidge    ..Forrester    ..31
+EJohn     ..Ripper       ..023
+BScott    ..Tiger        ..045
+EMary     ..Moore        ..041
+ERidge    ..Forrester    ..031
 T0004
 $
 </pre></div>
@@ -1589,25 +1590,25 @@ $
     EmpType=E (Not a Boss!)
   FirstName=John
    LastName=Ripper
-        Age=23
+        Age=023
  
  personel_fix - boss - personel_fix - 3
     EmpType=B (He is a Boss!)
   FirstName=Scott
    LastName=Tiger
-        Age=45
+        Age=045
  
  personel_fix - employee - personel_fix - 4
     EmpType=E (Not a Boss!)
   FirstName=Mary
    LastName=Moore
-        Age=41
+        Age=041
  
  personel_fix - employee - personel_fix - 5
     EmpType=E (Not a Boss!)
   FirstName=Ridge
    LastName=Forrester
-        Age=31
+        Age=031
  
  personel_fix - trailer - personel_fix - 6
    type=T

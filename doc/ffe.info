@@ -1,6 +1,6 @@
-This is ffe.info, produced by makeinfo version 5.2 from ffe.texi.
+This is ffe.info, produced by makeinfo version 6.3 from ffe.texi.
 
-This file documents version 0.3.7-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.8 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -27,7 +27,7 @@ File: ffe.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 ffe
 ***
 
-This file documents version 0.3.7-1 of 'ffe', a flat file extractor.
+This file documents version 0.3.8 of 'ffe', a flat file extractor.
 
    Copyright (C) 2014 Timo Savinen
 
@@ -441,7 +441,7 @@ A record can contain following options:
      Non printable characters can be escaped as '\xnn', where 'nn' is
      characters hexadecimal value.
 
-'field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]|* [FILTER]'
+'field NAME|FILLER|* [LENGTH]|* [LOOKUP]|* [OUTPUT]|* [FILTER]|* [CONVERSION]'
      Defines a field in a text input structure.  LENGTH is mandatory for
      fixed length input structure.
 
@@ -472,11 +472,16 @@ A record can contain following options:
      through a program defined by FILTER and the output of the program
      is printed as field contents.
 
+     If CONVERSION is given it should contain a single printf style
+     conversion specification, which will be used in printing.
+     Conversion specification must start with '%' and the last character
+     must be from set 'diuoxXfeEgGcs'.
+
      If field is named as 'FILLER', the field will not appear in output.
 
      The order of fields in configuration file is essential, it
      specifies the field order in a record.
-'field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]|* [FILTER]'
+'field NAME|FILLER|* LENGTH|TYPE [LOOKUP]|* [OUTPUT]|* [FILTER]|* [CONVERSION]'
      Defines a field in a binary structure.  All other features are same
      as for text structure fields except the TYPE parameter.
 
@@ -1015,7 +1020,8 @@ trailer).
      $
 
 Structure for reading file above.  Note that record 'boss' reuses fields
-from 'employee'.
+from 'employee'.  Age will be printed three numbers long with padded
+zeros.
 
      structure personel_fix {
          type fixed
@@ -1029,7 +1035,7 @@ from 'employee'.
              field EmpType 1
              field FirstName 9
              field LastName  13
-             field Age 2
+             field Age 2 * * * "%03d"
          }
          record boss {
              id 1 B
@@ -1195,25 +1201,25 @@ Output from command
          EmpType=E
        FirstName=John
         LastName=Ripper
-             Age=23
+             Age=023
 
       personel - boss - personnel.fix - 3
          EmpType=B
        FirstName=Scott
         LastName=Tiger
-             Age=45
+             Age=045
 
       personel - employee - personnel.fix - 4
          EmpType=E
        FirstName=Mary
         LastName=Moore
-             Age=41
+             Age=041
 
       personel - employee - personnel.fix - 5
          EmpType=E
        FirstName=Ridge
         LastName=Forrester
-             Age=31
+             Age=031
 
       personel - trailer - personnel.fix - 6
         type=T
@@ -1249,22 +1255,22 @@ Output from command
      <tr>
      <td>John</td>
      <td>Ripper</td>
-     <td>23</td>
+     <td>023</td>
 
      <tr>
      <td>Scott</td>
      <td>Tiger</td>
-     <td>45</td>
+     <td>045</td>
 
      <tr>
      <td>Mary</td>
      <td>Moore</td>
-     <td>41</td>
+     <td>041</td>
 
      <tr>
      <td>Ridge</td>
      <td>Forrester</td>
-     <td>31</td>
+     <td>031</td>
 
      </table>
      </body>
@@ -1290,7 +1296,7 @@ personnel.fix'
      <tr>
      <td>Scott</td>
      <td>Tiger</td>
-     <td>45</td>
+     <td>045</td>
 
      </table>
      </body>
@@ -1312,10 +1318,10 @@ Write a new file:
      $ffe -p fixed -r EmpType=B -o personnel.fix.new personnel.fix
      $cat personnel.fix.new
      H2006-02-25
-     BJohn     Ripper       23
-     BScott    Tiger        45
-     BMary     Moore        41
-     BRidge    Forrester    31
+     BJohn     Ripper       023
+     BScott    Tiger        045
+     BMary     Moore        041
+     BRidge    Forrester    031
      T0004
      $
 
@@ -1375,10 +1381,10 @@ DEFAULT.
 Print new flat file:
      $ ffe -c new_fixed.rc personel_fix
      H2006-02-25
-     EJohn     ..Ripper       ..23
-     BScott    ..Tiger        ..45
-     EMary     ..Moore        ..41
-     ERidge    ..Forrester    ..31
+     EJohn     ..Ripper       ..023
+     BScott    ..Tiger        ..045
+     EMary     ..Moore        ..041
+     ERidge    ..Forrester    ..031
      T0004
      $
 
@@ -1441,25 +1447,25 @@ Running ffe:
          EmpType=E (Not a Boss!)
        FirstName=John
         LastName=Ripper
-             Age=23
+             Age=023
 
       personel_fix - boss - personel_fix - 3
          EmpType=B (He is a Boss!)
        FirstName=Scott
         LastName=Tiger
-             Age=45
+             Age=045
 
       personel_fix - employee - personel_fix - 4
          EmpType=E (Not a Boss!)
        FirstName=Mary
         LastName=Moore
-             Age=41
+             Age=041
 
       personel_fix - employee - personel_fix - 5
          EmpType=E (Not a Boss!)
        FirstName=Ridge
         LastName=Forrester
-             Age=31
+             Age=031
 
       personel_fix - trailer - personel_fix - 6
         type=T
@@ -1904,15 +1910,15 @@ problems.
 
 
 Tag Table:
-Node: Top898
-Node: Overview1960
-Node: Samples2616
-Node: Invoking ffe4105
-Node: Invocation4692
-Node: Configuration8857
-Node: Guessing34038
-Node: Limits35638
-Node: ffe configuration36046
-Node: Problems57713
+Node: Top896
+Node: Overview1956
+Node: Samples2612
+Node: Invoking ffe4101
+Node: Invocation4688
+Node: Configuration8853
+Node: Guessing34308
+Node: Limits35908
+Node: ffe configuration36316
+Node: Problems58076
 
 End Tag Table

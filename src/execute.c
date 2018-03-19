@@ -26,6 +26,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <wchar.h>
+#ifdef HAVE_PRINTF_H
+#include <printf.h>
+#endif
+
 
 #ifdef PACKAGE
 static char *program = PACKAGE;
@@ -45,6 +50,7 @@ static char *program = "ffe";
 #define JUSTIFY_STRING 128
 
 extern int update_anon_info(struct structure *,char *);
+extern void init_libgcrypt();
 
 
 extern struct replace *replace;
@@ -110,8 +116,8 @@ static uint8_t hex_to_ascii_cap[]={'0','1','2','3','4','5','6','7','8','9','A','
 static uint8_t bcd_to_ascii_low[]={'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','\000'};
 static uint8_t hex_to_ascii_low[]={'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
-static uint8_t *bcd_to_ascii;
-static uint8_t *hex_to_ascii;
+uint8_t *bcd_to_ascii;
+uint8_t *hex_to_ascii;
 
 
 static void print_binary_field(uint8_t,struct field *,uint8_t *);
@@ -1815,6 +1821,54 @@ print_indent(uint8_t *buffer,int times)
     flush_write();
 }
 
+/* format field with printf
+ */
+#define CONV_BUF_SIZE 1048576
+void
+make_conversion(struct format *f,uint8_t *start)
+{
+    static uint8_t conv_buffer[CONV_BUF_SIZE];
+
+    *write_pos = 0;
+
+    conv_buffer[0] = 0;
+
+#ifdef HAVE_PRINTF_H
+    switch(f->type)
+    {
+        case PA_INT:
+        case PA_INT|PA_FLAG_SHORT:
+        case PA_CHAR:
+        case PA_WCHAR:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,atoi(start));
+            break;
+        case PA_INT|PA_FLAG_LONG:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,atol(start));
+            break;
+        case PA_INT|PA_FLAG_LONG_LONG:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,atoll(start));
+            break;
+        case PA_FLOAT:
+        case PA_DOUBLE:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,atof(start));
+            break;
+        case PA_DOUBLE|PA_FLAG_LONG_DOUBLE:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,strtold(start,NULL));
+            break;
+        case PA_WSTRING:
+        case PA_STRING:
+        case PA_POINTER:
+            snprintf(conv_buffer,CONV_BUF_SIZE,f->conversion,start);
+            break;
+        default:
+            return;
+    }
+    write_pos = start;
+    writes(conv_buffer);
+#endif
+}
+
+
 
 /* print fields */
 /* returns the count of fields actually printed */
@@ -1999,6 +2053,8 @@ print_fields(struct structure *s, struct record *r,uint8_t *buffer)
                                 print_binary_field(*d,pf->f,buffer);
                                 break;
                         }
+
+                        if(pf->f->f != NULL) make_conversion(pf->f->f,field_start);
 
                         if(!o->print_empty)
                         {

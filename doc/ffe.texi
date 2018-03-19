@@ -434,7 +434,7 @@ A record definition can contain several id's, then all id's must match the input
 
 Non printable characters can be escaped as @samp{\xnn}, where @samp{nn} is characters hexadecimal value.
 
-@item field @var{name}|FILLER|* [@var{length}]|* [@var{lookup}]|* [@var{output}]|* [@var{filter}]
+@item field @var{name}|FILLER|* [@var{length}]|* [@var{lookup}]|* [@var{output}]|* [@var{filter}]|* [@var{conversion}]
 Defines a field in a text input structure.  @var{length} is mandatory for fixed length input structure.
 
 The last field of a fixed length input structure can have a @emph{*} in place of @var{length}. That means that the last field
@@ -454,10 +454,12 @@ If @var{output} is given the field will be printed using output definition @var{
 
 If @var{filter} is given the raw contents of the field is filtered through a program defined by @var{filter} and the output of the program is printed as field contents.
 
+If @var{conversion} is given it should contain a single printf style conversion specification, which will be used in printing. Conversion specification must start with @code{%} and the last character must be from set @code{diuoxXfeEgGcs}.
+
 If field is named as @code{FILLER}, the field will not appear in output.
 
 The order of fields in configuration file is essential, it specifies the field order in a record.
-@item field @var{name}|FILLER|* @var{length}|@var{type} [@var{lookup}]|* [@var{output}]|* [@var{filter}]
+@item field @var{name}|FILLER|* @var{length}|@var{type} [@var{lookup}]|* [@var{output}]|* [@var{filter}]|* [@var{conversion}]
 Defines a field in a binary structure. All other features are same as for text structure fields except the @var{type} parameter.
 
 @var{type} specifies the field length and type and can have the following values:
@@ -918,7 +920,7 @@ $
 @end example
 
 @noindent
-Structure for reading file above. Note that record @samp{boss} reuses fields from @samp{employee}.
+Structure for reading file above. Note that record @samp{boss} reuses fields from @samp{employee}. Age will be printed three numbers long with padded zeros.
 
 @example
 structure personel_fix @{
@@ -933,7 +935,7 @@ structure personel_fix @{
         field EmpType 1
         field FirstName 9
         field LastName  13
-        field Age 2
+        field Age 2 * * * "%03d"
     @}
     record boss @{
         id 1 B
@@ -1103,25 +1105,25 @@ Output from command
     EmpType=E
   FirstName=John
    LastName=Ripper
-        Age=23
+        Age=023
  
  personel - boss - personnel.fix - 3
     EmpType=B
   FirstName=Scott
    LastName=Tiger
-        Age=45
+        Age=045
  
  personel - employee - personnel.fix - 4
     EmpType=E
   FirstName=Mary
    LastName=Moore
-        Age=41
+        Age=041
  
  personel - employee - personnel.fix - 5
     EmpType=E
   FirstName=Ridge
    LastName=Forrester
-        Age=31
+        Age=031
  
  personel - trailer - personnel.fix - 6
    type=T
@@ -1160,22 +1162,22 @@ Output from command
 <tr>
 <td>John</td>
 <td>Ripper</td>
-<td>23</td>
+<td>023</td>
 
 <tr>
 <td>Scott</td>
 <td>Tiger</td>
-<td>45</td>
+<td>045</td>
 
 <tr>
 <td>Mary</td>
 <td>Moore</td>
-<td>41</td>
+<td>041</td>
 
 <tr>
 <td>Ridge</td>
 <td>Forrester</td>
-<td>31</td>
+<td>031</td>
 
 </table>
 </body>
@@ -1200,7 +1202,7 @@ Printing only Scott's record using expression with previous example:
 <tr>
 <td>Scott</td>
 <td>Tiger</td>
-<td>45</td>
+<td>045</td>
 
 </table>
 </body>
@@ -1226,10 +1228,10 @@ Write a new file:
 $ffe -p fixed -r EmpType=B -o personnel.fix.new personnel.fix
 $cat personnel.fix.new
 H2006-02-25
-BJohn     Ripper       23
-BScott    Tiger        45
-BMary     Moore        41
-BRidge    Forrester    31
+BJohn     Ripper       023
+BScott    Tiger        045
+BMary     Moore        041
+BRidge    Forrester    031
 T0004
 $
 @end example
@@ -1290,10 +1292,10 @@ Print new flat file:
 @example
 $ ffe -c new_fixed.rc personel_fix
 H2006-02-25
-EJohn     ..Ripper       ..23
-BScott    ..Tiger        ..45
-EMary     ..Moore        ..41
-ERidge    ..Forrester    ..31
+EJohn     ..Ripper       ..023
+BScott    ..Tiger        ..045
+EMary     ..Moore        ..041
+ERidge    ..Forrester    ..031
 T0004
 $
 @end example
@@ -1365,25 +1367,25 @@ Running ffe:
     EmpType=E (Not a Boss!)
   FirstName=John
    LastName=Ripper
-        Age=23
+        Age=023
  
  personel_fix - boss - personel_fix - 3
     EmpType=B (He is a Boss!)
   FirstName=Scott
    LastName=Tiger
-        Age=45
+        Age=045
  
  personel_fix - employee - personel_fix - 4
     EmpType=E (Not a Boss!)
   FirstName=Mary
    LastName=Moore
-        Age=41
+        Age=041
  
  personel_fix - employee - personel_fix - 5
     EmpType=E (Not a Boss!)
   FirstName=Ridge
    LastName=Forrester
-        Age=31
+        Age=031
  
  personel_fix - trailer - personel_fix - 6
    type=T

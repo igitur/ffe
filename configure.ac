@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([ffe], [0.3.7-1], [tjsa@iki.fi])
+AC_INIT([ffe], [0.3.8], [tjsa@iki.fi])
 AC_CONFIG_SRCDIR([src/ffe.c])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR([config])
@@ -34,7 +34,7 @@ fi
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h features.h error.h errno.h getopt.h regex.h signal.h gcrypt.h])
+AC_CHECK_HEADERS([fcntl.h features.h error.h errno.h getopt.h regex.h signal.h gcrypt.h printf.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -58,7 +58,7 @@ AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_FUNC_FORK
-AC_CHECK_FUNCS([atexit dup2 pipe tempnam setenv putenv setmode strcasecmp sigaction])
+AC_CHECK_FUNCS([atexit dup2 pipe tempnam setenv putenv setmode strcasecmp sigaction parse_printf_format])
 AC_CHECK_FUNCS([strchr strdup strerror strstr getline getopt_long regcomp strncasecmp strcasestr])
 
 AC_CONFIG_FILES([Makefile
