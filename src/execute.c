@@ -2729,7 +2729,7 @@ execute(struct structure *s,int strict, int expression_and,int expression_invert
                         if(anon_field_count) anonymize_fields(s->type,s->quote,r,length,input_line);  // anonymize after exp. evaluation
                         if(r->o == raw)
                         {
-                            print_raw(s->type[0] == BINARY ? r->length : length,input_line,s->type[0]);
+                            print_raw(s->type[0] == BINARY ? last_consumed : length,input_line,s->type[0]);
                         } else
                         {
                             select_output(r->o);
