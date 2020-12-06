@@ -522,10 +522,16 @@ check_rc(char *use_output)
             var_field_found = 0;
             while(f != NULL) 
             {
+                if(!s->header && f->name == NULL)
+                {
+                    sprintf(num,"%d",ordinal);
+                    f->name = xstrdup(num);
+                }
+
                 if(s->type[0] == FIXED_LENGTH || s->type[0] == BINARY)
                 {
-                    if (r->length_field_name != NULL && strcmp(r->length_field_name,f->name) == 0) r->length_field = f;
-                    if (r->var_field_name != NULL && strcmp(r->var_field_name,f->name) == 0) 
+                    if (!s->header && r->length_field_name != NULL && strcmp(r->length_field_name,f->name) == 0) r->length_field = f;
+                    if (!s->header && r->var_field_name != NULL && strcmp(r->var_field_name,f->name) == 0) 
                     {
                          f->length = 0;  
                          f->var_length = 1;  
@@ -544,12 +550,6 @@ check_rc(char *use_output)
                             field_count_first++;
                         } 
                     }
-                }
-
-                if(!s->header && f->name == NULL)
-                {
-                    sprintf(num,"%d",ordinal);
-                    f->name = xstrdup(num);
                 }
 
                 if(s->type[0] == BINARY && f->length < 1)

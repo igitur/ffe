@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([ffe], [0.3.9], [tjsa@iki.fi])
+AC_INIT([ffe], [0.3.9a], [tjsa@iki.fi])
 AC_CONFIG_SRCDIR([src/ffe.c])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR([config])
