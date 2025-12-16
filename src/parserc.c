@@ -1595,7 +1595,13 @@ parserc(char *rcfile,char *include_field_list)
                             }
                             if(opt_count > 1)
                             {
-                                if(!(values[2][0] == '*' && !values[2][1]))
+                                /* Check for 'filter' keyword as syntactic sugar: field name filter filtername */
+                                if(strcmp(values[2], "filter") == 0 && opt_count > 2)
+                                {
+                                    /* field name filter filtername syntax */
+                                    c_field->pipe_name = xstrdup(values[3]);
+                                }
+                                else if(!(values[2][0] == '*' && !values[2][1]))
                                 {
                                     if(is_digit(values[2]))
                                     {
@@ -1605,7 +1611,7 @@ parserc(char *rcfile,char *include_field_list)
                                         parse_field_type(values[2],c_field);
                                     }
                                 }
-                                if(opt_count > 2)
+                                if(opt_count > 2 && strcmp(values[2], "filter") != 0)
                                 {
                                     if(!(values[3][0] == '*' && !values[3][1]))
                                     {
@@ -1626,7 +1632,7 @@ parserc(char *rcfile,char *include_field_list)
                                             if(opt_count > 5)
                                             {
                                                 c_field->f = parse_conversion(values[6]);
-                                                if(c_field->f == NULL) 
+                                                if(c_field->f == NULL)
                                                 {
 
                                                     error_in_line();
@@ -1637,7 +1643,7 @@ parserc(char *rcfile,char *include_field_list)
 
                                     }
                                 }
-                                
+
                             } 
                         } else if(strcmp(values[0],N_FIELDSFROM) == 0)
                         {
