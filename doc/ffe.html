@@ -1,5 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+<!-- Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- This file documents version 0.4.0a of ffe, a flat file extractor. 
 
 Copyright (C) 2014 Timo Savinen
@@ -15,9 +18,6 @@ notice identical to this one.
 
 Permission is granted to copy and distribute translations of this manual
 into another language, under the above conditions for modified versions. -->
-<!-- Created by GNU Texinfo 6.5, http://www.gnu.org/software/texinfo/ -->
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>ffe - flat file extractor</title>
 
 <meta name="description" content="ffe - flat file extractor">
@@ -25,33 +25,29 @@ into another language, under the above conditions for modified versions. -->
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
 <meta name="Generator" content="makeinfo">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <link href="#Top" rel="start" title="Top">
 <link href="#SEC_Contents" rel="contents" title="Table of Contents">
 <link href="dir.html#Top" rel="up" title="(dir)">
+<link href="#Overview" rel="next" title="Overview">
+<link href="dir.html#Top" rel="prev" title="(dir)">
 <style type="text/css">
 <!--
+a.copiable-anchor {visibility: hidden; text-decoration: none; line-height: 0em}
 a.summary-letter {text-decoration: none}
 blockquote.indentedblock {margin-right: 0em}
-blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
-blockquote.smallquotation {font-size: smaller}
 div.display {margin-left: 3.2em}
 div.example {margin-left: 3.2em}
-div.lisp {margin-left: 3.2em}
-div.smalldisplay {margin-left: 3.2em}
-div.smallexample {margin-left: 3.2em}
-div.smalllisp {margin-left: 3.2em}
 kbd {font-style: oblique}
 pre.display {font-family: inherit}
 pre.format {font-family: inherit}
 pre.menu-comment {font-family: serif}
 pre.menu-preformatted {font-family: serif}
-pre.smalldisplay {font-family: inherit; font-size: smaller}
-pre.smallexample {font-size: smaller}
-pre.smallformat {font-family: inherit; font-size: smaller}
-pre.smalllisp {font-size: smaller}
 span.nolinebreak {white-space: nowrap}
 span.roman {font-family: initial; font-weight: normal}
 span.sansserif {font-family: sans-serif; font-weight: normal}
+span:hover a.copiable-anchor {visibility: visible}
 ul.no-bullet {list-style: none}
 body {
 	margin: 1%;
@@ -146,9 +142,8 @@ div.node hr {
 
 
 
-<a name="Top"></a>
-<a name="ffe"></a>
-<h1 class="top">ffe</h1>
+<div class="top" id="Top">
+<span id="ffe"></span><h1 class="top">ffe</h1>
 
 <p>This file documents version 0.4.0a of <code>ffe</code>, a flat file extractor. 
 </p>
@@ -170,13 +165,31 @@ into another language, under the above conditions for modified versions.
 
 
 
+<div class="Contents_element" id="SEC_Contents">
+<h2 class="contents-heading">Table of Contents</h2>
 
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a id="toc-Preliminary-information" href="#Overview">1 Preliminary information</a></li>
+  <li><a id="toc-Samples-using-ffe" href="#Samples">2 Samples using <code>ffe</code></a></li>
+  <li><a id="toc-How-to-run-ffe" href="#Invoking-ffe">3 How to run <code>ffe</code></a>
+  <ul class="no-bullet">
+    <li><a id="toc-Program-invocation" href="#Invocation">3.1 Program invocation</a></li>
+    <li><a id="toc-Configuration-1" href="#Configuration">3.2 Configuration</a></li>
+    <li><a id="toc-Guessing-1" href="#Guessing">3.3 Guessing</a></li>
+    <li><a id="toc-Limitations" href="#Limits">3.4 Limitations</a></li>
+  </ul></li>
+  <li><a id="toc-How-ffe-works" href="#ffe-configuration">4 How <code>ffe</code> works</a></li>
+  <li><a id="toc-Reporting-Bugs" href="#Problems">5 Reporting Bugs</a></li>
+</ul>
+</div>
+</div>
 <hr>
-<a name="Overview"></a>
-<a name="Preliminary-information"></a>
-<h2 class="chapter">1 Preliminary information</h2>
-<a name="index-greetings"></a>
-<a name="index-overview"></a>
+<div class="chapter" id="Overview">
+<span id="Preliminary-information"></span><h2 class="chapter">1 Preliminary information</h2>
+<span id="index-greetings"></span>
+<span id="index-overview"></span>
 
 <p>The <code>ffe</code> is a program to extract fields from text and binary flat files and to print them in different
 formats. The input file structure and printing definitions are specified in a configuration file, which
@@ -188,10 +201,10 @@ standard input and write to standard output, so it can be used as a part of a pi
 <p>There is also binary distribution for windows.
 </p>
 <hr>
-<a name="Samples"></a>
-<a name="Samples-using-ffe"></a>
-<h2 class="chapter">2 Samples using <code>ffe</code></h2>
-<a name="index-sample"></a>
+</div>
+<div class="chapter" id="Samples">
+<span id="Samples-using-ffe"></span><h2 class="chapter">2 Samples using <code>ffe</code></h2>
+<span id="index-sample"></span>
 
 <p>One example of using <code>ffe</code> for printing personnel information in XML format from fixed length flat file:
 </p>
@@ -254,11 +267,11 @@ $
 </pre></div>
 
 <hr>
-<a name="Invoking-ffe"></a>
-<a name="How-to-run-ffe"></a>
-<h2 class="chapter">3 How to run <code>ffe</code></h2>
-<a name="index-running-ffe"></a>
-<a name="index-using"></a>
+</div>
+<div class="chapter" id="Invoking-ffe">
+<span id="How-to-run-ffe"></span><h2 class="chapter">3 How to run <code>ffe</code></h2>
+<span id="index-running-ffe"></span>
+<span id="index-using"></span>
 
 <p><code>ffe</code> is a command line tool. Normally <code>ffe</code> can be invoked as:
 </p>
@@ -271,10 +284,9 @@ structure.
 </p>
 
 <hr>
-<a name="Invocation"></a>
-<a name="Program-invocation"></a>
-<h3 class="section">3.1 Program invocation</h3>
-<a name="index-options"></a>
+<div class="section" id="Invocation">
+<span id="Program-invocation"></span><h3 class="section">3.1 Program invocation</h3>
+<span id="index-options"></span>
 
 <p>The format for running the <code>ffe</code> program is:
 </p>
@@ -285,73 +297,73 @@ structure.
 <p><code>ffe</code> supports the following options:
 </p>
 <dl compact="compact">
-<dt><code>-c <var>file</var></code></dt>
-<dt><code>--configuration=<var>file</var></code></dt>
+<dt><span><code>-c <var>file</var></code></span></dt>
+<dt><span><code>--configuration=<var>file</var></code></span></dt>
 <dd><p>Configuration is read from <var>file</var>, instead of <samp>~/.fferc</samp> (<samp>ffe.rc</samp> in windows).
 </p>
 </dd>
-<dt><code>-s <var>structure</var></code></dt>
-<dt><code>--structure=<var>structure</var></code></dt>
+<dt><span><code>-s <var>structure</var></code></span></dt>
+<dt><span><code>--structure=<var>structure</var></code></span></dt>
 <dd><p>Use structure <var>structure</var> for input file, suppresses guessing.
 </p>
 </dd>
-<dt><code>-p <var>output</var></code></dt>
-<dt><code>--print=<var>output</var></code></dt>
+<dt><span><code>-p <var>output</var></code></span></dt>
+<dt><span><code>--print=<var>output</var></code></span></dt>
 <dd><p>Use output format <var>output</var> for printing. If not given, then the record or structure related
 output format is used. Printing can be suppressed using format <var>no</var>. Original data is printed using format <var>raw</var>.
 </p>
 </dd>
-<dt><code>-o <var>file</var></code></dt>
-<dt><code>--output=<var>file</var></code></dt>
+<dt><span><code>-o <var>file</var></code></span></dt>
+<dt><span><code>--output=<var>file</var></code></span></dt>
 <dd><p>Write output to <var>file</var> instead of standard output.
 </p>
 </dd>
-<dt><code>-f <var>list</var></code></dt>
-<dt><code>--field-list=<var>list</var></code></dt>
+<dt><span><code>-f <var>list</var></code></span></dt>
+<dt><span><code>--field-list=<var>list</var></code></span></dt>
 <dd><p>Print only fields and constants listed in the comma separated list <var>list</var>. Order of names in 
 <var>list</var> specifies also the printing order.
 </p>
 </dd>
-<dt><code>-e <var>expression</var></code></dt>
-<dt><code>--expression=<var>expression</var></code></dt>
+<dt><span><code>-e <var>expression</var></code></span></dt>
+<dt><span><code>--expression=<var>expression</var></code></span></dt>
 <dd><p>Print only those records for which the <var>expression</var> evaluates to true.
 </p>
 </dd>
-<dt><code>-a</code></dt>
-<dt><code>--and</code></dt>
+<dt><span><code>-a</code></span></dt>
+<dt><span><code>--and</code></span></dt>
 <dd><p>Expressions are combined with logical and, default is logical or.
 Note that if the same field and operator appear several time in expressions they are always compared with logical or.
 </p>
 </dd>
-<dt><code>-X</code></dt>
-<dt><code>--casecmp</code></dt>
+<dt><span><code>-X</code></span></dt>
+<dt><span><code>--casecmp</code></span></dt>
 <dd><p>Expressions are evaluated using case insensitive comparison
 </p>
 </dd>
-<dt><code>-v</code></dt>
-<dt><code>--invert-match</code></dt>
+<dt><span><code>-v</code></span></dt>
+<dt><span><code>--invert-match</code></span></dt>
 <dd><p>Print only those records which don&rsquo;t match the expression.
 </p>
 </dd>
-<dt><code>-l</code></dt>
-<dt><code>--loose</code></dt>
+<dt><span><code>-l</code></span></dt>
+<dt><span><code>--loose</code></span></dt>
 <dd><p>Normally <code>ffe</code> stops when it encounters an input line or binary block which doesn&rsquo;t match any of
 the records in selected structure. Defining this option causes <code>ffe</code> continue despite the error.
 Note that invalid lines are reported only for text input. In case of binary input next valid block is silently searched.
 </p>
 </dd>
-<dt><code>-r</code></dt>
-<dt><code>--replace=<var>field</var>=<var>value</var></code></dt>
+<dt><span><code>-r</code></span></dt>
+<dt><span><code>--replace=<var>field</var>=<var>value</var></code></span></dt>
 <dd><p>Replace <var>field</var>s contents with <var>value</var> in output. <var>value</var> can contain same directives as output option <code>data</code>.
 </p>
 </dd>
-<dt><code>-d</code></dt>
-<dt><code>--debug</code></dt>
+<dt><span><code>-d</code></span></dt>
+<dt><span><code>--debug</code></span></dt>
 <dd><p>All invalid input lines are written to <samp>ffe_error_&lt;pid&gt;.log</samp>, where <samp>&lt;pid&gt;</samp> is the process ID.
 </p>
 </dd>
-<dt><code>-I</code></dt>
-<dt><code>--info</code></dt>
+<dt><span><code>-I</code></span></dt>
+<dt><span><code>--info</code></span></dt>
 <dd><p>Show structure information in the configuration file and exit successfully. For every structure following information in shown:
 <br>
 Structures: Name, type and maximum record length. 
@@ -361,22 +373,21 @@ Records: Name and length
 Fields: Name, position and length. First position is number one.
 </p>
 </dd>
-<dt><code>-?</code></dt>
-<dt><code>--help</code></dt>
+<dt><span><code>-?</code></span></dt>
+<dt><span><code>--help</code></span></dt>
 <dd><p>Print an informative help message describing the options and then exit
 successfully.
 </p>
 </dd>
-<dt><code>-V</code></dt>
-<dt><code>--version</code></dt>
+<dt><span><code>-V</code></span></dt>
+<dt><span><code>--version</code></span></dt>
 <dd><p>Print the version number of <code>ffe</code> and then exit successfully.
 </p></dd>
 </dl>
 
 <p>All remaining options are names of input files, if no input files are specified or <code>-</code> is given, then the standard input is read.
 </p>
-<a name="Expressions-_0028option-_002de_002c-_002d_002dexpression_0029"></a>
-<h4 class="subheading">Expressions (option <samp>-e</samp>, <samp>--expression</samp>)</h4>
+<span id="Expressions-_0028option-_002de_002c-_002d_002dexpression_0029"></span><h4 class="subheading">Expressions (option <samp>-e</samp>, <samp>--expression</samp>)</h4>
 <p>Expression can be used to select specific records comparing field values. 
 Expression has syntax <var>field</var><strong>x</strong><var>value</var>, where <strong>x</strong> is the comparison operator.
 Expression is used to compare field&rsquo;s contents to <var>value</var> and if comparison is successful
@@ -391,37 +402,37 @@ Every line in file is used as <var>value</var> in comparison. Comparison evaluat
 <p>Expression notation:
 </p>
 <dl compact="compact">
-<dt><var>field<strong>=</strong>value</var></dt>
+<dt><span><var>field<strong>=</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> is equal to <var>value</var>.
 </p>
 </dd>
-<dt><var>field<strong>^</strong>value</var></dt>
+<dt><span><var>field<strong>^</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> starts with <var>value</var>.
 </p>
 </dd>
-<dt><var>field<strong>~</strong>value</var></dt>
+<dt><span><var>field<strong>~</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> contains <var>value</var>.
 </p>
 </dd>
-<dt><var>field<strong>#</strong>value</var></dt>
+<dt><span><var>field<strong>#</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> does not contain <var>value</var>.
 </p>
 </dd>
-<dt><var>field<strong>!</strong>value</var></dt>
+<dt><span><var>field<strong>!</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> is not equal to <var>value</var>.
 </p>
 </dd>
-<dt><var>field<strong>?</strong>value</var></dt>
+<dt><span><var>field<strong>?</strong>value</var></span></dt>
 <dd><p>Field <var>field</var> matches the regular expression <var>value</var>. 
 <code>ffe</code> supports POSIX extended regular expressions. 
 </p></dd>
 </dl>
 
 <hr>
-<a name="Configuration"></a>
-<a name="Configuration-1"></a>
-<h3 class="section">3.2 Configuration</h3>
-<a name="index-configuration"></a>
+</div>
+<div class="section" id="Configuration">
+<span id="Configuration-1"></span><h3 class="section">3.2 Configuration</h3>
+<span id="index-configuration"></span>
 
 <p><code>ffe</code> uses configuration file in order to read the input file and print the output.
 </p>
@@ -435,8 +446,7 @@ A backslash can be escaped as <code>\\</code>.
 <p>Configuration has two main parts: the structure, which specifies the input file structure and 
 the output, which specifies how the input data is formatted for output.
 </p>
-<a name="Common-syntax"></a>
-<h4 class="subheading">Common syntax</h4>
+<span id="Common-syntax"></span><h4 class="subheading">Common syntax</h4>
 <p>Common syntax for configuration file is:
 </p>
 <div class="example">
@@ -481,8 +491,7 @@ lookup <var>name</var> {
 &hellip;
 </pre></div>
 
-<a name="Structure"></a>
-<h4 class="subheading">Structure</h4>
+<span id="Structure"></span><h4 class="subheading">Structure</h4>
 <p>Keyword <code>structure</code> is used to specify the input file content. An input file can contain several
 types of records (lines or binary blocks). E.g. file can have a header, data and trailer record types. Records
 must be distinguishable from each other, this can be achieved defining different &rsquo;keys&rsquo; 
@@ -505,18 +514,18 @@ be distinguished only by using keys.
 <p>A structure can contain following options:
 </p>
 <dl compact="compact">
-<dt><code>type fixed|binary|separated [<var>char</var>] [*]</code></dt>
+<dt><span><code>type fixed|binary|separated [<var>char</var>] [*]</code></span></dt>
 <dd><p>The fields in the input are fixed length fields (text or binary) or text fields separated by <var>char</var>. If * is given,
 multiple sequential separators are considered as one. Default separator is comma.
 </p>
 </dd>
-<dt><code>quoted [<var>char</var>]</code></dt>
+<dt><span><code>quoted [<var>char</var>]</code></span></dt>
 <dd><p>Fields may be quoted with char, default quotation mark is the double quotation mark &rsquo;&quot;&rsquo;.
 A quotation mark is assumed to be escaped as \<var>char</var> or doubling the mark as <var>charchar</var> in input.
 Non escaped quotation marks are not preserved in output.
 </p>
 </dd>
-<dt><code>header first|all|no</code></dt>
+<dt><span><code>header first|all|no</code></span></dt>
 <dd><p>Controls the occurrence of the header line. Default is no. If set as <em>first</em> or <em>all</em>, the first line
 of the first input file is considered as header line containing the names of  the  fields. <em>first</em>
 means  that  only  the  first  file  has  a header, <em>all</em> means means that all files have a header,
@@ -525,18 +534,17 @@ according the record definition, meaning that the name positions, separators etc
 for the fields. Binary files cannot have a header.
 </p>
 </dd>
-<dt><code>output <var>name</var>|no|raw</code></dt>
+<dt><span><code>output <var>name</var>|no|raw</code></span></dt>
 <dd><p>All records belonging to this structure are printed according output format name.
 Default is to use output named as &lsquo;<samp>default</samp>&rsquo;. &lsquo;<samp>no</samp>&rsquo; prints nothing and &lsquo;<samp>raw</samp>&rsquo; prints only the original data.
 </p>
 </dd>
-<dt><code>record <var>name</var> {<i>options</i> &hellip;}</code></dt>
+<dt><span><code>record <var>name</var> {<i>options</i> &hellip;}</code></span></dt>
 <dd><p>Specifies one record for a structure. A structure can contain several record types.
 </p></dd>
 </dl>
 
-<a name="Record"></a>
-<h4 class="subheading">Record</h4>
+<span id="Record"></span><h4 class="subheading">Record</h4>
 <p>A record specifies one type of input line or binary block in a file. Different records can be distinguished using 
 the <code>id</code> option or different line lengths or field counts. In multi-record binary structure every record must have at least one <code>id</code> because binary records do not have a special end of record marker as text lines have.
 </p>
@@ -552,8 +560,8 @@ the <code>id</code> option or different line lengths or field counts. In multi-r
 <p>A record can contain following options:
 </p>
 <dl compact="compact">
-<dt><code>id <var>position</var> <var>string</var></code></dt>
-<dt><code>rid <var>position</var> <var>regexp</var></code></dt>
+<dt><span><code>id <var>position</var> <var>string</var></code></span></dt>
+<dt><span><code>rid <var>position</var> <var>regexp</var></code></span></dt>
 <dd><p>Identifies a record in the input file. Records are identified by the <var>string</var> or by the regular expression <var>regexp</var> in input record position
 <var>position</var>. For fixed length and binary input the position is the byte position of input record and for
 separated input the <var>position</var> is the <var>position</var>&rsquo;th field of the input record. Positions starts always from one.
@@ -564,7 +572,7 @@ separated input the <var>position</var> is the <var>position</var>&rsquo;th fiel
 <p>Non printable characters can be escaped as &lsquo;<samp>\xnn</samp>&rsquo;, where &lsquo;<samp>nn</samp>&rsquo; is characters hexadecimal value.
 </p>
 </dd>
-<dt><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></dt>
+<dt><span><code>field <var>name</var>|FILLER|* [<var>length</var>]|* [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></span></dt>
 <dd><p>Defines a field in a text input structure.  <var>length</var> is mandatory for fixed length input structure.
 </p>
 <p>The last field of a fixed length input structure can have a <em>*</em> in place of <var>length</var>. That means that the last field
@@ -590,109 +598,109 @@ If <var>length</var> is not needed (separated format) but lookup is needed, use 
 </p>
 <p>The order of fields in configuration file is essential, it specifies the field order in a record.
 </p></dd>
-<dt><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></dt>
+<dt><span><code>field <var>name</var>|FILLER|* <var>length</var>|<var>type</var> [<var>lookup</var>]|* [<var>output</var>]|* [<var>filter</var>]|* [<var>conversion</var>]</code></span></dt>
 <dd><p>Defines a field in a binary structure. All other features are same as for text structure fields except the <var>type</var> parameter.
 </p>
 <p><var>type</var> specifies the field length and type and can have the following values:
 </p>
 <dl compact="compact">
-<dt><code>char</code></dt>
+<dt><span><code>char</code></span></dt>
 <dd><p>Printable character.
 </p></dd>
-<dt><code>short</code></dt>
+<dt><span><code>short</code></span></dt>
 <dd><p>Short integer having current system length and byte order.
 </p></dd>
-<dt><code>int</code></dt>
+<dt><span><code>int</code></span></dt>
 <dd><p>Integer having current system length and byte order.
 </p></dd>
-<dt><code>long</code></dt>
+<dt><span><code>long</code></span></dt>
 <dd><p>Long integer having current system length and byte order.
 </p></dd>
-<dt><code>llong</code></dt>
+<dt><span><code>llong</code></span></dt>
 <dd><p>Long long integer having current system length and byte order.
 </p></dd>
-<dt><code>ushort</code></dt>
+<dt><span><code>ushort</code></span></dt>
 <dd><p>Unsigned short integer having current system length and byte order.
 </p></dd>
-<dt><code>uint</code></dt>
+<dt><span><code>uint</code></span></dt>
 <dd><p>Unsigned integer having current system length and byte order.
 </p></dd>
-<dt><code>ulong</code></dt>
+<dt><span><code>ulong</code></span></dt>
 <dd><p>Unsigned long integer having current system length and byte order.
 </p></dd>
-<dt><code>ullong</code></dt>
+<dt><span><code>ullong</code></span></dt>
 <dd><p>Unsigned long long integer having current system length and byte order.
 </p></dd>
-<dt><code>int8</code></dt>
+<dt><span><code>int8</code></span></dt>
 <dd><p>8 bit integer.
 </p></dd>
-<dt><code>int16_be</code></dt>
+<dt><span><code>int16_be</code></span></dt>
 <dd><p>Big endian 16 bit integer.
 </p></dd>
-<dt><code>int32_be</code></dt>
+<dt><span><code>int32_be</code></span></dt>
 <dd><p>Big endian 32 bit integer.
 </p></dd>
-<dt><code>int64_be</code></dt>
+<dt><span><code>int64_be</code></span></dt>
 <dd><p>Big endian 64 bit integer.
 </p></dd>
-<dt><code>int16_le</code></dt>
+<dt><span><code>int16_le</code></span></dt>
 <dd><p>Little endian 16 bit integer.
 </p></dd>
-<dt><code>int32_le</code></dt>
+<dt><span><code>int32_le</code></span></dt>
 <dd><p>Little endian 32 bit integer.
 </p></dd>
-<dt><code>int64_le</code></dt>
+<dt><span><code>int64_le</code></span></dt>
 <dd><p>Little endian 64 bit integer.
 </p></dd>
-<dt><code>uint8</code></dt>
+<dt><span><code>uint8</code></span></dt>
 <dd><p>Unsigned 8 bit integer.
 </p></dd>
-<dt><code>uint16_be</code></dt>
+<dt><span><code>uint16_be</code></span></dt>
 <dd><p>Unsigned big endian 16 bit integer.
 </p></dd>
-<dt><code>uint32_be</code></dt>
+<dt><span><code>uint32_be</code></span></dt>
 <dd><p>Unsigned big endian 32 bit integer.
 </p></dd>
-<dt><code>uint64_be</code></dt>
+<dt><span><code>uint64_be</code></span></dt>
 <dd><p>Unsigned big endian 64 bit integer.
 </p></dd>
-<dt><code>uint16_le</code></dt>
+<dt><span><code>uint16_le</code></span></dt>
 <dd><p>Unsigned little endian 16 bit integer.
 </p></dd>
-<dt><code>uint32_le</code></dt>
+<dt><span><code>uint32_le</code></span></dt>
 <dd><p>Unsigned little endian 32 bit integer.
 </p></dd>
-<dt><code>uint64_le</code></dt>
+<dt><span><code>uint64_le</code></span></dt>
 <dd><p>Unsigned little endian 64 bit integer.
 </p></dd>
-<dt><code>float</code></dt>
+<dt><span><code>float</code></span></dt>
 <dd><p>Float having current system length and byte order.
 </p></dd>
-<dt><code>float_be</code></dt>
+<dt><span><code>float_be</code></span></dt>
 <dd><p>Float having current system length and big endian byte order.
 </p></dd>
-<dt><code>float_le</code></dt>
+<dt><span><code>float_le</code></span></dt>
 <dd><p>Float having current system length and little endian byte order.
 </p></dd>
-<dt><code>double</code></dt>
+<dt><span><code>double</code></span></dt>
 <dd><p>Double having current system length and byte order.
 </p></dd>
-<dt><code>double_be</code></dt>
+<dt><span><code>double_be</code></span></dt>
 <dd><p>Double having current system length and big endian byte order.
 </p></dd>
-<dt><code>double_le</code></dt>
+<dt><span><code>double_le</code></span></dt>
 <dd><p>Double having current system length and little endian byte order.
 </p></dd>
-<dt><code>bcd_be_<var>len</var></code></dt>
+<dt><span><code>bcd_be_<var>len</var></code></span></dt>
 <dd><p>Bcd number having length <var>len</var> and nybbles in big endian order.
 </p></dd>
-<dt><code>bcd_le_<var>len</var></code></dt>
+<dt><span><code>bcd_le_<var>len</var></code></span></dt>
 <dd><p>Bcd number having length <var>len</var> and nybbles in little endian order.
 </p></dd>
-<dt><code>hex_be_<var>len</var></code></dt>
+<dt><span><code>hex_be_<var>len</var></code></span></dt>
 <dd><p>Hexadecimal data in big endian order having length <var>len</var>.
 </p></dd>
-<dt><code>hex_le_<var>len</var></code></dt>
+<dt><span><code>hex_le_<var>len</var></code></span></dt>
 <dd><p>Hexadecimal data in little endian order having length <var>len</var>.
 </p></dd>
 </dl>
@@ -705,36 +713,36 @@ Bcd number having big endian order is printed in order: most significant nybble 
 <p>Hexadecimal data (<code>hex_be_<var>len</var></code> and <code>hex_le_<var>len</var></code>) is printed as hexadecimal values. Big endian data is printed starting from lower address and little endian data starting from upper address.
 </p>
 </dd>
-<dt><code>field-count <var>number</var></code></dt>
+<dt><span><code>field-count <var>number</var></code></span></dt>
 <dd><p>Same effect as having &quot;<code>field *</code>&quot; <var>number</var> times. This can be used in separated structure instead of
 writing sequential &quot;<code>field *</code>&quot; definitions. Several <code>field-count</code>s can be used in the same record and
 they can be mixed with <code>field</code>.
 </p></dd>
-<dt><code>fields-from <var>record</var></code></dt>
+<dt><span><code>fields-from <var>record</var></code></span></dt>
 <dd><p>Fields in this record are the same as in record <var>record</var>. <code>field</code> and <code>fields-from</code> are mutually
 exclusive.
 </p></dd>
-<dt><code>output <var>name</var>|no|raw</code></dt>
+<dt><span><code>output <var>name</var>|no|raw</code></span></dt>
 <dd><p>This record is printed according to output format <var>name</var>. Default is to use output format specified in structure.
 </p></dd>
-<dt><code>level <var>number</var> [<var>element_name</var>|*] [<var>group_name</var>]</code></dt>
+<dt><span><code>level <var>number</var> [<var>element_name</var>|*] [<var>group_name</var>]</code></span></dt>
 <dd><p>Levels can be used to print the file in hierarchical multi-level nested form document.
 <var>number</var> is the level of the record, starting from number one (highest level), 
 <var>element_name</var> is the name for the record, <var>group_name</var> 
 is used to group records in the same and lower levels. Only <var>number</var> is mandatory.
 Use * instead of the element name if group name is needed.
 </p></dd>
-<dt><code>record-length strict|minimum</code></dt>
+<dt><span><code>record-length strict|minimum</code></span></dt>
 <dd><dl compact="compact">
-<dt><code>strict</code></dt>
+<dt><span><code>strict</code></span></dt>
 <dd><p>Input record length (fixed format) or field count (separated format)  must match the record definition in order to get it processed. This is the default value.
 </p></dd>
-<dt><code>minimum</code></dt>
+<dt><span><code>minimum</code></span></dt>
 <dd><p>Input record length or field count can be the same or longer as defined for the record. The rest of the input line is ignored.
 </p></dd>
 </dl>
 </dd>
-<dt><code>variable-length <var>record_length</var> <var>variable_length_field</var> <var>adjust</var></code></dt>
+<dt><span><code>variable-length <var>record_length</var> <var>variable_length_field</var> <var>adjust</var></code></span></dt>
 <dd><p><var>record_length</var> and <var>variable_length_field</var> are the names of two fields in the record and <var>adjust</var> is a signed integer.
 Record length is read from field <var>record_length</var>. <var>record_length</var> is assumed to be an integer type for binary structures or contain only decimal numbers in fixed length structure. 
 <var>record_length</var> is assumed to contain the total length of the record. 
@@ -744,8 +752,7 @@ The length given by keyword <var>field</var> for <var>variable_length_field</var
 </p></dd>
 </dl>
 
-<a name="Output"></a>
-<h4 class="subheading">Output</h4>
+<span id="Output"></span><h4 class="subheading">Output</h4>
 <p>Keyword <code>output</code> specifies a output format for formatting the input data for output. Formatting
 is controlled using options and printf style directives. An output definition is independent
 from structure, so one output format can be used with different input file formats.
@@ -764,161 +771,160 @@ from structure, so one output format can be used with different input file forma
 following printf style directives:
 </p>
 <dl compact="compact">
-<dt><code>%f</code></dt>
+<dt><span><code>%f</code></span></dt>
 <dd><p>Name of the input file.
 </p></dd>
-<dt><code>%s</code></dt>
+<dt><span><code>%s</code></span></dt>
 <dd><p>Name of the current structure.
 </p></dd>
-<dt><code>%r</code></dt>
+<dt><span><code>%r</code></span></dt>
 <dd><p>Name of the current record.
 </p></dd>
-<dt><code>%o</code></dt>
+<dt><span><code>%o</code></span></dt>
 <dd><p>Input record number in current file.
 </p></dd>
-<dt><code>%O</code></dt>
+<dt><span><code>%O</code></span></dt>
 <dd><p>Input record number starting from the first file.
 </p></dd>
-<dt><code>%i</code></dt>
+<dt><span><code>%i</code></span></dt>
 <dd><p>Byte offset of the current record in the current file. Starts from zero.
 </p></dd>
-<dt><code>%I</code></dt>
+<dt><span><code>%I</code></span></dt>
 <dd><p>Byte offset of the current record starting from the first file. Starts from zero.
 </p></dd>
-<dt><code>%n</code></dt>
+<dt><span><code>%n</code></span></dt>
 <dd><p>Field name.
 </p></dd>
-<dt><code>%t</code></dt>
+<dt><span><code>%t</code></span></dt>
 <dd><p>Field contents, without leading and trailing white-spaces. 
 </p></dd>
-<dt><code>%d</code></dt>
+<dt><span><code>%d</code></span></dt>
 <dd><p>Field contents. Binary integer is printed as a decimal value. Floating point number is printed in the style <code>[-]ddd.ddd</code>, where the number of digits after the decimal-point character is 6. Bcd number is printed as a decimal number and hexadecimal data as consecutive hexadecimal values.
 </p></dd>
-<dt><code>%D</code></dt>
+<dt><span><code>%D</code></span></dt>
 <dd><p>Field contents, right padded to the field length (requires length definition for the field).
 </p></dd>
-<dt><code>%C</code></dt>
+<dt><span><code>%C</code></span></dt>
 <dd><p>Field contents, right padded to the field length (requires length definition for the field). Contents is cut if the input field
 is longer than output length.
 </p></dd>
-<dt><code>%x</code></dt>
+<dt><span><code>%x</code></span></dt>
 <dd><p>Unsigned hexadecimal value of a binary integer. Other fields are printed as directive <code>%d</code> would be used.
 </p></dd>
-<dt><code>%l</code></dt>
+<dt><span><code>%l</code></span></dt>
 <dd><p>Lookup value which has been found using current field as a search key.
 </p></dd>
-<dt><code>%L</code></dt>
+<dt><span><code>%L</code></span></dt>
 <dd><p>Lookup value, right padded to the field length.
 </p></dd>
-<dt><code>%p</code></dt>
+<dt><span><code>%p</code></span></dt>
 <dd><p>Fields start position in a record. For fixed and binary structure this is field&rsquo;s byte position in the input line
 and for separated structure this is the ordinal number of the field. Starts from one.
 </p></dd>
-<dt><code>%h</code></dt>
+<dt><span><code>%h</code></span></dt>
 <dd><p>Hexadecimal dump of a field. Byte values are printed as consecutive <code>xnn</code> values, where the <code>nn</code> is the hexadecimal value of a byte. Data is printed before any endian conversion.
 </p></dd>
-<dt><code>%e</code></dt>
+<dt><span><code>%e</code></span></dt>
 <dd><p>Does not print anything, causes still the &quot;field empty&quot; check to be performed.
 Can be  used  when only the names of non-empty fields should be printed.
 </p></dd>
-<dt><code>%g</code></dt>
+<dt><span><code>%g</code></span></dt>
 <dd><p>Group name given by the keyword <code>group_name</code> in record definition.
 </p></dd>
-<dt><code>%m</code></dt>
+<dt><span><code>%m</code></span></dt>
 <dd><p>Element name given by the keyword <code>element_name</code> in record definition.
 </p></dd>
-<dt><code>%%</code></dt>
+<dt><span><code>%%</code></span></dt>
 <dd><p>Percent sign.
 </p></dd>
 </dl>
 
 <p>Output options:
 </p><dl compact="compact">
-<dt><code>file_header <var>picture</var></code></dt>
+<dt><span><code>file_header <var>picture</var></code></span></dt>
 <dd><p><var>picture</var> is printed once before file contents.
 </p></dd>
-<dt><code>file_trailer <var>picture</var></code></dt>
+<dt><span><code>file_trailer <var>picture</var></code></span></dt>
 <dd><p><var>picture</var> is printed once after file contents.
 </p></dd>
-<dt><code>header <var>picture</var></code></dt>
+<dt><span><code>header <var>picture</var></code></span></dt>
 <dd><p>If given, then the header line describing the field names is printed before records.
 Every field name is printed according the <var>picture</var> using the same separator and field length as
 given for the fields. Picture can contain only <code>%n</code> directive.
 </p></dd>
-<dt><code>data <var>picture</var></code></dt>
+<dt><span><code>data <var>picture</var></code></span></dt>
 <dd><p>Field contents is printed according <var>picture</var>.
 </p></dd>
-<dt><code>lookup <var>picture</var></code></dt>
+<dt><span><code>lookup <var>picture</var></code></span></dt>
 <dd><p>If current field is related to lookup table, then this <var>picture</var> is used instead of picture from <code>data</code>.
 This makes possible to use different picture when the field is related to a lookup table. Default is to use the picture from <code>data</code>.
 </p></dd>
-<dt><code>separator <var>string</var></code></dt>
+<dt><span><code>separator <var>string</var></code></span></dt>
 <dd><p>All fields are terminated by <var>string</var>, except the last field of the record.
 Default is not to print separator.
 </p></dd>
-<dt><code>record_header <var>picture</var></code></dt>
+<dt><span><code>record_header <var>picture</var></code></span></dt>
 <dd><p><var>picture</var> is printed before the record content. Default is not to print the record header.
 </p></dd>
-<dt><code>record_trailer <var>picture</var></code></dt>
+<dt><span><code>record_trailer <var>picture</var></code></span></dt>
 <dd><p><var>picture</var> is printed after the record content. Default is newline.
 </p></dd>
-<dt><code>justify left|right|<var>char</var></code></dt>
+<dt><span><code>justify left|right|<var>char</var></code></span></dt>
 <dd><p>The output from the <code>data</code> option is left or right justified. 
 <var>char</var> justifies output according the first occurrence of <var>char</var>
 in the data picture. Default is left.
 </p></dd>
-<dt><code>indent <var>string</var></code></dt>
+<dt><span><code>indent <var>string</var></code></span></dt>
 <dd><p>Record contents is intended by <var>string</var>. 
 Field contents is intended by two times the string. Default is not to indent.
 If file contents is printed in hierarchical form (keyword <code>level</code> in record definition) then
 contents is indented according the level of a record.
 </p></dd>
-<dt><code>field-list <var>name1</var>,<var>name2</var>,&hellip;</code></dt>
+<dt><span><code>field-list <var>name1</var>,<var>name2</var>,&hellip;</code></span></dt>
 <dd><p>Only fields and constants named as <var>name1</var>,<var>name2</var>,&hellip; are printed, same effect as has option <samp>-f</samp>. 
 Default is print all fields and no constants. Fields and constants are also printed in the same order as they are listed.
 </p></dd>
-<dt><code>no-data-print yes|no</code></dt>
+<dt><span><code>no-data-print yes|no</code></span></dt>
 <dd><p>If <code>field-list</code> is given and and this is set as no and none of the fields in <code>field-list</code>
 does not belong to the current record, then the <code>record_header</code> and <code>record_trailer</code> are not printed.
 Default is yes.
 </p></dd>
-<dt><code>field-empty-print yes|no</code></dt>
+<dt><span><code>field-empty-print yes|no</code></span></dt>
 <dd><p>When set as no, nothing is printed for the fields which consist entirely of characters from <code>empty-chars</code>. 
 If none of the fields of a record are printed, then the printing of <code>record_trailer</code> is also suppressed. 
 Default is yes.
 </p></dd>
-<dt><code>empty-chars <var>string</var></code></dt>
+<dt><span><code>empty-chars <var>string</var></code></span></dt>
 <dd><p><var>string</var> specifies a set of characters which consist an &quot;empty&quot; field. Default is
 &quot;&nbsp;\f\n\r\t\v&quot;<!-- /@w --> (space, form-feed, newline, carriage return, horizontal tab and vertical tab).
 </p></dd>
-<dt><code>output-file <var>file</var></code></dt>
+<dt><span><code>output-file <var>file</var></code></span></dt>
 <dd><p>Output is written to <var>file</var> instead of the default output (standard output or given by <samp>-o, --output</samp>). 
 If - is given the output is written to standard output.
 </p></dd>
-<dt><code>group_header <var>picture</var></code></dt>
+<dt><span><code>group_header <var>picture</var></code></span></dt>
 <dd><p>If a record has a level and a group name defined, 
 <var>picture</var> is printed before the first record in a group or if the group name has changed in the same level.
 <strong>Note</strong>: Level related pictures can contain printing directives <code>%g</code> and <code>%n</code> only.
 </p></dd>
-<dt><code>group_trailer <var>picture</var></code></dt>
+<dt><span><code>group_trailer <var>picture</var></code></span></dt>
 <dd><p>If a record has a level and a group name defined, 
 <var>picture</var> is printed after the records in lower levels are printed or if the group name has changed in the 
 same level or if a higher level record is found.
 </p></dd>
-<dt><code>element_header <var>picture</var></code></dt>
+<dt><span><code>element_header <var>picture</var></code></span></dt>
 <dd><p>If a record has a level and a element name defined, <var>picture</var> is printed before the records contents.
 </p></dd>
-<dt><code>element_trailer <var>picture</var></code></dt>
+<dt><span><code>element_trailer <var>picture</var></code></span></dt>
 <dd><p>If a record has a level and a element name defined, <var>picture</var> is printed after the records contents or after 
 the following lower level records.
 </p></dd>
-<dt><code>hex-caps yes|no</code></dt>
+<dt><span><code>hex-caps yes|no</code></span></dt>
 <dd><p>Print hexadecimal numbers in capital letters. Default is no.
 </p></dd>
 </dl>
 
-<a name="Lookup"></a>
-<h4 class="subheading">Lookup</h4>
+<span id="Lookup"></span><h4 class="subheading">Lookup</h4>
 <p>Keyword <code>lookup</code> specifies a lookup table which can be searched using field contents. Found values can
 be printed using output directives <code>%l</code> and <code>%L</code>.
 </p>
@@ -934,25 +940,24 @@ be printed using output directives <code>%l</code> and <code>%L</code>.
 
 <p>Lookup options:
 </p><dl compact="compact">
-<dt><code>search exact | longest</code></dt>
+<dt><span><code>search exact | longest</code></span></dt>
 <dd><p>Search method for this table. Either exact or longest match is used when searching the table. Default is <code>exact</code>.
 </p></dd>
-<dt><code>pair <var>key</var> <var>value</var></code></dt>
+<dt><span><code>pair <var>key</var> <var>value</var></code></span></dt>
 <dd><p>Defines a key/value pair for the lookup table. In case of binary file <var>key</var> must have the same representation as
 can be shown using the <code>%d</code> printing directive.
 </p></dd>
-<dt><code>file <var>name</var> [<var>separator</var>]</code></dt>
+<dt><span><code>file <var>name</var> [<var>separator</var>]</code></span></dt>
 <dd><p>Data for the lookup table is read from file <var>name</var>. Each line in file <var>name</var> is considered as a key/value pair
 separated by a single character <var>separator</var>. Default separator is semicolon. Lines without separator are silently omitted.
 <strong>Note</strong>: The file size is limited by available memory because the file contents is loaded to memory. 
 </p></dd>
-<dt><code>default-value <var>value</var></code></dt>
+<dt><span><code>default-value <var>value</var></code></span></dt>
 <dd><p>If searching the lookup table is unsuccessful then <var>value</var> is used in printing. Default is empty string.
 </p></dd>
 </dl>
 
-<a name="Constants"></a>
-<h4 class="subheading">Constants</h4>
+<span id="Constants"></span><h4 class="subheading">Constants</h4>
 <p>Keyword <code>const</code> specifies one name/value pair which can be used as an additional output field.
 Constants can be used only in field lists (option <samp>-f,--field-list</samp>, or output option <code>field-list</code>).
 </p>
@@ -973,8 +978,7 @@ the input field contents.
 
 <p>When <var>name</var> appears in field list it is treated as one of the input fields having contents <var>value</var>.
 </p>
-<a name="Filter"></a>
-<h4 class="subheading">Filter</h4>
+<span id="Filter"></span><h4 class="subheading">Filter</h4>
 <p>Keyword <code>filter</code> defines a command that can be used to format field raw contents. Command must read the standard input
 and write to standard output and it must not block. Field raw contents is filtered through the command and the output is printed as
 field contents.
@@ -987,8 +991,7 @@ field contents.
 
 <p><var>name</var> is referred in field definition. <var>command</var> is the shell command to be executed.
 </p>
-<a name="Anonymization"></a>
-<h4 class="subheading">Anonymization</h4>
+<span id="Anonymization"></span><h4 class="subheading">Anonymization</h4>
 <p>Keyword <code>anonymize</code> defines a set of fields which will be anonymized by using command line option <samp>-A,--anonymize</samp>
 is given. Ffe uses non-reversible anonymization methods and preserves the original field length.
 </p>
@@ -1003,7 +1006,7 @@ is given. Ffe uses non-reversible anonymization methods and preserves the origin
 <p>The anonymization will be done if command line option <samp>-A,--anonymize</samp> is given with <var>name</var>.
 Anonymize options:
 </p><dl compact="compact">
-<dt><code>method <var>field</var> <var>method</var> <var>start</var> <var>length</var> <var>parameter</var></code></dt>
+<dt><span><code>method <var>field</var> <var>method</var> <var>start</var> <var>length</var> <var>parameter</var></code></span></dt>
 <dd><p>All fields named as <var>field</var> in the current structure will be anonymized using method <var>method</var>.
 As default the whole field is anonymized. Some parts of the field can be left non-anonymized using
 <var>start</var> and <var>length</var>. <var>start</var> is the byte position where the anonymization starts, first byte is number 1.
@@ -1014,15 +1017,15 @@ Only <var>field</var> and <var>method</var> are mandatory.
 <br>
 Values for <var>method</var>:
 </p><dl compact="compact">
-<dt><code>MASK</code></dt>
+<dt><span><code>MASK</code></span></dt>
 <dd><p>Field will be masked with character &rsquo;0&rsquo;. Different character can be given with <var>parameter</var>.
 </p></dd>
-<dt><code>RANDOM</code></dt>
-<dt><code>NRANDOM</code></dt>
+<dt><span><code>RANDOM</code></span></dt>
+<dt><span><code>NRANDOM</code></span></dt>
 <dd><p>Field will be filled with randomly selected bytes.
 </p></dd>
-<dt><code>HASH</code></dt>
-<dt><code>NHASH</code></dt>
+<dt><span><code>HASH</code></span></dt>
+<dt><span><code>NHASH</code></span></dt>
 <dd><p>Field will be filled with data from hash calculated from the original field. 
 This method yields always the same result with same input. The hash length in bytes can be given with <var>parameter</var>.
 Default hash length is 16, valid values for hash length are 16, 32 and 64.
@@ -1033,8 +1036,7 @@ For binary fields all byte values are used. BCD coded fields are always filled w
 </p></dd>
 </dl>
 
-<a name="Command-Substitution"></a>
-<h4 class="subheading">Command Substitution</h4>
+<span id="Command-Substitution"></span><h4 class="subheading">Command Substitution</h4>
 <p>Command Substitution allows the output of a command to replace parts of the configuration file. Syntax for 
 command substitution is:
 <br>
@@ -1047,26 +1049,25 @@ the command, with any trailing newlines deleted. Command substitutions may not b
 </p>
 <p>Before executing the <code>command</code> <code>ffe</code> sets following environment variables:
 </p><dl compact="compact">
-<dt><code>FFE_STRUCTURE</code></dt>
+<dt><span><code>FFE_STRUCTURE</code></span></dt>
 <dd><p>The name of the structure from <samp>-s,--structure</samp>.
 </p></dd>
-<dt><code>FFE_OUTPUT</code></dt>
+<dt><span><code>FFE_OUTPUT</code></span></dt>
 <dd><p>The name of the output file from <samp>-o,--output</samp>.
 </p></dd>
-<dt><code>FFE_FORMAT</code></dt>
+<dt><span><code>FFE_FORMAT</code></span></dt>
 <dd><p>The name of the output format from <samp>-p,--print</samp>.
 </p></dd>
-<dt><code>FFE_FIRST_FILE</code></dt>
+<dt><span><code>FFE_FIRST_FILE</code></span></dt>
 <dd><p>The name of the first input file.
 </p></dd>
-<dt><code>FFE_FILES</code></dt>
+<dt><span><code>FFE_FILES</code></span></dt>
 <dd><p>A space-separated list of all input files.
 </p></dd>
 </dl>
 <p>If variable is already set it will not be replaced.
 </p>
-<a name="Input-Preprocessor"></a>
-<h4 class="subheading">Input Preprocessor</h4>
+<span id="Input-Preprocessor"></span><h4 class="subheading">Input Preprocessor</h4>
 <p>It is possible to define an input preprosessor for <code>ffe</code>. An input preprocessor is simply an executable program
 which writes the contents of the input file to standard output which will be read by <code>ffe</code>. If the input preprosessor
 does not write any characters on its standard output, then <code>ffe</code> uses the original file.
@@ -1087,10 +1088,10 @@ which will be replaced by the input filename when the input preprocessor command
 file before it is processed by <code>ffe</code>.
 </p>
 <hr>
-<a name="Guessing"></a>
-<a name="Guessing-1"></a>
-<h3 class="section">3.3 Guessing</h3>
-<a name="index-guess"></a>
+</div>
+<div class="section" id="Guessing">
+<span id="Guessing-1"></span><h3 class="section">3.3 Guessing</h3>
+<span id="index-guess"></span>
 <p>If <samp>-s</samp> is not given, <code>ffe</code> tries to guess the input structure. 
 </p>
 <p>When guessing binary data <code>ffe</code> reads the first block of input data and tries to match the structure definitions
@@ -1118,11 +1119,11 @@ There must be only one structure matching all lines used for guessing.
 
 
 <hr>
-<a name="Limits"></a>
-<a name="Limitations"></a>
-<h3 class="section">3.4 Limitations</h3>
-<a name="index-big-files"></a>
-<a name="index-limits"></a>
+</div>
+<div class="section" id="Limits">
+<span id="Limitations"></span><h3 class="section">3.4 Limitations</h3>
+<span id="index-big-files"></span>
+<span id="index-limits"></span>
 
 <p>At least in GNU/Linux <code>ffe</code> should be able to handle big files (&gt; 4 GB), other
 systems are not tested.
@@ -1131,12 +1132,12 @@ systems are not tested.
 regular expression functions (regcomp, regexec, &hellip;) are available.
 </p>
 <hr>
-<a name="ffe-configuration"></a>
-<a name="How-ffe-works"></a>
-<h2 class="chapter">4 How <code>ffe</code> works</h2>
+</div>
+</div>
+<div class="chapter" id="ffe-configuration">
+<span id="How-ffe-works"></span><h2 class="chapter">4 How <code>ffe</code> works</h2>
 <p>Following examples use two different input files: 
-</p><a name="Fixed-length-example"></a>
-<h4 class="subheading">Fixed length example</h4>
+</p><span id="Fixed-length-example"></span><h4 class="subheading">Fixed length example</h4>
 <p>Fixed length personnel file with header and trailer, line (record) is identified by the
 first byte (H = Header, E = Employee, B = Boss, T = trailer).
 </p><div class="example">
@@ -1179,8 +1180,7 @@ $
 }
 </pre></div>
 
-<a name="Separated-example"></a>
-<h4 class="subheading">Separated example</h4>
+<span id="Separated-example"></span><h4 class="subheading">Separated example</h4>
 <p>Same file as above, but now separated by comma.
 </p>
 <div class="example">
@@ -1224,8 +1224,7 @@ is need if the separated data is to be printed in fixed length format.
 }
 </pre></div>
 
-<a name="Printing-in-XML-format"></a>
-<h4 class="subheading">Printing in XML format</h4>
+<span id="Printing-in-XML-format"></span><h4 class="subheading">Printing in XML format</h4>
 <p>Data in examples above can be printed in XML using output definition like:
 </p>
 <div class="example">
@@ -1277,8 +1276,7 @@ is need if the separated data is to be printed in fixed length format.
   &lt;count&gt;0004&lt;/count&gt;
  &lt;/trailer&gt;
 </pre></div>
-<a name="Printing-sql-commands"></a>
-<h4 class="subheading">Printing sql commands</h4>
+<span id="Printing-sql-commands"></span><h4 class="subheading">Printing sql commands</h4>
 <p>Data in examples above can be loaded to database by generated sql commands. Note that the header and trailer
 are not loaded, because only fields &lsquo;<samp>FirstName</samp>&rsquo;,&lsquo;<samp>LastName</samp>&rsquo; and &lsquo;<samp>Age</samp>&rsquo; are printed and &lsquo;<samp>no-data-print</samp>&rsquo;
 is set as no. This prevents the &lsquo;<samp>record_header</samp>&rsquo; and &lsquo;<samp>record_trailer</samp>&rsquo; to be printed for file header and trailer.
@@ -1310,8 +1308,7 @@ insert into employee values('Ridge','Forrester','31');
 commit
 quit
 </pre></div>
-<a name="Human-readable-output"></a>
-<h4 class="subheading">Human readable output</h4>
+<span id="Human-readable-output"></span><h4 class="subheading">Human readable output</h4>
 <p>This output format shows the fields in format suitable for displaying in screen or printing.
 </p>
 <div class="example">
@@ -1360,8 +1357,7 @@ quit
   count=0004
 </pre></div>
 
-<a name="HTML-table"></a>
-<h4 class="subheading">HTML table</h4>
+<span id="HTML-table"></span><h4 class="subheading">HTML table</h4>
 <p>Personnel data can be displayed as HTML table using output like:
 </p>
 <div class="example">
@@ -1414,8 +1410,7 @@ quit
 &lt;/html&gt;
 </pre></div>
 
-<a name="Using-expression"></a>
-<h4 class="subheading">Using expression</h4>
+<span id="Using-expression"></span><h4 class="subheading">Using expression</h4>
 <p>Printing only Scott&rsquo;s record using expression with previous example:
 </p>
 <p><code>ffe -p html -f FirstName,LastName,Age -e FirstName^Scott personnel.fix</code>
@@ -1440,8 +1435,7 @@ quit
 &lt;/html&gt;
 </pre></div>
 
-<a name="Using-replace"></a>
-<h4 class="subheading">Using replace</h4>
+<span id="Using-replace"></span><h4 class="subheading">Using replace</h4>
 <p>Make all bosses and write a new personnel file printing the fields in fixed length format
 using directive <code>%D</code>:
 </p>
@@ -1466,8 +1460,7 @@ T0004
 $
 </pre></div>
 
-<a name="Using-constant"></a>
-<h4 class="subheading">Using constant</h4>
+<span id="Using-constant"></span><h4 class="subheading">Using constant</h4>
 <p>The length of the fields FirstName and LastName in fixed length format will be made two bytes longer.
 This will be done by printing a constant after those two fields.
 We use dots instead of spaces in order to make change more visible.
@@ -1530,8 +1523,7 @@ T0004
 $
 </pre></div>
 
-<a name="Using-lookup-table"></a>
-<h4 class="subheading">Using lookup table</h4>
+<span id="Using-lookup-table"></span><h4 class="subheading">Using lookup table</h4>
 <p>Lookup table is used to explain the EmpTypes contents in output format <code>nice</code>:
 </p>
 <p>Lookup definition:
@@ -1619,8 +1611,7 @@ $
   count=0004
 </pre></div>
 
-<a name="External-lookup-file"></a>
-<h4 class="subheading">External lookup file</h4>
+<span id="External-lookup-file"></span><h4 class="subheading">External lookup file</h4>
 <p>In previous example the lookup data could be read from external file like:
 </p>
 <div class="example">
@@ -1641,8 +1632,7 @@ $
 }
 </pre></div>
 
-<a name="Making-universal-csv-reader-using-command-substitution"></a>
-<h4 class="subheading">Making universal csv reader using command substitution</h4>
+<span id="Making-universal-csv-reader-using-command-substitution"></span><h4 class="subheading">Making universal csv reader using command substitution</h4>
 <p>Command substitution can be used to make a configuration for reading any csv file.
 The number of fields will be read from the first file using awk. 
 Input file names and date are printed in the file header:
@@ -1663,8 +1653,7 @@ output default {
 }
 </pre></div>
 
-<a name="Reading-binary-data"></a>
-<h4 class="subheading">Reading binary data</h4>
+<span id="Reading-binary-data"></span><h4 class="subheading">Reading binary data</h4>
 <p>A binary block having a 3 byte text (ABC) in 5 bytes long space, one byte integer (35), a 32 bit integer (12345678), a double (345.385), a 3 byte bcd number (45112) and a 4 byte hexadecimal data (f15a9188) can be read using following configuration:
 </p>
 <div class="example">
@@ -1739,8 +1728,7 @@ machine, same result can be achieved with different configuration:
 </pre></div>
 <p>Bytes are printed starting from the end of the data.
 </p>
-<a name="Printing-nested-XML"></a>
-<h4 class="subheading">Printing nested XML</h4>
+<span id="Printing-nested-XML"></span><h4 class="subheading">Printing nested XML</h4>
 <p>The keyword <code>level</code> in record definition can be used to print data in multi-level nested form. In this
 example a parent row is in level one and a child row is in level two. Children after a parent row belongs
 to the parent before child rows, so they are enclosed in a parent element.
@@ -1839,8 +1827,7 @@ output nested_xml
  &lt;/parent&gt;
 </pre></div>
 
-<a name="Some-examples-put-in-a-single-file"></a>
-<h4 class="subheading">Some examples put in a single file</h4>
+<span id="Some-examples-put-in-a-single-file"></span><h4 class="subheading">Some examples put in a single file</h4>
 <div class="example">
 <pre class="example">structure personel_fix {
     type fixed
@@ -1958,8 +1945,7 @@ lookup Type
 }   
 </pre></div>
 
-<a name="Anonymization-1"></a>
-<h4 class="subheading">Anonymization</h4>
+<span id="Anonymization-1"></span><h4 class="subheading">Anonymization</h4>
 <p>Anonymize fields FirstName, LastName and Age for personnel data:
 </p><div class="example">
 <pre class="example">anonymize personnel
@@ -2033,8 +2019,7 @@ $ffe -pnice personnel_anon.fix
 <p>FirstName and LastName have preserved the first letter because anonymization started from the second byte. Age is a two digit random number.
 Name fields will get the same anonymized value for each run, but Age will have a random value for each run.
 </p>
-<a name="Using-ffe-to-test-file-integrity"></a>
-<h4 class="subheading">Using <code>ffe</code> to test file integrity</h4>
+<span id="Using-ffe-to-test-file-integrity"></span><h4 class="subheading">Using <code>ffe</code> to test file integrity</h4>
 <p><code>ffe</code> can be used to check flat file integrity, because <code>ffe</code> 
 checks for all lines the line length and id&rsquo;s for fixed length structure 
 and field count and id&rsquo;s for separated structure.
@@ -2054,11 +2039,11 @@ ffe: Invalid input line in file 'inputfileD', line 12
 </pre></div>
 
 <hr>
-<a name="Problems"></a>
-<a name="Reporting-Bugs"></a>
-<h2 class="chapter">5 Reporting Bugs</h2>
-<a name="index-bugs"></a>
-<a name="index-problems"></a>
+</div>
+<div class="chapter" id="Problems">
+<span id="Reporting-Bugs"></span><h2 class="chapter">5 Reporting Bugs</h2>
+<span id="index-bugs"></span>
+<span id="index-problems"></span>
 
 <p>If you find a bug in <code>ffe</code>, please send electronic mail to
 <a href="mailto:tjsa@iki.fi">tjsa@iki.fi</a>.  Include the version number, which you can find by
@@ -2070,27 +2055,8 @@ output that the program produced and the output you expected.
 <a href="mailto:tjsa@iki.fi">tjsa@iki.fi</a>.  The author will try to help you out, although he
 may not have time to fix your problems.
 </p>
-<a name="SEC_Contents"></a>
-<h2 class="contents-heading">Table of Contents</h2>
-
-<div class="contents">
-
-<ul class="no-bullet">
-  <li><a name="toc-Preliminary-information" href="#Overview">1 Preliminary information</a></li>
-  <li><a name="toc-Samples-using-ffe" href="#Samples">2 Samples using <code>ffe</code></a></li>
-  <li><a name="toc-How-to-run-ffe" href="#Invoking-ffe">3 How to run <code>ffe</code></a>
-  <ul class="no-bullet">
-    <li><a name="toc-Program-invocation" href="#Invocation">3.1 Program invocation</a></li>
-    <li><a name="toc-Configuration-1" href="#Configuration">3.2 Configuration</a></li>
-    <li><a name="toc-Guessing-1" href="#Guessing">3.3 Guessing</a></li>
-    <li><a name="toc-Limitations" href="#Limits">3.4 Limitations</a></li>
-  </ul></li>
-  <li><a name="toc-How-ffe-works" href="#ffe-configuration">4 How <code>ffe</code> works</a></li>
-  <li><a name="toc-Reporting-Bugs" href="#Problems">5 Reporting Bugs</a></li>
-</ul>
 </div>
-
-<hr>
+</div>
 
 
 

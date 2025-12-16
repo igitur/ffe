@@ -1,4 +1,4 @@
-This is ffe.info, produced by makeinfo version 6.5 from ffe.texi.
+This is ffe.info, produced by makeinfo version 6.8 from ffe.texi.
 
 This file documents version 0.4.0a of 'ffe', a flat file extractor.
 
@@ -1925,3 +1925,8 @@ Node: ffe configuration36374
 Node: Problems58134
 
 End Tag Table
+
+
+Local Variables:
+coding: utf-8
+End:
