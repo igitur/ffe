@@ -1,0 +1,7 @@
+text = ABC (x41x42x43x00x08)
+byte_int = 35 (x23)
+integer = 12345678 (x4ex61xbcx00)
+number = 345.385000 (x5cx8fxc2xf5x28x96x75x40)
+bcd_number = 45112 (x45x11x2f)
+hex = f15a9188 (xf1x5ax91x88)
+

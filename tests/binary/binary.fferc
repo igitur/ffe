@@ -1,0 +1,18 @@
+structure bin_data
+{
+    type binary
+    record b
+    {
+        field text 5
+        field byte_int int8
+        field integer int32_le
+        field number double_le
+        field bcd_number bcd_be_3
+        field hex hex_be_4
+    }
+}
+
+output default
+{
+    data "%n = %d (%h)\n"
+}

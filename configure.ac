@@ -62,5 +62,6 @@ AC_CHECK_FUNCS([strchr strdup strerror strstr getline getopt_long regcomp strnca
 
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 AC_OUTPUT
