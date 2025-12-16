@@ -1,10 +1,10 @@
 structure personnel {
-    type fixed
+    type separated ,
     output xml
     record person {
-        field FirstName 9
-        field LastName  13
-        field Age 2
+        field FirstName
+        field LastName
+        field Age
     }
 }
 
