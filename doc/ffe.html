@@ -592,6 +592,8 @@ If <var>length</var> is not needed (separated format) but lookup is needed, use 
 </p>
 <p>If <var>filter</var> is given the raw contents of the field is filtered through a program defined by <var>filter</var> and the output of the program is printed as field contents.
 </p>
+<p>For separated input structures, the syntax <code>field <var>name</var> filter <var>filtername</var></code> can be used as a shortcut for <code>field <var>name</var> * * * <var>filtername</var></code>.
+</p>
 <p>If <var>conversion</var> is given it should contain a single printf style conversion specification, which will be used in printing. Conversion specification must start with <code>%</code> and the last character must be from set <code>diuoxXfeEgGcs</code>.
 </p>
 <p>If field is named as <code>FILLER</code>, the field will not appear in output.
@@ -991,6 +993,22 @@ field contents.
 
 <p><var>name</var> is referred in field definition. <var>command</var> is the shell command to be executed.
 </p>
+<p>Example:
+<br>
+</p><div class="example">
+<pre class="example">filter uppercase &quot;tr '[:lower:]' '[:upper:]'&quot;
+filter datefmt &quot;date -f - '+%Y-%m-%d'&quot;
+
+structure data {
+    type separated ,
+    record entry {
+        field id
+        field name filter uppercase
+        field date filter datefmt
+    }
+}
+</pre></div>
+
 <span id="Anonymization"></span><h4 class="subheading">Anonymization</h4>
 <p>Keyword <code>anonymize</code> defines a set of fields which will be anonymized by using command line option <samp>-A,--anonymize</samp>
 is given. Ffe uses non-reversible anonymization methods and preserves the original field length.

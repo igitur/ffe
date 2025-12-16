@@ -475,6 +475,10 @@ A record can contain following options:
      through a program defined by FILTER and the output of the program
      is printed as field contents.
 
+     For separated input structures, the syntax 'field NAME filter
+     FILTERNAME' can be used as a shortcut for 'field NAME * * *
+     FILTERNAME'.
+
      If CONVERSION is given it should contain a single printf style
      conversion specification, which will be used in printing.
      Conversion specification must start with '%' and the last character
@@ -852,6 +856,19 @@ the command and the output is printed as field contents.
 
    NAME is referred in field definition.  COMMAND is the shell command
 to be executed.
+
+   Example:
+     filter uppercase "tr '[:lower:]' '[:upper:]'"
+     filter datefmt "date -f - '+%Y-%m-%d'"
+
+     structure data {
+         type separated ,
+         record entry {
+             field id
+             field name filter uppercase
+             field date filter datefmt
+         }
+     }
 
 Anonymization
 -------------
@@ -1919,10 +1936,10 @@ Node: Samples2614
 Node: Invoking ffe4103
 Node: Invocation4690
 Node: Configuration8911
-Node: Guessing34366
-Node: Limits35966
-Node: ffe configuration36374
-Node: Problems58134
+Node: Guessing34818
+Node: Limits36418
+Node: ffe configuration36826
+Node: Problems58586
 
 End Tag Table
 

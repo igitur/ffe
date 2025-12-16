@@ -457,6 +457,8 @@ If @var{output} is given the field will be printed using output definition @var{
 
 If @var{filter} is given the raw contents of the field is filtered through a program defined by @var{filter} and the output of the program is printed as field contents.
 
+For separated input structures, the syntax @code{field @var{name} filter @var{filtername}} can be used as a shortcut for @code{field @var{name} * * * @var{filtername}}.
+
 If @var{conversion} is given it should contain a single printf style conversion specification, which will be used in printing. Conversion specification must start with @code{%} and the last character must be from set @code{diuoxXfeEgGcs}.
 
 If field is named as @code{FILLER}, the field will not appear in output.
@@ -772,6 +774,22 @@ filter @var{name} @var{command}
 @end example
 
 @var{name} is referred in field definition. @var{command} is the shell command to be executed.
+
+Example:
+@*
+@example
+filter uppercase "tr '[:lower:]' '[:upper:]'"
+filter datefmt "date -f - '+%Y-%m-%d'"
+
+structure data @{
+    type separated ,
+    record entry @{
+        field id
+        field name filter uppercase
+        field date filter datefmt
+    @}
+@}
+@end example
 
 @subheading Anonymization
 Keyword @code{anonymize} defines a set of fields which will be anonymized by using command line option @option{-A,--anonymize}
