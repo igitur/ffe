@@ -166,6 +166,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+
     - name: Install dependencies
       run: ${{ matrix.deps }}
 
@@ -192,6 +193,15 @@ jobs:
 
     - name: Build
       run: make
+
+    - name: Ensure test scripts are executable
+      if: matrix.test
+      run: |
+        echo "Setting execute permissions on test scripts..."
+        chmod +x tests/run_tests.sh 2>/dev/null || true
+        chmod +x tests/*/*.sh 2>/dev/null || true
+        chmod +x tests/*/*.bats 2>/dev/null || true
+        ls -la tests/run_tests.sh 2>/dev/null || true
 
     - name: Run tests
       run: BATS_FORMATTER=tap make check

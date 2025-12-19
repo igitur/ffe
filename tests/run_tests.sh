@@ -62,19 +62,19 @@ find_bats() {
     fi
 }
 BATS="$(find_bats)"
-# Build bats arguments
-if [ "$tap_mode" = true ]; then
-    bats_args="--formatter tap"
-else
-    bats_args=""
-fi
-
 # Helper function to print messages only when not in TAP mode
 echo_if_not_tap() {
     if [ "$tap_mode" = false ]; then
         echo "$@"
     fi
 }
+
+# Build bats arguments
+if [ "$tap_mode" = true ]; then
+    bats_args="--formatter tap"
+else
+    bats_args=""
+fi
 
 # Find all test directories (subdirectories containing .sh or .bats files)
 test_dirs="fixed_length separated binary expressions lookup constants anonymize replace output"
