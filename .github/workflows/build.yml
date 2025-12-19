@@ -27,7 +27,7 @@ jobs:
             artifact_path: ./src/ffe
             deps: |
               sudo apt-get update
-              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev bats
             configure_pre: ""
             configure_host_args: ""
 
@@ -149,7 +149,7 @@ jobs:
             binary_name: ffe
             artifact_path: ./src/ffe
             deps: |
-              brew install autoconf automake libtool pkg-config texinfo libgcrypt libgpg-error
+              brew install autoconf automake libtool pkg-config texinfo libgcrypt libgpg-error bats-core
             configure_pre: |
               export PKG_CONFIG_PATH="/opt/homebrew/opt/libgcrypt/lib/pkgconfig:/opt/homebrew/opt/libgpg-error/lib/pkgconfig:$PKG_CONFIG_PATH"
               export CPPFLAGS="-I/opt/homebrew/opt/libgcrypt/include -I/opt/homebrew/opt/libgpg-error/include $CPPFLAGS"
@@ -194,7 +194,7 @@ jobs:
       run: make
 
     - name: Run tests
-      run: make check
+      run: BATS_FORMATTER=tap make check
       if: matrix.test
 
     - name: Verify binary

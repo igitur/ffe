@@ -6,6 +6,27 @@
 
 set -e
 
+# Parse command line arguments
+tap_mode=false
+# Check environment variable
+if [ "$BATS_FORMATTER" = "tap" ]; then
+    tap_mode=true
+fi
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --tap)
+            tap_mode=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            echo "Usage: $0 [--tap]" >&2
+            exit 1
+            ;;
+    esac
+done
+
 # Base directory of tests (where this script is located)
 test_dir="$(cd "$(dirname "$0")" && pwd)"
 
@@ -41,6 +62,19 @@ find_bats() {
     fi
 }
 BATS="$(find_bats)"
+# Build bats arguments
+if [ "$tap_mode" = true ]; then
+    bats_args="--formatter tap"
+else
+    bats_args=""
+fi
+
+# Helper function to print messages only when not in TAP mode
+echo_if_not_tap() {
+    if [ "$tap_mode" = false ]; then
+        echo "$@"
+    fi
+}
 
 # Find all test directories (subdirectories containing .sh or .bats files)
 test_dirs="fixed_length separated binary expressions lookup constants anonymize replace output"
@@ -49,14 +83,14 @@ total=0
 passed=0
 failed=0
 
-echo "=== Running ffe test suite ==="
-echo "Using ffe binary: $FFE_BIN"
-echo "Using bats: $BATS"
+echo_if_not_tap "=== Running ffe test suite ==="
+echo_if_not_tap "Using ffe binary: $FFE_BIN"
+echo_if_not_tap "Using bats: $BATS"
 
 for dir in $test_dirs; do
     dir_path="$test_dir/$dir"
     if [ ! -d "$dir_path" ]; then
-        echo "WARNING: Test directory '$dir_path' not found, skipping"
+        echo_if_not_tap "WARNING: Test directory '$dir_path' not found, skipping"
         continue
     fi
 
@@ -71,38 +105,38 @@ for dir in $test_dirs; do
         test_script="$sh_script"
         use_bats=false
     else
-        echo "WARNING: No test script found in '$dir_path', skipping"
+        echo_if_not_tap "WARNING: No test script found in '$dir_path', skipping"
         continue
     fi
 
     total=$((total + 1))
-    echo "Running test: $dir ($(basename "$test_script"))"
+    echo_if_not_tap "Running test: $dir ($(basename "$test_script"))"
 
     # Run test in its directory with proper environment
     if [ "$use_bats" = true ]; then
-        (cd "$dir_path" && FFE_BIN="$FFE_BIN" srcdir="." "$BATS" "./$(basename "$test_script")")
+        (cd "$dir_path" && FFE_BIN="$FFE_BIN" srcdir="." "$BATS" $bats_args "./$(basename "$test_script")")
     else
         (cd "$dir_path" && FFE_BIN="$FFE_BIN" srcdir="." sh "./$(basename "$test_script")")
     fi
 
     if [ $? -eq 0 ]; then
-        echo "  PASS: $dir"
+        echo_if_not_tap "  PASS: $dir"
         passed=$((passed + 1))
     else
-        echo "  FAIL: $dir"
+        echo_if_not_tap "  FAIL: $dir"
         failed=$((failed + 1))
     fi
 done
 
-echo "=== Test summary ==="
-echo "Total:  $total"
-echo "Passed: $passed"
-echo "Failed: $failed"
+echo_if_not_tap "=== Test summary ==="
+echo_if_not_tap "Total:  $total"
+echo_if_not_tap "Passed: $passed"
+echo_if_not_tap "Failed: $failed"
 
 if [ $failed -eq 0 ]; then
-    echo "All tests passed!"
+    echo_if_not_tap "All tests passed!"
     exit 0
 else
-    echo "$failed test(s) failed"
+    echo_if_not_tap "$failed test(s) failed"
     exit 1
 fi
