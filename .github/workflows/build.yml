@@ -3,6 +3,7 @@ name: Build and Test
 on:
   push:
     branches: [ "**" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "**" ]
   workflow_dispatch:  # Allow manual triggering
@@ -252,6 +253,58 @@ jobs:
       with:
         path: ./artifacts/
 
+    - name: List downloaded artifacts
+      run: |
+        echo "Artifact directory structure:"
+        find ./artifacts -type f -name "*" | sort
+        echo ""
+        echo "File details:"
+        find ./artifacts -type f -exec ls -la {} \;
+
+    - name: Check tag and release status
+      run: |
+        echo "Current tag from output: ${{ steps.get-version.outputs.tag_name }}"
+        echo "Checking if tag exists locally:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found locally"
+        echo "Fetching all tags:"
+        git fetch --tags
+        echo "Checking remote tags:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found after fetch"
+
+    - name: Rename artifacts with platform names
+      run: |
+        echo "Renaming artifacts to include platform in filename..."
+        for dir in ./artifacts/*/; do
+          if [ -d "$dir" ]; then
+            platform=$(basename "$dir")
+            echo "Processing $dir for platform $platform"
+            # Find any file inside the directory (should be exactly one)
+            for binary in "$dir"*; do
+              if [ -f "$binary" ]; then
+                # Get file extension
+                if [[ "$binary" == *.exe ]]; then
+                  ext=".exe"
+                else
+                  ext=""
+                fi
+                # Move to temporary name first to avoid conflict with directory
+                temp_name="./artifacts/.tmp-${platform}${ext}"
+                echo "Moving $binary to temporary name $temp_name"
+                mv "$binary" "$temp_name"
+                # Remove the now-empty directory
+                rmdir "$dir" 2>/dev/null || true
+                # Now rename to final name
+                final_name="./artifacts/${platform}${ext}"
+                echo "Renaming $temp_name to $final_name"
+                mv "$temp_name" "$final_name"
+                break  # Only process first file in directory
+              fi
+            done
+          fi
+        done
+        echo "Final artifact files:"
+        ls -la ./artifacts/
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -272,4 +325,4 @@ jobs:
         draft: true
         prerelease: ${{ steps.get-version.outputs.is_prerelease }}
         files: |
-          artifacts/**/*
+          artifacts/*
