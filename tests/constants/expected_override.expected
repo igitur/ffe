@@ -1,0 +1,15 @@
+  version: 1.0
+  first_name: OVERRIDDEN
+  last_name: Doe
+  age: 30
+ 
+  version: 1.0
+  first_name: OVERRIDDEN
+  last_name: Smith
+  age: 25
+ 
+  version: 1.0
+  first_name: OVERRIDDEN
+  last_name: Johnson
+  age: 40
+ 

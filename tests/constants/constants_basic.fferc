@@ -1,0 +1,26 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+    }
+}
+
+const version "1.0"
+const timestamp "2025-01-01"
+const source "TEST"
+
+output basic {
+    data "%n: %t\n"
+    field-list version,first_name,last_name,age,timestamp
+    indent " "
+}
+
+output all_constants {
+    data "%n: %t\n"
+    field-list version,first_name,last_name,age,timestamp,source
+    indent " "
+}
+

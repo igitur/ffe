@@ -1,0 +1,17 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+    }
+}
+
+const version "1.0"
+const source "TEST"
+
+output default {
+    data "%n: %t\n"
+    indent " "
+}

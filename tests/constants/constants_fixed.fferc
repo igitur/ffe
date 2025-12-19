@@ -1,0 +1,25 @@
+structure data {
+    type fixed
+    record person {
+        field first_name 10
+        field last_name 15
+        field age 3
+    }
+}
+
+const dots ".."
+const version "v1.0"
+
+output default {
+    data "%D"
+}
+
+output with_constants {
+    data "%D"
+    field-list first_name,dots,last_name,dots,age
+}
+
+output with_version {
+    data "%D"
+    field-list version,first_name,last_name,age
+}

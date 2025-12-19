@@ -1,0 +1,25 @@
+structure data {
+    type fixed
+    record person {
+        field first_name 5
+        field last_name 7
+        field age 2
+    }
+}
+
+const dots ".."
+const version "v1"
+
+output default {
+    data "%D"
+}
+
+output with_dots {
+    data "%D"
+    field-list first_name,dots,last_name,dots,age
+}
+
+output raw_with_dots {
+    data "%d"
+    field-list first_name,dots,last_name,dots,age
+}

@@ -1,0 +1,18 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+    }
+}
+
+const first_name "OVERRIDDEN"
+const version "1.0"
+
+output test {
+    data "%n: %t\n"
+    field-list version,first_name,last_name,age
+    indent " "
+}
