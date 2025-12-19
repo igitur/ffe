@@ -2,6 +2,7 @@
 
 # Master test runner for ffe tests
 # Runs all tests in subdirectories
+# This script can be called from any directory
 
 set -e
 
@@ -28,7 +29,20 @@ fi
 # srcdir is used by automake, default to test directory
 srcdir="${srcdir:-$test_dir}"
 
-# Find all test directories (subdirectories containing .sh files)
+# Find bats executable
+find_bats() {
+    if [ -x "$test_dir/bats-core/bin/bats" ]; then
+        echo "$test_dir/bats-core/bin/bats"
+    elif command -v bats >/dev/null 2>&1; then
+        echo "bats"
+    else
+        echo "ERROR: bats not found" >&2
+        exit 1
+    fi
+}
+BATS="$(find_bats)"
+
+# Find all test directories (subdirectories containing .sh or .bats files)
 test_dirs="fixed_length separated binary expressions lookup constants anonymize replace output"
 
 total=0
@@ -37,25 +51,39 @@ failed=0
 
 echo "=== Running ffe test suite ==="
 echo "Using ffe binary: $FFE_BIN"
+echo "Using bats: $BATS"
 
 for dir in $test_dirs; do
-    if [ ! -d "$dir" ]; then
-        echo "WARNING: Test directory '$dir' not found, skipping"
+    dir_path="$test_dir/$dir"
+    if [ ! -d "$dir_path" ]; then
+        echo "WARNING: Test directory '$dir_path' not found, skipping"
         continue
     fi
 
-    # Find test script in directory
-    test_script=$(find "$dir" -maxdepth 1 -name "*.sh" | head -1)
-    if [ -z "$test_script" ]; then
-        echo "WARNING: No test script found in '$dir', skipping"
+    # Find test script in directory - prefer .bats files
+    test_script=""
+    bats_script=$(find "$dir_path" -maxdepth 1 -name "*.bats" | head -1)
+    sh_script=$(find "$dir_path" -maxdepth 1 -name "*.sh" | head -1)
+    if [ -n "$bats_script" ]; then
+        test_script="$bats_script"
+        use_bats=true
+    elif [ -n "$sh_script" ]; then
+        test_script="$sh_script"
+        use_bats=false
+    else
+        echo "WARNING: No test script found in '$dir_path', skipping"
         continue
     fi
 
     total=$((total + 1))
-    echo "Running test: $dir"
+    echo "Running test: $dir ($(basename "$test_script"))"
 
     # Run test in its directory with proper environment
-    (cd "$dir" && FFE_BIN="$FFE_BIN" srcdir="." sh "./$(basename "$test_script")")
+    if [ "$use_bats" = true ]; then
+        (cd "$dir_path" && FFE_BIN="$FFE_BIN" srcdir="." "$BATS" "./$(basename "$test_script")")
+    else
+        (cd "$dir_path" && FFE_BIN="$FFE_BIN" srcdir="." sh "./$(basename "$test_script")")
+    fi
 
     if [ $? -eq 0 ]; then
         echo "  PASS: $dir"
