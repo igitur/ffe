@@ -1,0 +1,256 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        job_name: ['linux_x86_64', 'linux_i686', 'linux_armv7', 'linux_aarch64', 'windows_x64', 'windows_x86', 'macos_arm64']
+
+        include:
+          - job_name: linux_x86_64
+            runner: ubuntu-latest
+            host: x86_64-pc-linux-gnu
+            cc: gcc
+            cross: false
+            test: true
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev
+
+          - job_name: linux_i686
+            runner: ubuntu-latest
+            host: i686-pc-linux-gnu
+            cc: i686-linux-gnu-gcc
+            cross: true
+            test: false
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-i686-linux-gnu
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+
+          - job_name: linux_armv7
+            runner: ubuntu-latest
+            host: arm-linux-gnueabihf
+            cc: arm-linux-gnueabihf-gcc
+            cross: true
+            test: false
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-arm-linux-gnueabihf
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+
+          - job_name: linux_aarch64
+            runner: ubuntu-latest
+            host: aarch64-linux-gnu
+            cc: aarch64-linux-gnu-gcc
+            cross: true
+            test: false
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-aarch64-linux-gnu
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+
+          - job_name: windows_x64
+            runner: ubuntu-latest
+            host: x86_64-w64-mingw32
+            cc: x86_64-w64-mingw32-gcc
+            cross: true
+            test: false
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev mingw-w64
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+
+          - job_name: windows_x86
+            runner: ubuntu-latest
+            host: i686-w64-mingw32
+            cc: i686-w64-mingw32-gcc
+            cross: true
+            test: false
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev mingw-w64
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+
+          - job_name: macos_arm64
+            runner: macos-latest
+            host: arm64-apple-darwin
+            cc: gcc
+            cross: false
+            test: true
+            deps: |
+              brew install autoconf automake libtool pkg-config texinfo libgcrypt libgpg-error
+
+    name: ${{ matrix.job_name }}
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ${{ matrix.deps }}
+
+    - name: Display tool versions
+      run: |
+        echo "=== Build Environment ==="
+        uname -a
+        if [ "${{ matrix.runner }}" = "ubuntu-latest" ]; then
+          lsb_release -a 2>/dev/null || echo "lsb_release not available"
+        elif [ "${{ matrix.runner }}" = "macos-latest" ]; then
+          sw_vers
+        fi
+        echo ""
+        echo "=== Tool Versions ==="
+        autoconf --version | head -1
+        automake --version | head -1
+        libtool --version | head -1
+        pkg-config --version
+        make --version | head -1
+        echo ""
+        echo "=== Compiler ==="
+        ${{ matrix.cc }} --version | head -1 || true
+
+    - name: Regenerate build system
+      run: autoreconf -is
+
+    - name: Check libgcrypt availability
+      run: |
+        echo "=== Checking libgcrypt and dependencies ==="
+        echo "1. pkg-config libgcrypt version:"
+        pkg-config --modversion libgcrypt 2>&1 || echo "libgcrypt not found via pkg-config"
+        echo ""
+        echo "2. pkg-config libgcrypt cflags:"
+        pkg-config --cflags libgcrypt 2>&1 || echo "Failed to get cflags"
+        echo ""
+        echo "3. pkg-config libgpg-error version:"
+        pkg-config --modversion libgpg-error 2>&1 || echo "libgpg-error not found via pkg-config"
+        echo ""
+        echo "4. pkg-config libgpg-error cflags:"
+        pkg-config --cflags libgpg-error 2>&1 || echo "Failed to get cflags"
+        echo ""
+        echo "5. Header search:"
+        if [ -f /usr/include/gcrypt.h ]; then
+          echo "gcrypt.h found at /usr/include/gcrypt.h"
+        else
+          echo "gcrypt.h not found in /usr/include"
+          find /usr -name "gcrypt.h" 2>/dev/null | head -5 || true
+        fi
+        if [ -f /usr/include/gpg-error.h ]; then
+          echo "gpg-error.h found at /usr/include/gpg-error.h"
+        else
+          echo "gpg-error.h not found in /usr/include"
+          find /usr -name "gpg-error.h" 2>/dev/null | head -5 || true
+        fi
+        echo ""
+        echo "6. Library search:"
+        find /usr -name "libgcrypt*" -type f 2>/dev/null | head -5 || true
+        find /usr -name "libgpg-error*" -type f 2>/dev/null | head -5 || true
+
+    - name: Debug environment
+      run: |
+        echo "=== Debug environment for ${{ matrix.job_name }} ==="
+        echo "cross: ${{ matrix.cross }}"
+        echo "host: ${{ matrix.host }}"
+        echo "CC: ${{ matrix.cc }}"
+        echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH:-not set}"
+        echo "CPPFLAGS: ${CPPFLAGS:-not set}"
+        echo "LDFLAGS: ${LDFLAGS:-not set}"
+        echo "LIBGCRYPT_CONFIG: ${LIBGCRYPT_CONFIG:-not set}"
+        echo "ac_cv_path_LIBGCRYPT_CONFIG: ${ac_cv_path_LIBGCRYPT_CONFIG:-not set}"
+        echo "ac_cv_header_gcrypt_h: ${ac_cv_header_gcrypt_h:-not set}"
+        echo "ac_cv_lib_gcrypt_gcry_check_version: ${ac_cv_lib_gcrypt_gcry_check_version:-not set}"
+
+    - name: Configure
+      env:
+        CC: ${{ matrix.cc }}
+      run: |
+        # Set up environment for cross-compilation
+        if [ "${{ matrix.cross }}" = "true" ]; then
+          # Disable libgcrypt detection for cross-compilation
+          export ac_cv_lib_gcrypt_gcry_check_version=no
+          export ac_cv_header_gcrypt_h=no
+          export ac_cv_path_LIBGCRYPT_CONFIG=no
+          export LIBGCRYPT_CONFIG=/bin/false
+          case "${{ matrix.host }}" in
+            i686-pc-linux-gnu)
+              export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/i686-linux-gnu/include -I/usr/include/i386-linux-gnu"
+              export LDFLAGS="-L/usr/i686-linux-gnu/lib -L/usr/lib/i386-linux-gnu"
+              ;;
+            arm-linux-gnueabihf)
+              export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/arm-linux-gnueabihf/include -I/usr/include/arm-linux-gnueabihf"
+              export LDFLAGS="-L/usr/arm-linux-gnueabihf/lib -L/usr/lib/arm-linux-gnueabihf"
+              ;;
+            aarch64-linux-gnu)
+              export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/aarch64-linux-gnu/include -I/usr/include/aarch64-linux-gnu"
+              export LDFLAGS="-L/usr/aarch64-linux-gnu/lib -L/usr/lib/aarch64-linux-gnu"
+              ;;
+          esac
+          ./configure --host=${{ matrix.host }} --build=x86_64-pc-linux-gnu
+        else
+          # Let autoconf detect libgcrypt normally for native builds
+          ./configure
+        fi
+
+    - name: Check libgcrypt configuration
+      run: |
+        echo "=== Checking configure results ==="
+        if [ -f config.h ]; then
+          echo "1. config.h definitions:"
+          grep -E "HAVE_WORKING_LIBGCRYPT|HAVE_GCRYPT_H" config.h || echo "Neither HAVE_WORKING_LIBGCRYPT nor HAVE_GCRYPT_H defined"
+        else
+          echo "config.h not found"
+        fi
+        echo ""
+        echo "2. Makefile flags:"
+        if [ -f src/Makefile ]; then
+          echo "LIBGCRYPT_CFLAGS from Makefile:"
+          grep LIBGCRYPT_CFLAGS src/Makefile || echo "Not found"
+          echo "LIBGCRYPT_LIBS from Makefile:"
+          grep LIBGCRYPT_LIBS src/Makefile || echo "Not found"
+        else
+          echo "src/Makefile not found"
+        fi
+        echo ""
+        echo "3. Configure output (config.log tail):"
+        tail -20 config.log 2>/dev/null | grep -i gcrypt || echo "No gcrypt mentions in config.log"
+
+    - name: Build
+      run: make
+
+    - name: Run tests
+      run: make check
+      if: matrix.test
+
+    - name: Verify binary
+      run: |
+        if [ -f ./src/ffe ]; then
+          file ./src/ffe || true
+          if [ "${{ matrix.runner }}" = "macos-latest" ]; then
+            ./src/ffe --version || true
+            echo "Binary size: $(stat -f%z ./src/ffe) bytes"
+          else
+            echo "Binary size: $(stat -c%s ./src/ffe) bytes"
+          fi
+        else
+          echo "Binary not found at ./src/ffe"
+          ls -la ./src/ || true
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ffe-${{ matrix.job_name }}
+        path: ./src/ffe
+        if-no-files-found: error
