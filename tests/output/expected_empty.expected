@@ -1,0 +1,12 @@
+field=name value=John empty=
+field=age value=25 empty=
+field=score value= empty=
+
+field=name value= empty=
+field=age value= empty=
+field=score value=0 empty=
+
+field=name value=Alice empty=
+field=age value= empty=
+field=score value=100 empty=
+

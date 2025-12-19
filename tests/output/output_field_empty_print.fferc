@@ -1,0 +1,13 @@
+structure empty_test {
+    type separated ,
+    record test_record {
+        field name
+        field age
+        field score
+    }
+}
+
+output empty_output {
+    data "field=%n value=%t\n"
+    field-empty-print "NULL"
+}

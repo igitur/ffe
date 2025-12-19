@@ -1,0 +1,16 @@
+structure test_structure {
+    type fixed
+    record test_record {
+        field FirstName 10
+        field LastName 15
+        field Age 3
+    }
+}
+
+output file_info {
+    file_header "=== File: %f ===\n"
+    record_header "Record %r #%o (byte %i): "
+    data "%n=%t "
+    record_trailer "\n"
+    file_trailer "=== End of %f ===\n"
+}

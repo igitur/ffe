@@ -1,0 +1,14 @@
+structure test_structure {
+    type fixed
+    record test_record {
+        field FirstName 10
+        field LastName 15
+        field Age 3
+        field Score 5
+    }
+}
+
+output selected {
+    data "%n=%t "
+    field-list "FirstName,Age"
+}

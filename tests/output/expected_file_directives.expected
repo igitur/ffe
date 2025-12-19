@@ -1,0 +1,5 @@
+=== File: ./test_input_28.input ===
+Record test_record #1 (byte 0): FirstName=John LastName=Doe Age=035 
+Record test_record #2 (byte 0): FirstName=Jane LastName=Smith Age=028 
+Record test_record #3 (byte 0): FirstName=Bob LastName=Johnson Age=042 
+=== End of ./test_input_28.input ===

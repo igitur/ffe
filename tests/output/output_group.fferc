@@ -1,0 +1,14 @@
+structure test {
+    type fixed
+    group person {
+        element name {
+            field first 10
+            field last 15
+        }
+        element age 3
+    }
+}
+
+output group_output {
+    data "%g.%m: %t\n"
+}

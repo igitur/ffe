@@ -1,0 +1,19 @@
+structure lookup_test {
+    type separated ,
+    record test_record {
+        field code * status_lookup
+        field value
+    }
+}
+
+lookup status_lookup {
+    search exact
+    pair A "Active"
+    pair B "Blocked"
+    pair C "Closed"
+    default-value "Unknown"
+}
+
+output lookup_output {
+    data "code=%d value=%t lookup_lower=%l lookup_upper=%L\n"
+}

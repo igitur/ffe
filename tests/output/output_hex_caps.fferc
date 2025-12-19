@@ -1,0 +1,11 @@
+structure hex_test {
+    type binary
+    record test_record {
+        field integer int32_le
+    }
+}
+
+output hex_output {
+    data "integer=%d hex=%x hex_with_prefix=%h\n"
+    hex-caps yes
+}

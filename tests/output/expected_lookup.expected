@@ -1,0 +1,9 @@
+code=A value=A lookup_lower=Active lookup_upper=Active
+code=100 value=100 lookup_lower= lookup_upper=
+
+code=B value=B lookup_lower=Blocked lookup_upper=Blocked
+code=200 value=200 lookup_lower= lookup_upper=
+
+code=X value=X lookup_lower=Unknown lookup_upper=Unknown
+code=999 value=999 lookup_lower= lookup_upper=
+

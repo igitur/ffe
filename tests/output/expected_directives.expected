@@ -1,0 +1,15 @@
+s=test_structure r=test_record o=1 O=1 i=0 I=0 n=FirstName t=John d=John       D=John       C=John       p=1
+s=test_structure r=test_record o=1 O=1 i=0 I=0 n=LastName t=Doe d=Doe             D=Doe             C=Doe             p=11
+s=test_structure r=test_record o=1 O=1 i=0 I=0 n=Age t=035 d=035 D=035 C=035 p=26
+s=test_structure r=test_record o=1 O=1 i=0 I=0 n=Score t=08000 d=08000 D=08000 C=08000 p=29
+
+s=test_structure r=test_record o=2 O=2 i=0 I=0 n=FirstName t=Jane d=Jane       D=Jane       C=Jane       p=1
+s=test_structure r=test_record o=2 O=2 i=0 I=0 n=LastName t=Smith d=Smith           D=Smith           C=Smith           p=11
+s=test_structure r=test_record o=2 O=2 i=0 I=0 n=Age t=028 d=028 D=028 C=028 p=26
+s=test_structure r=test_record o=2 O=2 i=0 I=0 n=Score t=09500 d=09500 D=09500 C=09500 p=29
+
+s=test_structure r=test_record o=3 O=3 i=0 I=0 n=FirstName t=Bob d=Bob        D=Bob        C=Bob        p=1
+s=test_structure r=test_record o=3 O=3 i=0 I=0 n=LastName t=Johnson d=Johnson         D=Johnson         C=Johnson         p=11
+s=test_structure r=test_record o=3 O=3 i=0 I=0 n=Age t=042 d=042 D=042 C=042 p=26
+s=test_structure r=test_record o=3 O=3 i=0 I=0 n=Score t=07500 d=07500 D=07500 C=07500 p=29
+
