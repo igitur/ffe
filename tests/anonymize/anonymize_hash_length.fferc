@@ -1,0 +1,39 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+        field id
+    }
+}
+
+anonymize test_hash_length_16 {
+    method first_name HASH 1 0 16
+    method id HASH 1 0 16
+}
+
+anonymize test_hash_length_32 {
+    method first_name HASH 1 0 32
+    method id HASH 1 0 32
+}
+
+anonymize test_hash_length_64 {
+    method first_name HASH 1 0 64
+    method id HASH 1 0 64
+}
+
+anonymize test_hash_no_key {
+    method first_name HASH
+    method id HASH
+}
+
+output raw {
+    data "%d"
+}
+
+output default {
+    data "%n: %t\n"
+    indent " "
+}

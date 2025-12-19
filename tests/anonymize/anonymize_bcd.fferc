@@ -1,0 +1,29 @@
+structure bcd_test
+{
+    type binary
+    record bcd_record
+    {
+        field bcd_field bcd_be_3
+    }
+}
+
+anonymize test_bcd_mask {
+    method bcd_field MASK
+}
+
+anonymize test_bcd_hash {
+    method bcd_field HASH
+}
+
+anonymize test_bcd_random {
+    method bcd_field RANDOM
+}
+
+output raw {
+    data "%d"
+}
+
+output default
+{
+    data "%n = %d (%h)\n"
+}

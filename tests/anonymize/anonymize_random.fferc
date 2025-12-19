@@ -1,0 +1,26 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+        field id
+    }
+}
+
+anonymize test_random {
+    method first_name RANDOM
+    method last_name RANDOM
+    method age RANDOM
+    method id RANDOM
+}
+
+output raw {
+    data "%d"
+}
+
+output default {
+    data "%n: %t\n"
+    indent " "
+}

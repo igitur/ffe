@@ -105,4 +105,120 @@ check_fixed_random \
     "$srcdir/expected_fixed.expected" \
     "test_fixed"
 
+# Test 6: Random anonymization for text fields
+output=$(mktemp)
+"$FFE" -c "$srcdir/anonymize_random.fferc" -A test_random "$srcdir/anonymize.input" -praw > "$output"
+# Validate characters are in allowed set (0-9, A-Z, a-z, space, comma separator)
+if grep -q '[^0-9A-Za-z ,]' "$output"; then
+    echo "FAIL: Random text contains invalid characters"
+    grep -n '[^0-9A-Za-z ,]' "$output" | head -5
+    rm -f "$output"
+    exit 1
+fi
+echo "PASS: random anonymization test"
+rm -f "$output"
+
+# Test 7: Binary field anonymization
+# Just ensure it runs without error and masked fields are changed
+output=$(mktemp)
+"$FFE" -c "$srcdir/anonymize_binary.fferc" -s bin_data -A test_binary "$srcdir/../binary/binary.input" -praw > "$output" 2>&1
+if [ $? -ne 0 ]; then
+    echo "FAIL: binary anonymization test failed"
+    rm -f "$output"
+    exit 1
+fi
+# Check that text field (first 5 bytes) are masked with '0'
+# Original text field: "ABC" + null + 0x08
+# Masked should be "000" + null + 0x08
+first_five=$(head -c5 "$output" | xxd -p)
+if [ "$first_five" != "3030300008" ]; then
+    echo "FAIL: binary mask not applied correctly, got $first_five"
+    rm -f "$output"
+    exit 1
+fi
+echo "PASS: binary anonymization test"
+rm -f "$output"
+
+# Test 8: BCD field anonymization
+# Test mask, hash, random - ensure they produce valid BCD values (nibbles 0-9)
+for method in mask hash random; do
+    output=$(mktemp)
+    "$FFE" -c "$srcdir/anonymize_bcd.fferc" -s bcd_test -A "test_bcd_$method" "$srcdir/bcd.input" -praw > "$output" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAIL: BCD $method anonymization test failed"
+        rm -f "$output"
+        exit 1
+    fi
+    # Validate each nibble is 0-9 (BCD)
+    xxd -p "$output" | tr -d '\n' | awk '{
+        if (length($0) != 6) { print "Invalid length"; exit 1 }
+        for (i=1; i<=6; i+=2) {
+            byte = substr($0, i, 2)
+            high = substr(byte,1,1); low = substr(byte,2,1)
+            if (high !~ /[0-9]/ || low !~ /[0-9]/) {
+                print "Invalid BCD nibble: " byte
+                exit 1
+            }
+        }
+    }' > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "FAIL: BCD $method produced invalid BCD values"
+        xxd "$output"
+        rm -f "$output"
+        exit 1
+    fi
+    echo "PASS: BCD $method anonymization test"
+    rm -f "$output"
+done
+
+# Test 9: Hash with key (length) parameter
+echo "=== Testing hash with key parameter ==="
+
+# Test hash with no key (default 16)
+check_output \
+    "$srcdir/anonymize_hash_length.fferc" \
+    "$srcdir/anonymize.input" \
+    "$srcdir/expected_hash_no_key.expected" \
+    "test_hash_no_key" \
+    "raw"
+
+# Test hash with key=16 (should match default)
+check_output \
+    "$srcdir/anonymize_hash_length.fferc" \
+    "$srcdir/anonymize.input" \
+    "$srcdir/expected_hash_length_16.expected" \
+    "test_hash_length_16" \
+    "raw"
+
+# Test hash with key=32
+check_output \
+    "$srcdir/anonymize_hash_length.fferc" \
+    "$srcdir/anonymize.input" \
+    "$srcdir/expected_hash_length_32.expected" \
+    "test_hash_length_32" \
+    "raw"
+
+# Test hash with key=64
+check_output \
+    "$srcdir/anonymize_hash_length.fferc" \
+    "$srcdir/anonymize.input" \
+    "$srcdir/expected_hash_length_64.expected" \
+    "test_hash_length_64" \
+    "raw"
+
+# Verify that different keys produce different outputs
+if cmp -s "$srcdir/expected_hash_length_16.expected" "$srcdir/expected_hash_length_32.expected"; then
+    echo "FAIL: hash length 16 and 32 produce same output"
+    exit 1
+fi
+if cmp -s "$srcdir/expected_hash_length_16.expected" "$srcdir/expected_hash_length_64.expected"; then
+    echo "FAIL: hash length 16 and 64 produce same output"
+    exit 1
+fi
+if cmp -s "$srcdir/expected_hash_length_32.expected" "$srcdir/expected_hash_length_64.expected"; then
+    echo "FAIL: hash length 32 and 64 produce same output"
+    exit 1
+fi
+echo "PASS: hash key parameter tests"
+
 echo "All anonymization tests passed"
