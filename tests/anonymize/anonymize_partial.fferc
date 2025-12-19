@@ -1,0 +1,25 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+        field id
+    }
+}
+
+anonymize test_partial {
+    # anonymize all but first character
+    method first_name MASK 2 0 "."
+    # anonymize last 3 characters
+    method last_name MASK -3 0 "X"
+    # anonymize middle character (position 2, length 1)
+    method age MASK 2 1 "*"
+    # anonymize first 3 characters
+    method id MASK 1 3 "#"
+}
+
+output raw {
+    data "%d"
+}

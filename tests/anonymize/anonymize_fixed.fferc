@@ -1,0 +1,20 @@
+structure data {
+    type fixed
+    record person {
+        field first_name 10
+        field last_name 10
+        field age 3
+        field id 5
+    }
+}
+
+anonymize test_fixed {
+    method first_name HASH
+    method last_name HASH 2
+    method age NRANDOM
+    method id MASK
+}
+
+output default {
+    data "%d"
+}

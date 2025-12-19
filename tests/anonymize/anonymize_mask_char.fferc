@@ -1,0 +1,21 @@
+structure data {
+    type separated ,
+
+    record person {
+        field first_name
+        field last_name
+        field age
+        field id
+    }
+}
+
+anonymize test_mask_char {
+    method first_name MASK 1 0 "*"
+    method last_name MASK 1 0 "X"
+    method age MASK 1 0 "9"
+    method id MASK 1 0 "#"
+}
+
+output raw {
+    data "%d"
+}
