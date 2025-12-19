@@ -200,7 +200,19 @@ jobs:
           ./configure --host=${{ matrix.host }} --build=x86_64-pc-linux-gnu
         else
           # Let autoconf detect libgcrypt normally for native builds
-          ./configure
+          if [ "${{ matrix.runner }}" = "macos-latest" ]; then
+            # macOS-specific environment setup for Homebrew libraries
+            export PKG_CONFIG_PATH="/opt/homebrew/opt/libgcrypt/lib/pkgconfig:/opt/homebrew/opt/libgpg-error/lib/pkgconfig:$PKG_CONFIG_PATH"
+            export CPPFLAGS="-I/opt/homebrew/opt/libgcrypt/include -I/opt/homebrew/opt/libgpg-error/include $CPPFLAGS"
+            export LDFLAGS="-L/opt/homebrew/opt/libgcrypt/lib -L/opt/homebrew/opt/libgpg-error/lib $LDFLAGS"
+            # Help configure find the headers
+            export ac_cv_header_gcrypt_h=yes
+            export ac_cv_lib_gcrypt_gcry_check_version=yes
+            # Use --with-libgcrypt-prefix to avoid architecture mismatch warning
+            ./configure --with-libgcrypt-prefix=/opt/homebrew/opt/libgcrypt
+          else
+            ./configure
+          fi
         fi
 
     - name: Check libgcrypt configuration
@@ -257,7 +269,7 @@ jobs:
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v4
-      if: contains(matrix.job_name, 'windows')
+      if: ${{ contains(matrix.job_name, 'windows') }}
       with:
         name: "ffe-${{ matrix.job_name }}"
         path: ./src/ffe.exe
@@ -265,7 +277,7 @@ jobs:
 
     - name: Upload artifact (non-Windows)
       uses: actions/upload-artifact@v4
-      if: "!contains(matrix.job_name, 'windows')"
+      if: ${{ !contains(matrix.job_name, 'windows') }}
       with:
         name: "ffe-${{ matrix.job_name }}"
         path: ./src/ffe
