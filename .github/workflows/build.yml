@@ -3,6 +3,7 @@ name: Build and Test
 on:
   push:
     branches: [ "**" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "**" ]
   workflow_dispatch:  # Allow manual triggering
@@ -217,3 +218,176 @@ jobs:
         name: "ffe-${{ matrix.job_name }}"
         path: ${{ matrix.artifact_path }}
         if-no-files-found: error
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    # Only run when a tag starting with 'v' is pushed (e.g., v0.4.0a)
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Extract version from configure.ac
+      id: get-version
+      run: |
+        # Extract version from AC_INIT([ffe],[VERSION],...)
+        VERSION=$(grep -oP 'AC_INIT\(\[ffe\],\[\K[^]]+' configure.ac)
+        echo "Extracted version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag_name=v$VERSION" >> $GITHUB_OUTPUT
+
+        # Determine if this is a prerelease (version doesn't end with a digit)
+        if [[ $VERSION =~ [0-9]$ ]]; then
+          IS_PRERELEASE=false
+        else
+          IS_PRERELEASE=true
+        fi
+        echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+
+    - name: Download all build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts/
+
+    - name: List downloaded artifacts
+      run: |
+        echo "Artifact directory structure:"
+        find ./artifacts -type f -name "*" | sort
+        echo ""
+        echo "File details:"
+        find ./artifacts -type f -exec ls -la {} \;
+
+    - name: Check tag and release status
+      run: |
+        echo "Current tag from output: ${{ steps.get-version.outputs.tag_name }}"
+        echo "Checking if tag exists locally:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found locally"
+        echo "Fetching all tags:"
+        git fetch --tags
+        echo "Checking remote tags:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found after fetch"
+
+    - name: Rename artifacts with platform names
+      run: |
+        echo "Renaming artifacts to include platform in filename..."
+        for dir in ./artifacts/*/; do
+          if [ -d "$dir" ]; then
+            platform=$(basename "$dir")
+            echo "Processing $dir for platform $platform"
+            # Find any file inside the directory (should be exactly one)
+            for binary in "$dir"*; do
+              if [ -f "$binary" ]; then
+                # Get file extension
+                if [[ "$binary" == *.exe ]]; then
+                  ext=".exe"
+                else
+                  ext=""
+                fi
+                # Move to temporary name first to avoid conflict with directory
+                temp_name="./artifacts/.tmp-${platform}${ext}"
+                echo "Moving $binary to temporary name $temp_name"
+                mv "$binary" "$temp_name"
+                # Remove the now-empty directory
+                rmdir "$dir" 2>/dev/null || true
+                # Now rename to final name
+                final_name="./artifacts/${platform}${ext}"
+                echo "Renaming $temp_name to $final_name"
+                mv "$temp_name" "$final_name"
+                break  # Only process first file in directory
+              fi
+            done
+          fi
+        done
+        echo "Raw artifact files after renaming:"
+        ls -la ./artifacts/
+
+    - name: Create distribution zip files
+      run: |
+        echo "Creating distribution zip files for each platform..."
+        # Create directory for zip files
+        mkdir -p ./dist
+
+        # Process each binary artifact
+        for binary in ./artifacts/ffe-* ./artifacts/ffe-*.exe; do
+          if [ -f "$binary" ]; then
+            # Extract platform name from filename
+            filename=$(basename "$binary")
+            if [[ "$filename" == *.exe ]]; then
+              platform="${filename%.exe}"
+              binary_name="ffe.exe"
+            else
+              platform="$filename"
+              binary_name="ffe"
+            fi
+
+            echo "Creating zip for platform: $platform"
+
+            # Create temporary directory for this platform
+            temp_dir="./dist/${platform}"
+            mkdir -p "$temp_dir"
+
+            # Copy binary to temp directory with standardized name
+            cp "$binary" "$temp_dir/$binary_name"
+
+            # Set executable permissions for non-Windows binaries
+            if [[ "$binary_name" != *.exe ]]; then
+              chmod +x "$temp_dir/$binary_name"
+            fi
+
+            # Copy documentation files
+            cp ./doc/ffe.html "$temp_dir/"
+            cp ./ChangeLog "$temp_dir/ChangeLog.txt"
+            cp ./COPYING "$temp_dir/COPYING.txt"
+
+            # Create zip file
+            zip_file="./artifacts/${platform}.zip"
+            (cd "$temp_dir" && zip -r "../../${zip_file}" .)
+
+            # List zip contents for verification
+            echo "Zip contents of $zip_file:"
+            unzip -l "$zip_file"
+
+            # Clean up temporary directory
+            rm -rf "$temp_dir"
+
+            echo "Created zip: $zip_file"
+          fi
+        done
+
+        # Remove all non-zip files from artifacts directory
+        find ./artifacts -maxdepth 1 -type f ! -name '*.zip' -exec rm {} +
+        # Remove any empty subdirectories
+        find ./artifacts -mindepth 1 -type d -empty -exec rmdir {} + 2>/dev/null || true
+
+        echo "Final release artifacts (only zip files should remain):"
+        ls -la ./artifacts/
+        echo ""
+        echo "Zip file count:"
+        find ./artifacts -maxdepth 1 -type f -name '*.zip' | wc -l
+        echo "Expected: 7 (one per platform)"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get-version.outputs.tag_name }}
+        name: ffe ${{ steps.get-version.outputs.version }}
+        body: |
+          Flat File Extractor ${{ steps.get-version.outputs.version }}
+
+          ## Assets
+          Built for multiple platforms:
+          - Linux x86_64
+          - Linux i686
+          - Linux ARMv7
+          - Linux AArch64
+          - Windows x64
+          - Windows x86
+          - macOS ARM64
+        draft: true
+        prerelease: ${{ steps.get-version.outputs.is_prerelease }}
+        files: |
+          artifacts/*.zip
