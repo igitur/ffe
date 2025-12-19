@@ -168,75 +168,8 @@ jobs:
     - name: Install dependencies
       run: ${{ matrix.deps }}
 
-    - name: Display tool versions
-      run: |
-        echo "=== Build Environment ==="
-        uname -a
-        if [ "${{ matrix.runner }}" = "ubuntu-latest" ]; then
-          lsb_release -a 2>/dev/null || echo "lsb_release not available"
-        elif [ "${{ matrix.runner }}" = "macos-latest" ]; then
-          sw_vers
-        fi
-        echo ""
-        echo "=== Tool Versions ==="
-        autoconf --version | head -1
-        automake --version | head -1
-        libtool --version | head -1
-        pkg-config --version
-        make --version | head -1
-        echo ""
-        echo "=== Compiler ==="
-        ${{ matrix.cc }} --version | head -1 || true
-
     - name: Regenerate build system
       run: autoreconf -is
-
-    - name: Check libgcrypt availability
-      run: |
-        echo "=== Checking libgcrypt and dependencies ==="
-        echo "1. pkg-config libgcrypt version:"
-        pkg-config --modversion libgcrypt 2>&1 || echo "libgcrypt not found via pkg-config"
-        echo ""
-        echo "2. pkg-config libgcrypt cflags:"
-        pkg-config --cflags libgcrypt 2>&1 || echo "Failed to get cflags"
-        echo ""
-        echo "3. pkg-config libgpg-error version:"
-        pkg-config --modversion libgpg-error 2>&1 || echo "libgpg-error not found via pkg-config"
-        echo ""
-        echo "4. pkg-config libgpg-error cflags:"
-        pkg-config --cflags libgpg-error 2>&1 || echo "Failed to get cflags"
-        echo ""
-        echo "5. Header search:"
-        if [ -f /usr/include/gcrypt.h ]; then
-          echo "gcrypt.h found at /usr/include/gcrypt.h"
-        else
-          echo "gcrypt.h not found in /usr/include"
-          find /usr -name "gcrypt.h" 2>/dev/null | head -5 || true
-        fi
-        if [ -f /usr/include/gpg-error.h ]; then
-          echo "gpg-error.h found at /usr/include/gpg-error.h"
-        else
-          echo "gpg-error.h not found in /usr/include"
-          find /usr -name "gpg-error.h" 2>/dev/null | head -5 || true
-        fi
-        echo ""
-        echo "6. Library search:"
-        find /usr -name "libgcrypt*" -type f 2>/dev/null | head -5 || true
-        find /usr -name "libgpg-error*" -type f 2>/dev/null | head -5 || true
-
-    - name: Debug environment
-      run: |
-        echo "=== Debug environment for ${{ matrix.job_name }} ==="
-        echo "cross: ${{ matrix.cross }}"
-        echo "host: ${{ matrix.host }}"
-        echo "CC: ${{ matrix.cc }}"
-        echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH:-not set}"
-        echo "CPPFLAGS: ${CPPFLAGS:-not set}"
-        echo "LDFLAGS: ${LDFLAGS:-not set}"
-        echo "LIBGCRYPT_CONFIG: ${LIBGCRYPT_CONFIG:-not set}"
-        echo "ac_cv_path_LIBGCRYPT_CONFIG: ${ac_cv_path_LIBGCRYPT_CONFIG:-not set}"
-        echo "ac_cv_header_gcrypt_h: ${ac_cv_header_gcrypt_h:-not set}"
-        echo "ac_cv_lib_gcrypt_gcry_check_version: ${ac_cv_lib_gcrypt_gcry_check_version:-not set}"
 
     - name: Configure
       env:
@@ -255,29 +188,6 @@ jobs:
         # Run configure
         echo "Running: ./configure $CONFIGURE_ARGS"
         ./configure $CONFIGURE_ARGS
-
-    - name: Check libgcrypt configuration
-      run: |
-        echo "=== Checking configure results ==="
-        if [ -f config.h ]; then
-          echo "1. config.h definitions:"
-          grep -E "HAVE_WORKING_LIBGCRYPT|HAVE_GCRYPT_H" config.h || echo "Neither HAVE_WORKING_LIBGCRYPT nor HAVE_GCRYPT_H defined"
-        else
-          echo "config.h not found"
-        fi
-        echo ""
-        echo "2. Makefile flags:"
-        if [ -f src/Makefile ]; then
-          echo "LIBGCRYPT_CFLAGS from Makefile:"
-          grep LIBGCRYPT_CFLAGS src/Makefile || echo "Not found"
-          echo "LIBGCRYPT_LIBS from Makefile:"
-          grep LIBGCRYPT_LIBS src/Makefile || echo "Not found"
-        else
-          echo "src/Makefile not found"
-        fi
-        echo ""
-        echo "3. Configure output (config.log tail):"
-        tail -20 config.log 2>/dev/null | grep -i gcrypt || echo "No gcrypt mentions in config.log"
 
     - name: Build
       run: make
