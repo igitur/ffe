@@ -1,0 +1,275 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        job_name: ['linux_x86_64', 'linux_i686', 'linux_armv7', 'linux_aarch64', 'windows_x64', 'windows_x86', 'macos_arm64']
+
+        include:
+          - job_name: linux_x86_64
+            runner: ubuntu-latest
+            host: x86_64-pc-linux-gnu
+            cc: gcc
+            cross: false
+            test: true
+            binary_name: ffe
+            artifact_path: ./src/ffe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev
+            configure_pre: ""
+            configure_host_args: ""
+
+          - job_name: linux_i686
+            runner: ubuntu-latest
+            host: i686-pc-linux-gnu
+            cc: i686-linux-gnu-gcc
+            cross: true
+            test: false
+            binary_name: ffe
+            artifact_path: ./src/ffe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-i686-linux-gnu
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+            configure_pre: |
+              export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/i686-linux-gnu/include -I/usr/include/i386-linux-gnu"
+              export LDFLAGS="-L/usr/i686-linux-gnu/lib -L/usr/lib/i386-linux-gnu"
+              # Disable libgcrypt detection for cross-compilation
+              export ac_cv_lib_gcrypt_gcry_check_version=no
+              export ac_cv_header_gcrypt_h=no
+              export ac_cv_path_LIBGCRYPT_CONFIG=no
+              export LIBGCRYPT_CONFIG=/bin/false
+            configure_host_args: "--host=i686-pc-linux-gnu --build=x86_64-pc-linux-gnu"
+
+          - job_name: linux_armv7
+            runner: ubuntu-latest
+            host: arm-linux-gnueabihf
+            cc: arm-linux-gnueabihf-gcc
+            cross: true
+            test: false
+            binary_name: ffe
+            artifact_path: ./src/ffe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-arm-linux-gnueabihf
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+            configure_pre: |
+              export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/arm-linux-gnueabihf/include -I/usr/include/arm-linux-gnueabihf"
+              export LDFLAGS="-L/usr/arm-linux-gnueabihf/lib -L/usr/lib/arm-linux-gnueabihf"
+              # Disable libgcrypt detection for cross-compilation
+              export ac_cv_lib_gcrypt_gcry_check_version=no
+              export ac_cv_header_gcrypt_h=no
+              export ac_cv_path_LIBGCRYPT_CONFIG=no
+              export LIBGCRYPT_CONFIG=/bin/false
+            configure_host_args: "--host=arm-linux-gnueabihf --build=x86_64-pc-linux-gnu"
+
+          - job_name: linux_aarch64
+            runner: ubuntu-latest
+            host: aarch64-linux-gnu
+            cc: aarch64-linux-gnu-gcc
+            cross: true
+            test: false
+            binary_name: ffe
+            artifact_path: ./src/ffe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev gcc-aarch64-linux-gnu
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+            configure_pre: |
+              export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
+              export CPPFLAGS="-I/usr/aarch64-linux-gnu/include -I/usr/include/aarch64-linux-gnu"
+              export LDFLAGS="-L/usr/aarch64-linux-gnu/lib -L/usr/lib/aarch64-linux-gnu"
+              # Disable libgcrypt detection for cross-compilation
+              export ac_cv_lib_gcrypt_gcry_check_version=no
+              export ac_cv_header_gcrypt_h=no
+              export ac_cv_path_LIBGCRYPT_CONFIG=no
+              export LIBGCRYPT_CONFIG=/bin/false
+            configure_host_args: "--host=aarch64-linux-gnu --build=x86_64-pc-linux-gnu"
+
+          - job_name: windows_x64
+            runner: ubuntu-latest
+            host: x86_64-w64-mingw32
+            cc: x86_64-w64-mingw32-gcc
+            cross: true
+            test: false
+            binary_name: ffe.exe
+            artifact_path: ./src/ffe.exe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev mingw-w64
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+            configure_pre: |
+              # Disable libgcrypt detection for cross-compilation
+              export ac_cv_lib_gcrypt_gcry_check_version=no
+              export ac_cv_header_gcrypt_h=no
+              export ac_cv_path_LIBGCRYPT_CONFIG=no
+              export LIBGCRYPT_CONFIG=/bin/false
+            configure_host_args: "--host=x86_64-w64-mingw32 --build=x86_64-pc-linux-gnu"
+
+          - job_name: windows_x86
+            runner: ubuntu-latest
+            host: i686-w64-mingw32
+            cc: i686-w64-mingw32-gcc
+            cross: true
+            test: false
+            binary_name: ffe.exe
+            artifact_path: ./src/ffe.exe
+            deps: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake libtool pkg-config texinfo libgcrypt-dev libgpg-error-dev mingw-w64
+              # Install amd64 libgcrypt-dev for m4 macros, but cross-compilation will disable libgcrypt detection
+            configure_pre: |
+              # Disable libgcrypt detection for cross-compilation
+              export ac_cv_lib_gcrypt_gcry_check_version=no
+              export ac_cv_header_gcrypt_h=no
+              export ac_cv_path_LIBGCRYPT_CONFIG=no
+              export LIBGCRYPT_CONFIG=/bin/false
+            configure_host_args: "--host=i686-w64-mingw32 --build=x86_64-pc-linux-gnu"
+
+          - job_name: macos_arm64
+            runner: macos-latest
+            host: arm64-apple-darwin
+            cc: gcc
+            cross: false
+            test: true
+            binary_name: ffe
+            artifact_path: ./src/ffe
+            deps: |
+              brew install autoconf automake libtool pkg-config texinfo libgcrypt libgpg-error
+            configure_pre: |
+              export PKG_CONFIG_PATH="/opt/homebrew/opt/libgcrypt/lib/pkgconfig:/opt/homebrew/opt/libgpg-error/lib/pkgconfig:$PKG_CONFIG_PATH"
+              export CPPFLAGS="-I/opt/homebrew/opt/libgcrypt/include -I/opt/homebrew/opt/libgpg-error/include $CPPFLAGS"
+              export LDFLAGS="-L/opt/homebrew/opt/libgcrypt/lib -L/opt/homebrew/opt/libgpg-error/lib $LDFLAGS"
+              # Help configure find the headers
+              export ac_cv_header_gcrypt_h=yes
+              export ac_cv_lib_gcrypt_gcry_check_version=yes
+            configure_args: --with-libgcrypt-prefix=/opt/homebrew/opt/libgcrypt
+            configure_host_args: ""
+
+    name: ${{ matrix.job_name }}
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: ${{ matrix.deps }}
+
+    - name: Regenerate build system
+      run: autoreconf -is
+
+    - name: Configure
+      env:
+        CC: ${{ matrix.cc }}
+      run: |
+        # Common setup for all jobs
+        # Run job-specific pre-configure script
+        ${{ matrix.configure_pre }}
+
+        # Build configure arguments from per-target variables
+        CONFIGURE_ARGS="${{ matrix.configure_host_args }}"
+        if [ -n "${{ matrix.configure_args }}" ]; then
+          CONFIGURE_ARGS="$CONFIGURE_ARGS ${{ matrix.configure_args }}"
+        fi
+
+        # Run configure
+        echo "Running: ./configure $CONFIGURE_ARGS"
+        ./configure $CONFIGURE_ARGS
+
+    - name: Build
+      run: make
+
+    - name: Run tests
+      run: make check
+      if: matrix.test
+
+    - name: Verify binary
+      run: |
+        if [ -f ${{ matrix.artifact_path }} ]; then
+          file ${{ matrix.artifact_path }} || true
+          if [ "${{ matrix.runner }}" = "macos-latest" ]; then
+            ${{ matrix.artifact_path }} --version || true
+            echo "Binary size: $(stat -f%z ${{ matrix.artifact_path }}) bytes"
+          else
+            echo "Binary size: $(stat -c%s ${{ matrix.artifact_path }}) bytes"
+          fi
+        else
+          echo "Binary not found at ${{ matrix.artifact_path }}"
+          ls -la ./src/ || true
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: "ffe-${{ matrix.job_name }}"
+        path: ${{ matrix.artifact_path }}
+        if-no-files-found: error
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    # Only run when a tag starting with 'v' is pushed (e.g., v0.4.0a)
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Extract version from configure.ac
+      id: get-version
+      run: |
+        # Extract version from AC_INIT([ffe],[VERSION],...)
+        VERSION=$(grep -oP 'AC_INIT\(\[ffe\],\[\K[^]]+' configure.ac)
+        echo "Extracted version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag_name=v$VERSION" >> $GITHUB_OUTPUT
+
+        # Determine if this is a prerelease (version doesn't end with a digit)
+        if [[ $VERSION =~ [0-9]$ ]]; then
+          IS_PRERELEASE=false
+        else
+          IS_PRERELEASE=true
+        fi
+        echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+
+    - name: Download all build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts/
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get-version.outputs.tag_name }}
+        name: ffe ${{ steps.get-version.outputs.version }}
+        body: |
+          Flat File Extractor ${{ steps.get-version.outputs.version }}
+
+          ## Assets
+          Built for multiple platforms:
+          - Linux x86_64
+          - Linux i686
+          - Linux ARMv7
+          - Linux AArch64
+          - Windows x64
+          - Windows x86
+          - macOS ARM64
+        draft: true
+        prerelease: ${{ steps.get-version.outputs.is_prerelease }}
+        files: |
+          artifacts/**/*
