@@ -28,6 +28,30 @@ srcdir="${srcdir:-.}"
 export FFE_BIN
 export srcdir
 
+# Simple assertion functions that don't require bats-assert
+
+# Assert command succeeded (status == 0)
+# Usage: assert_success
+assert_success() {
+    if [ "$status" -ne 0 ]; then
+        echo "Failed with status: $status"
+        echo "Output: $output"
+        return 1
+    fi
+}
+
+# Assert command output matches expected string
+# Usage: assert_output expected_string
+assert_output() {
+    local expected="$1"
+    if [ "$output" != "$expected" ]; then
+        echo "Output differs from expected"
+        echo "Expected: $expected"
+        echo "Actual: $output"
+        return 1
+    fi
+}
+
 # Helper to assert command output matches expected file content
 # Usage: assert_output_matches_file expected_file
 # Requires: run command must have been used previously
@@ -50,4 +74,13 @@ run_ffe_test() {
     run "$FFE_BIN" -c "$config" "$@" "$input"
     assert_success
     assert_output_matches_file "$expected"
+}
+
+# Setup BATS_TEST_TMPDIR if not set (for system bats 1.2.1 compatibility)
+setup_bats_tempdir() {
+    if [ -z "$BATS_TEST_TMPDIR" ]; then
+        export BATS_TEST_TMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/bats-test-XXXXXX")"
+        # Clean up on exit
+        trap "rm -rf '$BATS_TEST_TMPDIR'" EXIT
+    fi
 }

@@ -31,10 +31,10 @@ srcdir="${srcdir:-$test_dir}"
 
 # Find bats executable
 find_bats() {
-    if [ -x "$test_dir/bats-core/bin/bats" ]; then
-        echo "$test_dir/bats-core/bin/bats"
-    elif command -v bats >/dev/null 2>&1; then
+    if command -v bats >/dev/null 2>&1; then
         echo "bats"
+    elif [ -x "$test_dir/bats-core/bin/bats" ]; then
+        echo "$test_dir/bats-core/bin/bats"
     else
         echo "ERROR: bats not found" >&2
         exit 1
