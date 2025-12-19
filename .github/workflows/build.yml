@@ -3,6 +3,7 @@ name: Build and Test
 on:
   push:
     branches: [ "**" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "**" ]
   workflow_dispatch:  # Allow manual triggering
@@ -252,6 +253,50 @@ jobs:
       with:
         path: ./artifacts/
 
+    - name: List downloaded artifacts
+      run: |
+        echo "Artifact directory structure:"
+        find ./artifacts -type f -name "*" | sort
+        echo ""
+        echo "File details:"
+        find ./artifacts -type f -exec ls -la {} \;
+
+    - name: Check tag and release status
+      run: |
+        echo "Current tag from output: ${{ steps.get-version.outputs.tag_name }}"
+        echo "Checking if tag exists locally:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found locally"
+        echo "Fetching all tags:"
+        git fetch --tags
+        echo "Checking remote tags:"
+        git tag -l | grep "${{ steps.get-version.outputs.tag_name }}" || echo "Tag not found after fetch"
+
+    - name: Rename artifacts with platform names
+      run: |
+        echo "Renaming artifacts to include platform in filename..."
+        for dir in ./artifacts/*/; do
+          if [ -d "$dir" ]; then
+            platform=$(basename "$dir")
+            echo "Processing $dir for platform $platform"
+            # Find the binary file inside (ffe or ffe.exe)
+            for binary in "$dir"ffe "$dir"ffe.exe; do
+              if [ -f "$binary" ]; then
+                ext=""
+                if [[ "$binary" == *.exe ]]; then
+                  ext=".exe"
+                fi
+                new_name="./artifacts/${platform}${ext}"
+                echo "Renaming $binary to $new_name"
+                mv "$binary" "$new_name"
+                # Remove the now-empty directory
+                rmdir "$dir" 2>/dev/null || true
+              fi
+            done
+          fi
+        done
+        echo "Final artifact files:"
+        ls -la ./artifacts/
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -272,4 +317,4 @@ jobs:
         draft: true
         prerelease: ${{ steps.get-version.outputs.is_prerelease }}
         files: |
-          artifacts/**/*
+          artifacts/*
