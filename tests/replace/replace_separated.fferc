@@ -1,0 +1,27 @@
+structure personnel {
+    type separated ,
+    record person {
+        field EmpType
+        field FirstName
+        field LastName
+        field Age
+    }
+}
+
+output raw {
+    data "%d"
+}
+
+output trimmed {
+    data "%D"
+}
+
+output csv {
+    separator ","
+    data "%D"
+}
+
+output default {
+    data "%n: %t\n"
+    indent " "
+}

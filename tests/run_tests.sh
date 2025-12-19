@@ -29,7 +29,7 @@ fi
 srcdir="${srcdir:-$test_dir}"
 
 # Find all test directories (subdirectories containing .sh files)
-test_dirs="fixed_length separated binary expressions lookup constants anonymize"
+test_dirs="fixed_length separated binary expressions lookup constants anonymize replace"
 
 total=0
 passed=0

@@ -1,0 +1,20 @@
+  EmpType: B
+  FirstName: John
+  LastName: Ripper
+  Age: 23
+ 
+  EmpType: B
+  FirstName: Scott
+  LastName: Tiger
+  Age: 45
+ 
+  EmpType: B
+  FirstName: Mary
+  LastName: Moore
+  Age: 41
+ 
+  EmpType: B
+  FirstName: Ridge
+  LastName: Forrester
+  Age: 31
+ 
