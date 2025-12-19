@@ -1,0 +1,23 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * status_lookup
+        field value
+    }
+}
+
+lookup status_lookup {
+    search exact
+    pair A "Active"
+    pair B "Blocked"
+    pair C "Closed"
+    pair P "Pending"
+    default-value "Unknown"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}

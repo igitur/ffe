@@ -1,0 +1,15 @@
+  code: A (Active)
+  value: 100
+ 
+  code: B (Blocked)
+  value: 200
+ 
+  code: C (Closed)
+  value: 300
+ 
+  code: X (Not Found)
+  value: 999
+ 
+  code: P (Pending)
+  value: 150
+ 

@@ -1,0 +1,5 @@
+A,Active,100
+B,Blocked,200
+C,Closed,300
+X,Unknown,999
+P,Pending,150

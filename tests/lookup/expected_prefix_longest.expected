@@ -1,0 +1,12 @@
+  code: ABC (Match AB)
+  value: 100
+ 
+  code: ABD (Match AB)
+  value: 200
+ 
+  code: A (Match A)
+  value: 300
+ 
+  code: X (No Match)
+  value: 400
+ 

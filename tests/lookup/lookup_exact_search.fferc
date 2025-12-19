@@ -1,0 +1,24 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * exact_lookup
+        field value
+    }
+}
+
+lookup exact_lookup {
+    search exact
+    pair A "Match A"
+    pair AB "Match AB"
+    pair ABC "Match ABC"
+    pair B "Match B"
+    pair BC "Match BC"
+    default-value "No Match"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}

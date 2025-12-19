@@ -1,0 +1,21 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * prefix_lookup
+        field value
+    }
+}
+
+lookup prefix_lookup {
+    search exact
+    pair A "Match A"
+    pair AB "Match AB"
+    default-value "No Match"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}

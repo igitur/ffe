@@ -1,0 +1,24 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * longest_lookup
+        field value
+    }
+}
+
+lookup longest_lookup {
+    search longest
+    pair A "Match A"
+    pair AB "Match AB"
+    pair ABC "Match ABC"
+    pair B "Match B"
+    pair BC "Match BC"
+    default-value "No Match"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}

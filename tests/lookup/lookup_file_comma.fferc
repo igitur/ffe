@@ -1,0 +1,20 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * comma_lookup
+        field value
+    }
+}
+
+lookup comma_lookup {
+    search exact
+    file lookup_file_comma.txt ,
+    default-value "Not Found"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}

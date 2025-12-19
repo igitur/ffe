@@ -1,0 +1,26 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field status_code * status_lookup
+        field description
+        field value
+    }
+}
+
+lookup status_lookup {
+    search exact
+    pair A "Active Status"
+    pair B "Blocked Status"
+    pair C "Closed Status"
+    pair P "Pending Status"
+    default-value "Unknown Status"
+}
+
+output verbose {
+    data "Code: %d, Description: %t, Value: %t, Lookup: %l\n"
+}
+
+output uppercase {
+    data "Code: %d, Lookup Upper: %L\n"
+}

@@ -1,0 +1,20 @@
+structure data {
+    type separated ,
+
+    record entry {
+        field code * file_lookup
+        field value
+    }
+}
+
+lookup file_lookup {
+    search exact
+    file lookup_file.txt
+    default-value "Not Found"
+}
+
+output test {
+    data "%n: %t\n"
+    lookup "%n: %t (%l)\n"
+    indent " "
+}
