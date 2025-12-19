@@ -235,22 +235,38 @@ jobs:
 
     - name: Verify binary
       run: |
-        if [ -f ./src/ffe ]; then
-          file ./src/ffe || true
+        # Determine binary name based on platform
+        if [[ "${{ matrix.job_name }}" == windows* ]]; then
+          binary_name="ffe.exe"
+        else
+          binary_name="ffe"
+        fi
+
+        if [ -f ./src/$binary_name ]; then
+          file ./src/$binary_name || true
           if [ "${{ matrix.runner }}" = "macos-latest" ]; then
-            ./src/ffe --version || true
-            echo "Binary size: $(stat -f%z ./src/ffe) bytes"
+            ./src/$binary_name --version || true
+            echo "Binary size: $(stat -f%z ./src/$binary_name) bytes"
           else
-            echo "Binary size: $(stat -c%s ./src/ffe) bytes"
+            echo "Binary size: $(stat -c%s ./src/$binary_name) bytes"
           fi
         else
-          echo "Binary not found at ./src/ffe"
+          echo "Binary not found at ./src/$binary_name"
           ls -la ./src/ || true
         fi
 
-    - name: Upload artifact
+    - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v4
+      if: contains(matrix.job_name, 'windows')
       with:
-        name: ffe-${{ matrix.job_name }}
+        name: "ffe-${{ matrix.job_name }}"
+        path: ./src/ffe.exe
+        if-no-files-found: error
+
+    - name: Upload artifact (non-Windows)
+      uses: actions/upload-artifact@v4
+      if: "!contains(matrix.job_name, 'windows')"
+      with:
+        name: "ffe-${{ matrix.job_name }}"
         path: ./src/ffe
         if-no-files-found: error
